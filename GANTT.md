@@ -4,63 +4,143 @@
 
 ---
 
-## Mermaid Gantt Chart
+## Gantt Charts by Phase
 
-> This diagram renders automatically on GitHub. Use it as a visual reference for the timeline.
+> Each phase has its own chart for better readability. All charts render automatically on GitHub.
+
+---
+
+### 🗂️ Phase 1 — Planning & Requirements
 
 ```mermaid
 gantt
-    title Educational CMS — Project Timeline
+    title Planning & Requirements
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
-    section Planning & Requirements
-    Project ideation & poll              :done,    plan1, 2026-02-27, 2026-03-06
-    Feasibility analysis report          :done,    plan2, 2026-03-06, 2026-03-13
+    section Planning
+    Project ideation & poll          :done, plan1, 2026-02-27, 2026-03-06
+    Feasibility analysis report      :done, plan2, 2026-03-06, 2026-03-13
+    Wireframes & prototypes (Figma)  :      ux1,   2026-03-13, 2026-03-20
+```
 
-    section Database & Backend
-    Database schema design & setup       :done,    db1,   2026-03-13, 2026-03-13
-    User auth (register, login, JWT)     :active,  be1,   2026-03-13, 2026-03-18
-    Email verification & password reset  :         be2,   2026-03-16, 2026-03-21
-    Course & lesson CRUD endpoints       :         be3,   2026-03-18, 2026-03-25
-    Enrollment & progress tracking API   :         be4,   2026-03-23, 2026-03-28
-    Search API (partial match)           :         be5,   2026-03-26, 2026-03-30
-    Quiz/assessment endpoints            :         be6,   2026-03-28, 2026-04-02
-    SwaggerHub API documentation         :         be7,   2026-03-30, 2026-04-04
+---
 
-    section UI/UX Design
-    Wireframes & prototypes (Figma)      :         ux1,   2026-03-13, 2026-03-20
+### 🗄️ Phase 2 — Database & Backend
 
-    section Web Frontend (React / TS)
-    Project setup & routing              :         fe1,   2026-03-18, 2026-03-21
-    Auth pages (login, register, reset)  :         fe2,   2026-03-21, 2026-03-25
-    Course catalog & search UI           :         fe3,   2026-03-25, 2026-03-30
-    Lesson viewer & progress tracking    :         fe4,   2026-03-28, 2026-04-02
-    Quiz UI & score display              :         fe5,   2026-04-01, 2026-04-05
-    Instructor dashboard                 :         fe6,   2026-04-03, 2026-04-07
+```mermaid
+gantt
+    title Database & Backend
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
 
-    section Mobile App (Flutter)
-    Project setup & navigation           :         mob1,  2026-03-21, 2026-03-25
-    Auth screens (login, register)       :         mob2,  2026-03-25, 2026-03-30
-    Course browsing & enrollment         :         mob3,  2026-03-28, 2026-04-04
-    Lesson viewer screen                 :         mob4,  2026-04-02, 2026-04-07
+    section Database
+    Schema design & MongoDB setup        :done,   db1, 2026-03-13, 2026-03-14
 
-    section Deployment & Hosting
-    Domain setup & server config         :         dep1,  2026-03-28, 2026-04-01
-    Deploy backend API to Digital Ocean  :         dep2,  2026-04-01, 2026-04-04
-    Deploy web frontend                  :         dep3,  2026-04-03, 2026-04-06
+    section Authentication
+    User auth (register, login, JWT)     :active, be1, 2026-03-13, 2026-03-18
+    Email verification & password reset  :        be2, 2026-03-16, 2026-03-21
 
-    section Testing & QA
-    Backend integration tests            :         test1, 2026-04-04, 2026-04-08
-    Web frontend QA & bug fixes          :         test2, 2026-04-05, 2026-04-09
-    Mobile QA & bug fixes                :         test3, 2026-04-05, 2026-04-09
-    End-to-end testing on hosted domain  :         test4, 2026-04-08, 2026-04-11
+    section Core API
+    Course & lesson CRUD endpoints       :        be3, 2026-03-18, 2026-03-25
+    Enrollment & progress tracking API   :        be4, 2026-03-23, 2026-03-28
+    Search API (partial match)           :        be5, 2026-03-26, 2026-03-30
+    Quiz/assessment endpoints            :        be6, 2026-03-28, 2026-04-02
+    SwaggerHub API documentation         :        be7, 2026-03-30, 2026-04-04
+```
 
-    section Documentation & Presentation
-    ERD, use case & sequence diagrams    :         doc1,  2026-03-28, 2026-04-04
-    PowerPoint slides draft              :         doc2,  2026-04-07, 2026-04-11
-    Presentation rehearsal               :         doc3,  2026-04-11, 2026-04-15
-    Final submission & presentation      :milestone, pres, 2026-04-16, 1d
+---
+
+### 🌐 Phase 3 — Web Frontend (React / TypeScript)
+
+```mermaid
+gantt
+    title Web Frontend — React / TypeScript
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Setup
+    Project setup & routing          : fe1, 2026-03-18, 2026-03-21
+
+    section Core Pages
+    Auth pages (login, register, reset)  : fe2, 2026-03-21, 2026-03-25
+    Course catalog & search UI           : fe3, 2026-03-25, 2026-03-30
+    Lesson viewer & progress tracking    : fe4, 2026-03-28, 2026-04-02
+
+    section Advanced Pages
+    Quiz UI & score display              : fe5, 2026-04-01, 2026-04-05
+    Instructor dashboard                 : fe6, 2026-04-03, 2026-04-07
+```
+
+---
+
+### 📱 Phase 4 — Mobile App (Flutter)
+
+```mermaid
+gantt
+    title Mobile App — Flutter
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Setup
+    Project setup & navigation       : mob1, 2026-03-21, 2026-03-25
+
+    section Screens
+    Auth screens (login, register)   : mob2, 2026-03-25, 2026-03-30
+    Course browsing & enrollment     : mob3, 2026-03-28, 2026-04-04
+    Lesson viewer screen             : mob4, 2026-04-02, 2026-04-07
+```
+
+---
+
+### 🚀 Phase 5 — Deployment & Hosting
+
+```mermaid
+gantt
+    title Deployment & Hosting
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Deployment
+    Domain setup & server config         : dep1, 2026-03-28, 2026-04-01
+    Deploy backend API to Digital Ocean  : dep2, 2026-04-01, 2026-04-04
+    Deploy web frontend                  : dep3, 2026-04-03, 2026-04-06
+```
+
+---
+
+### 🧪 Phase 6 — Testing & QA
+
+```mermaid
+gantt
+    title Testing & QA
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Testing
+    Backend integration tests            : test1, 2026-04-04, 2026-04-08
+    Web frontend QA & bug fixes          : test2, 2026-04-05, 2026-04-09
+    Mobile QA & bug fixes                : test3, 2026-04-05, 2026-04-09
+    End-to-end testing on hosted domain  : test4, 2026-04-08, 2026-04-11
+```
+
+---
+
+### 🎤 Phase 7 — Documentation & Presentation
+
+```mermaid
+gantt
+    title Documentation & Presentation
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Diagrams & Docs
+    ERD, use case & sequence diagrams    : doc1, 2026-03-28, 2026-04-04
+
+    section Presentation
+    PowerPoint slides draft              : doc2, 2026-04-07, 2026-04-11
+    Presentation rehearsal               : doc3, 2026-04-11, 2026-04-15
+    Final presentation                   : milestone, pres, 2026-04-16, 1d
 ```
 
 ---
@@ -124,7 +204,7 @@ gantt
 |--------|------|-------|--------|
 | 5 pts | PowerPoint submitted on time | All | ⬜ |
 | 5 pts | Professional PowerPoint slides | All | ⬜ |
-| 5 pts | Gantt chart | All | ⬜ |
+| 5 pts | Gantt chart | All | 🔄 Ongoing |
 | 5 pts | Use case diagram | | ⬜ |
 | 5 pts | Activity or Sequence diagram | | ⬜ |
 | 5 pts | Email verification & password reset | | ⬜ |
