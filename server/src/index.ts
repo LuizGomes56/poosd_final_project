@@ -3,8 +3,7 @@ import { connectDB } from "./db";
 import { User } from "./models/User";                                         
                                                                               
 async function main() {                                                       
-  await connectDB();                                                          
-                                                                                                                              
-}
+  await connectDB();                                                                                                                                                                          
+}   
 
-main().catch(console.error);     
+main()
