@@ -14,7 +14,7 @@
 
 ```mermaid
 gantt
-    title Planning & Requirements
+    title Planning and Requirements
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
@@ -30,12 +30,12 @@ gantt
 
 ```mermaid
 gantt
-    title Database & Backend
+    title Database and Backend
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
     section Database
-    Schema design & MongoDB setup        :done,   db1, 2026-03-13, 2026-03-14
+    Schema design and MongoDB setup      :done,   db1, 2026-03-13, 2026-03-16
 
     section Authentication
     User auth (register, login, JWT)     :active, be1, 2026-03-13, 2026-03-18
@@ -97,7 +97,7 @@ gantt
 
 ```mermaid
 gantt
-    title Deployment & Hosting
+    title Deployment and Hosting
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
@@ -113,7 +113,7 @@ gantt
 
 ```mermaid
 gantt
-    title Testing & QA
+    title Testing and QA
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
@@ -130,7 +130,7 @@ gantt
 
 ```mermaid
 gantt
-    title Documentation & Presentation
+    title Documentation and Presentation
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
@@ -204,7 +204,7 @@ gantt
 |--------|------|-------|--------|
 | 5 pts | PowerPoint submitted on time | All | ⬜ |
 | 5 pts | Professional PowerPoint slides | All | ⬜ |
-| 5 pts | Gantt chart | All | 🔄 Ongoing |
+| 5 pts | Gantt chart | All | ⬜ |
 | 5 pts | Use case diagram | | ⬜ |
 | 5 pts | Activity or Sequence diagram | | ⬜ |
 | 5 pts | Email verification & password reset | | ⬜ |
