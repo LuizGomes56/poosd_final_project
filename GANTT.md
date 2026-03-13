@@ -19,8 +19,8 @@ gantt
     axisFormat  %b %d
 
     section Planning
-    Project ideation & poll          :done, plan1, 2026-02-27, 2026-03-06
-    Feasibility analysis report      :done, plan2, 2026-03-06, 2026-03-13
+    Project ideation & poll          :      plan1, 2026-02-27, 2026-03-06
+    Feasibility analysis report      :      plan2, 2026-03-06, 2026-03-13
     Wireframes & prototypes (Figma)  :      ux1,   2026-03-13, 2026-03-20
 ```
 
@@ -35,10 +35,10 @@ gantt
     axisFormat  %b %d
 
     section Database
-    Schema design and MongoDB setup      :done,   db1, 2026-03-13, 2026-03-16
+    Schema design and MongoDB setup      :        db1, 2026-03-13, 2026-03-16
 
     section Authentication
-    User auth (register, login, JWT)     :active, be1, 2026-03-13, 2026-03-18
+    User auth (register, login, JWT)     :        be1, 2026-03-13, 2026-03-18
     Email verification & password reset  :        be2, 2026-03-16, 2026-03-21
 
     section Core API
