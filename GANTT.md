@@ -35,7 +35,7 @@ gantt
     axisFormat  %b %d
 
     section Database
-    Schema design and MongoDB setup      :        db1, 2026-03-13, 2026-03-16
+    Schema design and MongoDB setup      :        db1, 2026-03-09, 2026-03-13
 
     section Authentication
     User auth (register, login, JWT)     :        be1, 2026-03-13, 2026-03-18
