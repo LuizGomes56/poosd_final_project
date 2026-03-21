@@ -1,32 +1,19 @@
 import { UsersController } from "../controllers/users_controller";
 
-// Return type definition of our routes
-export type UsersRoutes = {
-    [K in keyof typeof UsersController]:
-    Awaited<ReturnType<typeof UsersController[K]>>;
-}
+type IsAny<T> = 0 extends (1 & T) ? true : false;
 
-// @controllers/users_controller.ts/login
-export interface LoginBody {
-    email: string;
-    password: string;
-}
-
-// @controllers/users_controller.ts/register
-export interface RegisterBody {
-    full_name: string;
-    email: string;
-    password: string;
-}
-
-export type RouteReturnTypes = {
-    users: UsersRoutes
-}
-
-export type RouteInputTypes = {
-    users: {
-        login: LoginBody;
-        register: RegisterBody;
-        logout: {};
+/**
+ * Return and input type definitions of our routes, given a controller
+ */
+export type GetSchema<C extends Record<string, (...args: any[]) => any>> = {
+    [K in keyof C]: {
+        output: Awaited<ReturnType<C[K]>>,
+        input: ThisParameterType<C[K]> extends infer T
+        ? IsAny<T> extends true ? never : T
+        : never
     }
+}
+
+export type RouteSchemas = {
+    users: GetSchema<typeof UsersController>
 }

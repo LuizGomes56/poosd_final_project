@@ -6,7 +6,7 @@ export interface HttpResponse<T extends Record<string, any> = {}> {
     ok: boolean,
     status: HttpStatus,
     message?: string,
-    body: T
+    body?: T
 }
 
 export enum HttpStatus {
@@ -28,15 +28,14 @@ export async function api<
     return 0 as any;
 }
 
-// const s = await api("users/login", "POST", {
-//     email: "",
-//     password: ""
+// const s = api("users/login", "POST", {
+//     "email": "",
+//     "password": ""
+// }).then(r => {
+//     if (r.body) {
+//         return r.body.token;
+//     }
 // });
-
-// const response = await api("users/logout", "GET", {
-//     email: "bademail",
-//     password: "badpassword"
-// })
 
 export function getRouteMethods(express: any) {
     const routes = {};

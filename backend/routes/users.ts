@@ -1,11 +1,13 @@
 import { UsersController } from "../controllers/users_controller";
 import { Router } from "express";
-import { route } from ".";
+import { serve } from ".";
 
 const router = Router();
 
-router.get("/logout", route(UsersController.logout));
-router.post("/login", route(UsersController.login));
-router.post("/register", route(UsersController.register));
+serve(router, UsersController, [
+    ["get", "logout"],
+    ["post", "login"],
+    ["post", "register"],
+])
 
 export default router;

@@ -1,22 +1,33 @@
 import { Routes } from "./methods";
-import { RouteInputTypes, RouteReturnTypes } from "./types";
+import { RouteSchemas } from "./types";
 
-// Ignore the implementation, just put your mouse over this type
-// and see the magic
+/**
+ * Makes the representation on-hover simpler for some objects
+ */
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+/**
+ * All of our available routes in this app
+ */
+type RouteKey = keyof typeof Routes & string;
+
+/**
+ * Finds the method, input and output types of our controllers
+ */
+type SchemaEntry<K extends RouteKey> =
+    K extends `${infer R}/${infer F}`
+    ? R extends keyof RouteSchemas
+    ? F extends keyof RouteSchemas[R]
+    ? Simplify<{
+        method: (typeof Routes)[K];
+    } & RouteSchemas[R][F]>
+    : never
+    : never
+    : never;
+
+/**
+ * All of our implemented controllers, their methods, inputs and outputs
+ */
 export type Schema = {
-    [K in keyof typeof Routes]: K extends `${infer R}/${infer F}`
-    ? R extends keyof RouteReturnTypes
-    ? F extends keyof RouteReturnTypes[R]
-    ? R extends keyof RouteInputTypes
-    ? F extends keyof RouteInputTypes[R]
-    ? {
-        method: typeof Routes[K],
-        output: RouteReturnTypes[R][F],
-        input: RouteInputTypes[R][F]
-    }
-    : never
-    : never
-    : never
-    : never
-    : never
-}
+    [K in RouteKey]: SchemaEntry<K>;
+};
