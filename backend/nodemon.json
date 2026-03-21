@@ -5,7 +5,8 @@
     "ext": "ts,js",
     "ignore": [
         "dist/*",
-        "node_modules/*"
+        "node_modules/*",
+        "./routes/methods.ts"
     ],
     "exec": "ts-node -r tsconfig-paths/register ./index.ts"
 }

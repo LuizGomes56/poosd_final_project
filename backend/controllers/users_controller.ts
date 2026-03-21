@@ -1,14 +1,18 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Dotenv, prisma } from "../index";
 import { HttpStatus } from "../utils/http";
 
 export const UsersController = {
-    login: async function (this: {
-        email: string;
-        password: string;
-    }, req: Request, res: Response) {
+    login: async function (
+        this: {
+            email: string;
+            password: string;
+        },
+        req: Request,
+        res: Response
+    ) {
         const { email, password } = req.require<typeof this>("email", "password");
 
         const password_hash = bcrypt.hashSync(password, 10);
@@ -54,11 +58,14 @@ export const UsersController = {
             message: "User logged out successfully",
         }
     },
-    register: async function (this: {
-        full_name: string;
-        email: string;
-        password: string;
-    }, req: Request, res: Response) {
+    register: async function (
+        this: {
+            full_name: string;
+            email: string;
+            password: string;
+        },
+        req: Request
+    ) {
         const { full_name, email, password } = req.require<typeof this>("full_name", "email", "password");
 
         const password_hash = bcrypt.hashSync(password, 10);

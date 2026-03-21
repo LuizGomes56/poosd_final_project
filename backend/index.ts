@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/api", Middleware.require, routes);
-// getRouteMethods(app);
+getRouteMethods(app);
 
 app.listen(3000, (e) => {
     if (e) {

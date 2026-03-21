@@ -66,7 +66,7 @@ export function getRouteMethods(express: any) {
     const routesObjectEntries = Object.entries(routes)
         .map(([route, method]) => `    "${route}": "${method}",`)
         .join("\n");
-    const routesTypeDef = `export const Routes = {\n${routesObjectEntries}\n} as const;\n`;
+    const routesTypeDef = `// THIS IS AUTOMATICALLY GENERATED. DON'T CHANGE THIS FILE\nexport const Routes = {\n${routesObjectEntries}\n} as const;\n`;
 
     const filePath = path.resolve(__dirname, `../routes/methods.ts`);
     writeFileSync(filePath, routesTypeDef, 'utf-8');
