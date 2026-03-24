@@ -11,11 +11,10 @@ export const UsersController = {
         res: Response
     ) {
         const { email, password } = req.require<InputSchema["users/login"]>("email", "password");
-        const password_hash = bcrypt.hashSync(password, 10);
+
         const user = await prisma.users.findFirst({
             where: {
                 email,
-                password_hash,
             }
         });
 
@@ -23,14 +22,22 @@ export const UsersController = {
             return {
                 ok: false,
                 status: HttpStatus.NotFound,
-                message: "User does not exist. Check your email and password"
+                message: "User does not exist"
             }
         }
 
-        const { password_hash: __, ...payload } = user;
+        if (!bcrypt.compareSync(password, user.password_hash)) {
+            return {
+                ok: false,
+                status: HttpStatus.Unauthorized,
+                message: "Password is incorrect"
+            }
+        }
+
+        const { password_hash: _, ...payload } = user;
         const token = jwt.sign(payload, Dotenv.jwt_secret);
 
-        res.setHeader("authorization", `Bearer ${token}`);
+        res.cookie("authorization", `Bearer ${token}`);
 
         return {
             ok: true,
@@ -46,7 +53,7 @@ export const UsersController = {
             console.warn("Non-authenticated user is trying to logout");
         }
 
-        res.removeHeader("token");
+        res.clearCookie("authorization");
 
         return {
             ok: true,

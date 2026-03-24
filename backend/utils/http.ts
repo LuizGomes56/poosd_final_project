@@ -13,7 +13,8 @@ export enum HttpStatus {
     Ok = 200,
     NotFound = 404,
     BadRequest = 400,
-    InternalServerError = 500
+    InternalServerError = 500,
+    Unauthorized = 401
 }
 
 /**

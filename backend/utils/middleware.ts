@@ -24,7 +24,7 @@ export const Middleware = {
         };
         next()
     },
-    schema: async (req: any, res: Response, next: NextFunction) => {        
+    schema: async (req: any, res: Response, next: NextFunction) => {
         function getPath(path: string, routes: string[]) {
             const cleanPath = path.replace(/^\/api\//, "").split("?")[0];
             let bestMatch: string | null = null;
@@ -52,14 +52,13 @@ export const Middleware = {
         try {
             const validator = SCHEMA[path!];
             if (validator === undefined) {
-                res.status(500).json({ 
-                    ok: true, 
-                    message: `Route: ${path} input schema not implemented` 
+                res.status(500).json({
+                    ok: true,
+                    message: `Route: ${path} input schema not implemented`
                 } as HttpResponse);
                 return;
             }
             if (validator !== null) {
-                console.log(`Body and key`, req.body);
                 const result = validator.safeParse(req.body);
                 if (!result.success) {
                     let msg = `Unknown error on req.body`;
@@ -74,10 +73,10 @@ export const Middleware = {
             next();
         } catch (e: any) {
             console.log(e.message);
-            res.status(HttpStatus.BadRequest).json({ 
-                ok: false, 
+            res.status(HttpStatus.BadRequest).json({
+                ok: false,
                 status: HttpStatus.BadRequest,
-                message: e?.message 
+                message: e?.message
             } as HttpResponse);
         }
     }
