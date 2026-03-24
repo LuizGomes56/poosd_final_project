@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Schema } from "../routes/schema";
+import type { Controllers } from "../routes/types";
 
 const R = z.object({
     UUID: z.uuid({ message: "Invalid UUID" }),
@@ -32,14 +32,18 @@ export type InputSchema = {
  * If any property is `false`, you have not implemented the input schema of that route
  * use `z.object({})` if that route expects nothing
  */
-type RouteInputSchemaDefinition = {
-    [K in keyof Schema]: K extends keyof InputSchema ? true : false
+type CheckSchema = {
+    [K in keyof Controllers]: {
+        [F in keyof Controllers[K]]: `${K}/${F}` extends keyof InputSchema ? true : false
+    }
 };
 
-const c: RouteInputSchemaDefinition = {} as any;
+const c: CheckSchema = {} as any;
 
 type AssertCompiles = {
-    [K in keyof RouteInputSchemaDefinition]: RouteInputSchemaDefinition[K] extends true ? true : `Route ${K} not defined in input schema`
+    [K in keyof CheckSchema]: CheckSchema[K] extends true 
+        ? true 
+        : `Route '${K}' does not have an input schema defined inside 'const SCHEMA'.`
 }
 
 /**

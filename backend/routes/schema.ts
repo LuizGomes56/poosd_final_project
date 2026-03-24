@@ -28,6 +28,6 @@ type SchemaEntry<K extends RouteKey> =
 /**
  * All of our implemented controllers, their methods, inputs and outputs
  */
-export type Schema = {
+export type RouteSchema = {
     [K in RouteKey]: SchemaEntry<K>;
 };

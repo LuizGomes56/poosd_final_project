@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import { Schema } from "../routes/schema";
+import { RouteSchema } from "../routes/schema";
 
 export interface HttpResponse<T extends Record<string, any> = {}> {
     ok: boolean,
@@ -17,10 +17,10 @@ export enum HttpStatus {
 }
 
 export async function api<
-    P extends keyof Schema,
-    M extends Schema[P]["method"],
-    I extends Schema[P]["input"],
-    O extends Schema[P]["output"]
+    P extends keyof RouteSchema,
+    M extends RouteSchema[P]["method"],
+    I extends RouteSchema[P]["input"],
+    O extends RouteSchema[P]["output"]
 >(path: P, method: M, input: I): Promise<O> {
     //Fetch must have to include credentials: include in the 
     //fetch json, additionally the JWT on the backend must be 

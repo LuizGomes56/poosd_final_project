@@ -6,9 +6,8 @@ import dotenv from "dotenv";
 import { PrismaClient } from "./generated/prisma/client";
 import { Middleware } from "./utils/middleware";
 import { getRouteMethods } from "./utils/http";
+import * as _ from "./utils/global";
 dotenv.config();
-
-// cd backend && npm i --save-dev @types/express 
 
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
