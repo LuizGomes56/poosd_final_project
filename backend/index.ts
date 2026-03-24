@@ -3,11 +3,12 @@ import routes from "./routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import "./utils/global";
 import { PrismaClient } from "./generated/prisma/client";
 import { Middleware } from "./utils/middleware";
 import { getRouteMethods } from "./utils/http";
 dotenv.config();
+
+// cd backend && npm i --save-dev @types/express 
 
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
@@ -32,6 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.use("/", Middleware.schema);
 app.use("/api", Middleware.require, routes);
 getRouteMethods(app);
 
