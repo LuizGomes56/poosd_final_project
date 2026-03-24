@@ -1,5 +1,6 @@
 import { UsersController } from "../controllers/users_controller";
 import type { InputSchema } from "../utils/schema";
+import type { Routes } from "./methods";
 
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsNever<T> = [T] extends [never] ? true : false;
@@ -25,19 +26,23 @@ type RoutesInPrefix<P extends string> =
 export type GetSchema<
     M extends Record<PrefixName<Route>, Record<string, (...args: any[]) => any>>
 > = {
-    [P in keyof M & PrefixName<Route>]: {
-        [K in RoutesInPrefix<P> as K extends `${P}/${infer F}` ? F : never]:
-        RouteName<K> extends keyof M[P]
-        ? {
-            output: Awaited<ReturnType<M[P][RouteName<K>]>>;
-            input: InputSchema[K];
-        }
-        : never;
+        [P in keyof M & PrefixName<Route>]: {
+            [K in RoutesInPrefix<P> as K extends `${P}/${infer F}` ? F : never]:
+            RouteName<K> extends keyof M[P]
+            ? {
+                method: typeof Routes[K];
+                output: Awaited<ReturnType<M[P][RouteName<K>]>>;
+                input: InputSchema[K];
+            }
+            : never;
+        };
     };
-};
 
 export type Controllers = {
     users: typeof UsersController
 };
 
-export type RouteSchemas = GetSchema<Controllers>;
+/**
+ * Export this to frontend. It has all the relevant information about our API
+ */
+export type SwaggerDocs = GetSchema<Controllers>;
