@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import { RouteSchema } from "../routes/schema";
+import { SwaggerDocs } from "../routes/types";
 
 export interface HttpResponse<T extends Record<string, any> = {}> {
     ok: boolean,
@@ -16,11 +16,14 @@ export enum HttpStatus {
     InternalServerError = 500
 }
 
+/**
+ * Export to frontend
+ */
 export async function api<
-    P extends keyof RouteSchema,
-    M extends RouteSchema[P]["method"],
-    I extends RouteSchema[P]["input"],
-    O extends RouteSchema[P]["output"]
+    P extends keyof SwaggerDocs,
+    M extends SwaggerDocs[P]["method"],
+    I extends SwaggerDocs[P]["input"],
+    O extends SwaggerDocs[P]["output"]
 >(path: P, method: M, input: I): Promise<O> {
     //Fetch must have to include credentials: include in the 
     //fetch json, additionally the JWT on the backend must be 
