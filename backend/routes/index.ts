@@ -1,6 +1,7 @@
 import users from "./users";
 import { HttpResponse, HttpStatus } from "../utils/http";
 import { NextFunction, Request, Response, Router } from "express";
+import { Middleware } from "../utils/middleware";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
  * controllers will be the last middleware in the chain. They're being used to define
  * the req.body input type, nothing else
  */
-function route(f: (req: Request, res: Response) => Promise<HttpResponse>) {
+export function route(f: (req: Request, res: Response) => Promise<HttpResponse>) {
     const name = f.name;
     console.log(name);
     return async (req: any, res: Response, next: NextFunction) => {
@@ -32,22 +33,6 @@ function route(f: (req: Request, res: Response) => Promise<HttpResponse>) {
                 body: {},
             });
         }
-    }
-}
-
-/**
- * 
- * @param router use import("express").Router()
- * @param controller import the controller file constant object 
- * @param routes array-tuple of [method, function] where method are the
- * HTTP methods (get, post, put, delete, patch), and the function is one of the
- * keys of the controller provided in the second argument
- * 
- * **Note that all the routes will be assigned as `/${function_name}`**
- */
-export function serve<C extends Record<string, any>>(router: Router, controller: C, routes: [method: "get" | "post" | "put" | "delete" | "patch", action: keyof C][]) {
-    for (const [method, action] of routes) {
-        router[method](`/${String(action)}`, route(controller[action]));
     }
 }
 
