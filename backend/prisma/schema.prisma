@@ -12,14 +12,6 @@ model answers {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 }
 
-model questions {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-}
-
-model topics {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-}
-
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
 model users {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -30,4 +22,96 @@ model users {
   createdAt      DateTime @default(now())
 
   @@map("users")
+}
+
+// Question types
+
+enum QuestionType {
+  multiple_choice
+  true_false
+  short_response
+  long_response
+  numeric_response
+}
+
+type Choice {
+  id    String
+  label String
+}
+
+model Topic {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  @@map("topics")
+}
+
+model Question {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  type        QuestionType
+  prompt      String
+  topicIds    String[]     @db.ObjectId
+  answerHint  String?
+  explanation String?
+  points      Int?
+
+  multipleChoice  MultipleChoiceQuestion?
+  trueFalse       TrueFalseQuestion?
+  shortResponse   ShortResponseQuestion?
+  longResponse    LongResponseQuestion?
+  numericResponse NumericResponseQuestion?
+
+  @@map("questions")
+}
+
+model MultipleChoiceQuestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @unique @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+
+  choices   Choice[]
+  multiple  Boolean? @default(false)
+  answerIds String[]
+
+  @@map("multiple_choice_questions")
+}
+
+model TrueFalseQuestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @unique @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+
+  answer Boolean
+
+  @@map("true_false_questions")
+}
+
+model ShortResponseQuestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @unique @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+
+  answers String[]
+
+  @@map("short_response_questions")
+}
+
+model LongResponseQuestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @unique @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@map("long_response_questions")
+}
+
+model NumericResponseQuestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @unique @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+
+  answer    Float
+  unit      String?
+  tolerance Float?
+
+  @@map("numeric_response_questions")
 }
