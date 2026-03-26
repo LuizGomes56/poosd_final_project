@@ -1,3 +1,6 @@
+import type { SwaggerDocs } from "../../../shared/swagger";
+type TestSwagger = SwaggerDocs;
+
 // export async function callAuth<
 //     T extends keyof Routers["SvianetAuth"],
 //     U extends App["SvianetAuth"]["Routes"][T],
