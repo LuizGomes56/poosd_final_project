@@ -79,5 +79,37 @@ export const Middleware = {
                 message: e?.message
             } as HttpResponse);
         }
+    },
+
+    auth: async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const authHeader = req.headers["authorization"];
+
+        if (!authHeader) {
+            return res.status(HttpStatus.Unauthorized).json({
+                ok: false,
+                status: HttpStatus.Unauthorized,
+                message: "Missing token"
+            } as HttpResponse);
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        if (!token) {
+            return res.status(HttpStatus.Unauthorized).json({
+                ok: false,
+                status: HttpStatus.Unauthorized,
+                message: "Invalid token format"
+            } as HttpResponse);
+        }
+
+        next();
+    } catch (e: any) {
+        return res.status(HttpStatus.Unauthorized).json({
+            ok: false,
+            status: HttpStatus.Unauthorized,
+            message: "Unauthorized"
+        } as HttpResponse);
     }
+}
 }
