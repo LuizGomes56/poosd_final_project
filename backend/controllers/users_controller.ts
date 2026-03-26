@@ -1,16 +1,12 @@
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Dotenv, prisma } from "../index";
 import { HttpStatus } from "../utils/http";
-import type { InputSchema } from "../utils/schema";
+import type { Controller } from "../routes/types";
 
 export const UsersController = {
-    login: async function (
-        req: Request,
-        res: Response
-    ) {
-        const { email, password } = req.require<InputSchema["users/login"]>("email", "password");
+    login: async function (req, res) {
+        const { email, password } = req.body;
 
         const user = await prisma.users.findFirst({
             where: {
@@ -35,7 +31,7 @@ export const UsersController = {
         }
 
         const { password_hash: _, ...payload } = user;
-        const token = jwt.sign(payload, Dotenv.jwt_secret);
+        const token = jwt.sign(payload satisfies jwt.JwtPayload, Dotenv.jwt_secret);
 
         res.cookie("authorization", `Bearer ${token}`);
 
@@ -46,7 +42,7 @@ export const UsersController = {
             body: { token }
         }
     },
-    logout: async function (req: Request, res: Response) {
+    logout: async function (req, res) {
         const token = req.headers.authorization?.trim().replace("Bearer ", "");
 
         if (!token) {
@@ -61,8 +57,8 @@ export const UsersController = {
             message: "User logged out successfully",
         }
     },
-    register: async function (req: Request) {
-        const { full_name, email, password } = req.require<InputSchema["users/register"]>("full_name", "email", "password");
+    register: async function (req) {
+        const { full_name, email, password } = req.body;
 
         const password_hash = bcrypt.hashSync(password, 10);
         const user = await prisma.users.create({
@@ -87,4 +83,4 @@ export const UsersController = {
             message: "User registered successfully",
         }
     }
-};
+} as const satisfies Controller["users"];

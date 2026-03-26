@@ -9,6 +9,8 @@ router.get("/logout", route(UsersController.logout));
 router.post("/login", route(UsersController.login));
 router.post("/register", route(UsersController.register));
 /*
+ --> Add these routes to the correct router location. Here 
+ --> we should have only things related to the current user
  Missing routes 
  dashboard/questions (get and post or update)
  dashboard/topics (get and post or update)

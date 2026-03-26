@@ -32,8 +32,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/", Middleware.schema);
-app.use("/api", Middleware.require, routes);
+/**
+ * I guarantee that the following middlewares will always work, so we cast
+ * them to `any`
+ */
+app.use("/", Middleware.schema as any);
+app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
 
 app.listen(3000, (e) => {

@@ -1,11 +1,15 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import { SwaggerDocs } from "../routes/types";
+import type { SwaggerDocs } from "../routes/types";
+import { BACKEND_ROUTES } from "../routes/methods";
 
 export interface HttpResponse<T extends Record<string, any> = {}> {
     ok: boolean,
     status: HttpStatus,
     message?: string,
+    /**
+     * Must be a valid json object. This is what will be sent back to the frontend
+     */
     body?: T
 }
 
@@ -13,8 +17,9 @@ export enum HttpStatus {
     Ok = 200,
     NotFound = 404,
     BadRequest = 400,
+    Unauthorized = 401,
     InternalServerError = 500,
-    Unauthorized = 401
+    NotImplemented = 501
 }
 
 /**
@@ -22,17 +27,17 @@ export enum HttpStatus {
  */
 export async function api<
     P extends keyof SwaggerDocs,
-    M extends SwaggerDocs[P]["method"],
     I extends SwaggerDocs[P]["input"],
     O extends SwaggerDocs[P]["output"]
->(path: P, method: M, input: I): Promise<O> {
-    //Fetch must have to include credentials: include in the 
-    //fetch json, additionally the JWT on the backend must be 
-    //set to HttpOnly flag
+>(path: P, ...input: I extends undefined ? [] : [I]): Promise<O> {
+    const method = BACKEND_ROUTES[path];
+    // Fetch must have to include credentials: include in the 
+    // fetch json, additionally the JWT on the backend must be 
+    // set to HttpOnly flag
     return 0 as any;
 }
 
-// const s = api("users/login", "POST", {
+// const s = api("users/login", {
 //     "email": "",
 //     "password": ""
 // }).then(r => {
@@ -62,15 +67,18 @@ export function getRouteMethods(express: any) {
             }
         });
     }
-    if (express._router) {
-        extractRoutes(express._router.stack);
+
+    const router = express._router;
+
+    if (router) {
+        extractRoutes(router.stack);
     } else {
         console.warn("No route registered in the app");
     }
     const routesObjectEntries = Object.entries(routes)
         .map(([route, method]) => `    "${route}": "${method}",`)
         .join("\n");
-    const routesTypeDef = `// THIS IS AUTOMATICALLY GENERATED. DON'T CHANGE THIS FILE\nexport const Routes = {\n${routesObjectEntries}\n} as const;\n`;
+    const routesTypeDef = `export const BACKEND_ROUTES = {\n${routesObjectEntries}\n} as const;\n`;
 
     const filePath = path.resolve(__dirname, `../routes/methods.ts`);
     writeFileSync(filePath, routesTypeDef, 'utf-8');

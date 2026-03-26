@@ -1,9 +1,15 @@
 import users from "./users";
-import { HttpResponse, HttpStatus } from "../utils/http";
-import { NextFunction, Request, Response, Router } from "express";
-import { Middleware } from "../utils/middleware";
+import questions from "./questions";
+import topics from "./topics";
+import { HttpStatus } from "../utils/http";
+import { NextFunction, Router } from "express";
+import { ControllerFn } from "./types";
 
 const router = Router();
+
+router.use("/users", users);
+router.use("/questions", questions);
+router.use("/topics", topics);
 
 /**
  * Used to unsafely cast the type of the functions defined within the controller object
@@ -11,13 +17,13 @@ const router = Router();
  * controllers will be the last middleware in the chain. They're being used to define
  * the req.body input type, nothing else
  */
-export function route(f: (req: Request, res: Response) => Promise<HttpResponse>) {
+export function route(f: ControllerFn<any>) {
     const name = f.name;
     console.log(name);
-    return async (req: any, res: Response, next: NextFunction) => {
+    return async (req: any, res: any, next: NextFunction) => {
         try {
             let data = await f(req, res);
-            console.log(data);
+            console.log(`Controller ${name} returned: `, data);
 
             if (!data.body) {
                 data.body = {};
@@ -35,7 +41,5 @@ export function route(f: (req: Request, res: Response) => Promise<HttpResponse>)
         }
     }
 }
-
-router.use("/users", users);
 
 export default router;
