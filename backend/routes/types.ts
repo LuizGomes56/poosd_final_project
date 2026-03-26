@@ -3,9 +3,9 @@ import type { InputSchema } from "../schema";
 import type { BACKEND_ROUTES } from "./methods";
 import type { QuestionsController } from "../controllers/questions_controller";
 import type { TopicsController } from "../controllers/topics_controller";
-import type { HttpResponse } from "../utils/http";
 import type { Response, Request } from "express";
 import type { ReqHelpers, ResHelpers } from "../utils/middleware";
+import type { HttpBuilder } from "../utils/http";
 
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsNever<T> = [T] extends [never] ? true : false;
@@ -37,10 +37,10 @@ export type GetSchema<
             output: Awaited<ReturnType<M[P][F]>>;
             input: InputSchema[K];
         }
-        : `Route ${K} does not match type 'Controllers'. Did you forget to add its definition?`
-        : `Key ${P} should be a valid subroute as defined in the keys of type 'Controllers' below`
-        : `Function ${F} should be a valid method as in the values of type 'Controllers'`
-        : `Route ${K} must be a function as it will be used as a method`;
+        : never
+        : never
+        : never
+        : never
     };
 
 export type Controllers = {
@@ -52,7 +52,7 @@ export type Controllers = {
 export type ControllerFn<R extends keyof InputSchema> = (
     req: Omit<Request, "body"> & { body: InputSchema[R] } & ReqHelpers,
     res: Response & ResHelpers
-) => Promise<HttpResponse>
+) => Promise<HttpBuilder>
 
 type RoutesInPrefix<P extends string> =
     Extract<Route, `${P}/${string}`>;
@@ -63,16 +63,6 @@ type RoutesInPrefix<P extends string> =
  * or any other extraneous information.
  * For example, if your controller is returning something that doesn't 
  * include a property defined in `HttpResponse`, your code will not compile.
- * 
- * Example:
- * ```ts
- * return {
- *     // It will thrown an error because `ok` is mandatory
- *     // ok: true,
- *     status: HttpStatus.Ok,
- *     message: "User logged out successfully",
- * }
- * ```
  */
 export type Controller = {
     [P in PrefixName<Route>]: {

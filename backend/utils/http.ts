@@ -2,25 +2,72 @@ import { writeFileSync } from "fs";
 import path from "path";
 import type { SwaggerDocs } from "../routes/types";
 import { BACKEND_ROUTES } from "../routes/methods";
+import { Response } from "express";
 
-export interface HttpResponse<T extends Record<string, any> = {}> {
-    ok: boolean,
-    status: HttpStatus,
-    message?: string,
-    /**
-     * Must be a valid json object. This is what will be sent back to the frontend
-     */
-    body?: T
+type HttpBody = Record<string, any>;
+
+export type HttpBuilder<T extends HttpBody = {}> = HttpResponseBuilder<T>;
+
+class HttpResponseBuilder<T extends HttpBody = {}> {
+    private constructor(
+        private readonly _status: number,
+        private readonly _message?: string,
+        private readonly _body?: T
+    ) { }
+
+    static status(status: number) {
+        return new HttpResponseBuilder(status);
+    }
+
+    public message(
+        message: string
+    ) {
+        return new HttpResponseBuilder(this._status, message, this._body);
+    }
+
+    public body<B extends HttpBody>(body: B) {
+        return new HttpResponseBuilder(this._status, this._message, body);
+    }
+
+    public send(res: Response) {
+        res.status(this._status).json(this.json());
+    }
+
+    public json() {
+        return {
+            ok: this._status >= 200 && this._status < 300,
+            status: this._status,
+            message: this._message,
+            body: this._body || {}
+        };
+    }
 }
 
-export enum HttpStatus {
-    Ok = 200,
-    NotFound = 404,
-    BadRequest = 400,
-    Unauthorized = 401,
-    InternalServerError = 500,
-    NotImplemented = 501
-}
+export const HttpResponse = (() => {
+    const statuses = {
+        Ok: 200,
+        BadRequest: 400,
+        Unauthorized: 401,
+        NotFound: 404,
+        InternalServerError: 500,
+    };
+
+    const methods = {
+        NotImplemented: () => HttpResponseBuilder
+            .status(501)
+            .message("This route was not yet implemented")
+    };
+
+    for (const [f, status] of Object.entries(statuses)) {
+        methods[f] = (() => HttpResponseBuilder.status(status));
+    }
+
+    type Methods = typeof methods & {
+        [K in keyof typeof statuses]: () => HttpResponseBuilder;
+    };
+
+    return methods as Methods;
+})();
 
 /**
  * Export to frontend

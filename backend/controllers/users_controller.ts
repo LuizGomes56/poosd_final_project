@@ -1,46 +1,29 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Dotenv, prisma } from "../index";
-import { HttpStatus } from "../utils/http";
+import { Dotenv } from "../index";
 import type { Controller } from "../routes/types";
+import { USERS } from "../model/users";
+import { HttpResponse } from "../utils/http";
 
 export const UsersController = {
     login: async function (req, res) {
         const { email, password } = req.body;
-
-        const user = await prisma.users.findFirst({
-            where: {
-                email,
-            }
-        });
+        const user = await USERS.findOne({ email }).exec();
 
         if (!user) {
-            return {
-                ok: false,
-                status: HttpStatus.NotFound,
-                message: "User does not exist"
-            }
+            return HttpResponse.NotFound()
+                .message("User does not exist. Verify the provided email address");
         }
 
         if (!bcrypt.compareSync(password, user.password_hash)) {
-            return {
-                ok: false,
-                status: HttpStatus.Unauthorized,
-                message: "Password is incorrect"
-            }
+            return HttpResponse.Unauthorized().message("Password is incorrect")
         }
 
         const { password_hash: _, ...payload } = user;
         const token = jwt.sign(payload satisfies jwt.JwtPayload, Dotenv.jwt_secret);
 
         res.cookie("authorization", `Bearer ${token}`);
-
-        return {
-            ok: true,
-            status: HttpStatus.Ok,
-            message: "User logged in successfully",
-            body: { token }
-        }
+        return HttpResponse.Ok().message("User logged in successfully").body({ token });
     },
     logout: async function (req, res) {
         const token = req.headers.authorization?.trim().replace("Bearer ", "");
@@ -51,36 +34,39 @@ export const UsersController = {
 
         res.clearCookie("authorization");
 
-        return {
-            ok: true,
-            status: HttpStatus.Ok,
-            message: "User logged out successfully",
-        }
+        return HttpResponse.Ok().message("User logged out successfully");
     },
     register: async function (req) {
         const { full_name, email, password } = req.body;
 
         const password_hash = bcrypt.hashSync(password, 10);
-        const user = await prisma.users.create({
-            data: {
+
+        try {
+            const user = await USERS.create({
                 full_name,
                 email,
                 password_hash,
-            }
-        });
+            });
 
-        if (!user) {
-            return {
-                ok: false,
-                status: HttpStatus.InternalServerError,
-                message: "User already exists or there were an error creating a new account",
+            if (!user) {
+                return HttpResponse
+                    .InternalServerError()
+                    .message("User already exists or there were an error creating a new account")
             }
-        }
 
-        return {
-            ok: true,
-            status: HttpStatus.Ok,
-            message: "User registered successfully",
+            return HttpResponse.Ok().message("User registered successfully");
+        } catch (e) {
+            // We're using try-catch blocks here just to capture this very specific error
+            // that tells us if the email is already registered
+            if (e instanceof Error && e.message.startsWith("E11000")) {
+                return HttpResponse
+                    .InternalServerError()
+                    .message("This email is already in use");
+            }
+            // If it is any other generic error, we don't want to give an specific message
+            // about the reason of the error, so just throw it and let the router handler
+            // manage this error
+            throw e;
         }
     }
 } as const satisfies Controller["users"];

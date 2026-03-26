@@ -1,13 +1,7 @@
-import type { prisma } from "../index";
-import type { ReqHelpers, ResHelpers } from "./middleware";
+import type { User } from "../model/users";
 
-export type UserPayload = Omit<NonNullable<Awaited<ReturnType<typeof prisma.users.findFirst>>>, "password_hash">;
+export type UserPayload = Omit<User, "password_hash">;
 
 declare module "jsonwebtoken" {
     interface JwtPayload extends UserPayload { }
-}
-
-declare module "express" {
-    interface Request extends ReqHelpers { }
-    interface Response extends ResHelpers { }
 }

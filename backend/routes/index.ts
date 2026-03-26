@@ -1,9 +1,9 @@
 import users from "./users";
 import questions from "./questions";
 import topics from "./topics";
-import { HttpStatus } from "../utils/http";
 import { NextFunction, Router } from "express";
 import { ControllerFn } from "./types";
+import { HttpResponse } from "../utils/http";
 
 const router = Router();
 
@@ -25,19 +25,13 @@ export function route(f: ControllerFn<any>) {
             let data = await f(req, res);
             console.log(`Controller ${name} returned: `, data);
 
-            if (!data.body) {
-                data.body = {};
-            }
-
-            return res.status(data.status).json(data);
+            return data.send(res);
         } catch (e: any) {
             console.error(`Controller ${name} threw an error: `, e.message);
-            return res.status(HttpStatus.InternalServerError).json({
-                ok: false,
-                status: HttpStatus.InternalServerError,
-                message: e?.message || `Something went wrong: ${String(e)}`,
-                body: {},
-            });
+
+            return HttpResponse.InternalServerError()
+                .message(e?.message || `Something went wrong: ${String(e)}`)
+                .send(res);
         }
     }
 }

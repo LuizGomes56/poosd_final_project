@@ -12,7 +12,6 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "@prisma/client": "^6.19.0",
         "@types/dotenv": "^6.1.1",
         "bcrypt": "^5.1.1",
         "cookie-parser": "^1.4.7",
@@ -21,6 +20,7 @@
         "express": "^4.22.1",
         "jest": "^30.3.0",
         "jsonwebtoken": "^9.0.2",
+        "mongoose": "^9.3.3",
         "uuid": "^10.0.0",
         "zod": "^4.3.6"
     },
@@ -33,7 +33,6 @@
         "@types/node": "^25.5.0",
         "@types/uuid": "^10.0.0",
         "nodemon": "^3.1.7",
-        "prisma": "^6.4.1",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
         "typescript": "^5.6.3"

@@ -3,24 +3,23 @@ import routes from "./routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import { PrismaClient } from "./generated/prisma/client";
 import { Middleware } from "./utils/middleware";
 import { getRouteMethods } from "./utils/http";
 import * as _ from "./utils/global";
+import mongoose from "mongoose";
 dotenv.config();
 
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
-    jwt_secret: process.env.JWT_SECRET!
+    jwt_secret: process.env.JWT_SECRET!,
+    port: Number(process.env.port!) || 3000
 }
 
-for (const value of Object.values(Dotenv)) {
+for (const [key, value] of Object.entries(Dotenv)) {
     if (!value) {
-        throw new Error(`Environment variable ${value} is not defined`);
+        throw new Error(`Environment variable ${key}:snake:upper is not defined`);
     }
 }
-
-export const prisma = new PrismaClient();
 
 const app = express();
 
@@ -40,7 +39,9 @@ app.use("/", Middleware.schema as any);
 app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
 
-app.listen(3000, (e) => {
+app.listen(Dotenv.port, async (e) => {
+    const conn = await mongoose.connect(Dotenv.database_url);
+    console.log(`MongoDB connected: ${conn.connection.host}`);
     if (e) {
         console.error(e);
     }

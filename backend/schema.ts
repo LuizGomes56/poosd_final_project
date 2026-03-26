@@ -6,9 +6,9 @@ const R = z.object({
     JWT: z.jwt({ error: "Invalid JWT Token" }),
     NAME: z.string()
         .min(4, { error: "Name must be at least 4 characters long" })
-        .max(256, { error: "Name must be at most 256 characters long" }),
+        .max(64, { error: "Name must be at most 64 characters long" }),
     EMAIL: z.email({ error: "Invalid email" }),
-    PASSWORD: z.string().min(4).max(50).describe("Password must be a string and be defined."),
+    PASSWORD: z.string().min(4).max(32).describe("Password must be a string and be defined."),
     NOTHING: z.undefined({ error: "This route does not expect any input" }),
 }).shape;
 

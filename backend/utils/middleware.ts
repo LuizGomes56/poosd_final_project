@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { BACKEND_ROUTES } from "../routes/methods";
 import { SCHEMA } from "../schema";
-import { type HttpResponse, HttpStatus } from "./http";
+import { HttpResponse } from "../utils/http";
 
 /**
  * Helper functions to use on `req` object as method
@@ -11,19 +11,10 @@ export interface ReqHelpers { }
 /**
  * Helper functions to use on `res` object as method
  */
-export interface ResHelpers {
-    unimplemented: () => HttpResponse
-}
+export interface ResHelpers { }
 
 export const Middleware = {
-    helpers: async (req: Request, res: Response, next: NextFunction) => {
-        res.unimplemented = () => {
-            return {
-                ok: false,
-                status: HttpStatus.NotImplemented,
-                message: "This route was not yet implemented"
-            }
-        };
+    helpers: async (req: Request & ReqHelpers, res: Response & ResHelpers, next: NextFunction) => {
         next()
     },
     /**
@@ -49,46 +40,42 @@ export const Middleware = {
         // console.log("Validating input schema for route: ", path);
         if (!path) {
             console.error(`Path does not exist: ${path}`);
-            return res.status(HttpStatus.NotFound).json({
-                ok: false,
-                status: HttpStatus.NotFound,
-                message: `Parsing route path failed: ${req.originalUrl}`,
-                body: {}
-            } satisfies HttpResponse);
+            return HttpResponse.NotFound()
+                .message(`Parsing route path failed: ${req.originalUrl}`)
+                .send(res);
         }
 
         try {
             const validator = SCHEMA[path!];
             if (validator === undefined) {
-                res.status(HttpStatus.InternalServerError).json({
-                    ok: true,
-                    status: HttpStatus.InternalServerError,
-                    message: `Route: ${path} input schema not implemented`,
-                    body: {}
-                } satisfies HttpResponse);
-                return;
+                return HttpResponse.NotImplemented()
+                    .message(`Route: ${path} input schema not implemented`)
+                    .send(res);
             }
             if (validator !== null) {
                 const result = validator.safeParse(req.body);
                 if (!result.success) {
                     let msg = `Unknown error on req.body`;
-                    if (result.error.issues?.[0]) {
-                        msg = `${result.error.issues?.[0]?.path?.join(", ")} - ${result.error.issues[0].message}`;
+                    const first = result.error.issues?.[0];
+
+                    if (first) {
+                        msg = `Error: ${first?.path?.join(", ")} - ${first.message}`;
                     }
-                    console.log(result.error.issues?.[0]);
-                    throw new Error(`Error on: ${msg}, body: ${JSON.stringify(req.body)}`);
+
+                    console.log(msg);
+
+                    return HttpResponse.BadRequest().message(msg).send(res);
                 }
+
                 req.body = result.data;
             }
             next();
         } catch (e: any) {
             console.log(e.message);
-            res.status(HttpStatus.BadRequest).json({
-                ok: false,
-                status: HttpStatus.BadRequest,
-                message: e?.message,
-                body: {}
-            } satisfies HttpResponse);
+
+            return HttpResponse.BadRequest()
+                .message(e.message)
+                .send(res);
         }
     }
 }
