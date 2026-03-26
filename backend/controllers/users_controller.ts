@@ -8,7 +8,7 @@ import { HttpResponse } from "../utils/http";
 export const UsersController = {
     login: async function (req, res) {
         const { email, password } = req.body;
-        const user = await USERS.findOne({ email }).exec();
+        const user = await USERS.findOne({ email }).lean();
 
         if (!user) {
             return HttpResponse.NotFound()
@@ -42,11 +42,13 @@ export const UsersController = {
         const password_hash = bcrypt.hashSync(password, 10);
 
         try {
-            const user = await USERS.create({
+            const doc = await USERS.create({
                 full_name,
                 email,
                 password_hash,
             });
+
+            const user = doc.toObject();
 
             if (!user) {
                 return HttpResponse
