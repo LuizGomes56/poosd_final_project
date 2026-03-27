@@ -1,2 +1,2 @@
 export type { SwaggerDocs } from "./types";
-export { BACKEND_ROUTES } from "./routes/methods";
+export { BACKEND_ROUTES } from "./routes/methods.js";

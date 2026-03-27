@@ -9,7 +9,7 @@
             "require": "./dist/lib.js"
         }
     },
-    "type": "commonjs",
+    "type": "module",
     "main": "./dist/lib.js",
     "types": "./dist/lib.d.ts",
     "files": [
