@@ -105,10 +105,18 @@ export const Middleware = {
             } as HttpResponse);
         }
 
-        const data = jwt.verify(token, Dotenv.jwt_secret);
+        const decoded = jwt.verify(token, Dotenv.jwt_secret);
 
+        if (!decoded) {
+            return res.status(HttpStatus.Unauthorized).json({
+                ok: false,
+                status: HttpStatus.Unauthorized,
+                message: "Invalid token"
+            } as HttpResponse);
+        }
+        
         req.token = token;
-        req.token_data = data;
+        req.token_data = decoded;
 
         next();
     } catch (e: any) {
