@@ -1,13 +1,19 @@
 import express from "express";
-import routes from "./routes";
+import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import { Middleware } from "./utils/middleware";
-import { getRouteMethods } from "./utils/http";
-import * as _ from "./utils/global";
+import { Middleware } from "./utils/middleware.js";
+import { getRouteMethods } from "./utils/http.js";
+import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
 dotenv.config();
+
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,

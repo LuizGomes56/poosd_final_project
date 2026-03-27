@@ -1,11 +1,11 @@
-import type { UsersController } from "./controllers/users_controller";
-import type { InputSchema } from "./schema";
-import type { BACKEND_ROUTES } from "./routes/methods";
-import type { QuestionsController } from "./controllers/questions_controller";
-import type { TopicsController } from "./controllers/topics_controller";
+import type { UsersController } from "./controllers/users_controller.js";
+import type { InputSchema } from "./schema.js";
+import type { BACKEND_ROUTES } from "./routes/methods.js";
+import type { QuestionsController } from "./controllers/questions_controller.js";
+import type { TopicsController } from "./controllers/topics_controller.js";
 import type { Response, Request } from "express";
-import type { ReqHelpers, ResHelpers } from "./utils/middleware";
-import type { HttpBuilder } from "./utils/http";
+import type { ReqHelpers, ResHelpers } from "./utils/middleware.js";
+import type { HttpBuilder } from "./utils/http.js";
 
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsNever<T> = [T] extends [never] ? true : false;

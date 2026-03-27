@@ -1,5 +1,4 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { maxLength, minLength } from "zod";
 
 const USERS_SCHEMA = new Schema(
     {

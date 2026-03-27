@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { BACKEND_ROUTES } from "../routes/methods";
-import { SCHEMA } from "../schema";
-import { HttpResponse } from "./http";
+import { BACKEND_ROUTES } from "../routes/methods.js";
+import { SCHEMA } from "../schema.js";
+import { HttpResponse } from "./http.js";
 
 /**
  * Helper functions to use on `req` object as method

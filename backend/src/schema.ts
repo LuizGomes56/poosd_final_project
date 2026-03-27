@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Route } from "./types";
+import type { Route } from "./types.js";
 
 const R = z.object({
     UUID: z.uuid({ error: "Invalid UUID" }),

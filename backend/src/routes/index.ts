@@ -1,9 +1,9 @@
-import users from "./users";
-import questions from "./questions";
-import topics from "./topics";
+import users from "./users.js";
+import questions from "./questions.js";
+import topics from "./topics.js";
 import { NextFunction, Router } from "express";
-import { ControllerFn } from "../types";
-import { HttpResponse } from "../utils/http";
+import { ControllerFn } from "../types.js";
+import { HttpResponse } from "../utils/http.js";
 
 const router = Router();
 

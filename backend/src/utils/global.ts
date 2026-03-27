@@ -1,4 +1,4 @@
-import type { User } from "../model/users";
+import type { User } from "../model/users.js";
 
 export type UserPayload = Omit<User, "password_hash">;
 
