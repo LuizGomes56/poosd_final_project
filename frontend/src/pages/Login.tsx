@@ -11,14 +11,13 @@ export default function Login() {
     const navigate = useNavigate();
 
     const loginRequest = async () => {
-        const response = await api("users/login", {email, password})
-        if(response.ok && response.body != undefined)
-        {
-            let token = response.body.token;
-            localStorage.setItem("token",token);
-            localStorage.setItem("full_name", response.body.full_name || "");
-            localStorage.setItem("email", response.body.email || "");
-            navigate('/');
+        const response = await api("users/login", { email, password })
+        if (response.ok && response.body != undefined) {
+            const token = response.body.token;
+            localStorage.setItem("token", token);
+            localStorage.setItem("full_name", response.body.full_name);
+            localStorage.setItem("email", response.body.email);
+            navigate("/");
         }
         setErrorText(response.message);
     }

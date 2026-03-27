@@ -4,11 +4,11 @@ import { api } from "../utils/request";
 export default function Header() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    useEffect(() => { 
+    useEffect(() => {
         setName(localStorage.getItem("full_name") || "");
         setEmail(localStorage.getItem("email") || "");
     }, []);
-    return(
+    return (
         <header>
             <p>{name}</p>
             <p>{email}</p>

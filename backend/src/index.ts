@@ -7,7 +7,13 @@ import { Middleware } from "./utils/middleware.js";
 import { getRouteMethods } from "./utils/http.js";
 import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 dotenv.config();
+
+// import { __init } from "./seed.js";
+
+// (async () => { await __init() })();
 
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
@@ -23,11 +29,19 @@ for (const [key, value] of Object.entries(Dotenv)) {
 
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendPath = path.join(__dirname, "../../frontend/dist");
+app.use(express.static(frontendPath));
+app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 app.use(cors({
-    //origin: ["http://localhost:5173"],
-    origin: [
-        "*"
-    ],
+    origin: ["http://localhost:5173"],
+    // origin: [
+    //     "*"
+    // ],
     credentials: true,
 }));
 app.use(express.json());
@@ -38,7 +52,7 @@ app.use(cookieParser());
  * I guarantee that the following middlewares will always work, so we cast
  * them to `any`
  */
-app.use("/", Middleware.schema as any);
+app.use("/api", Middleware.schema as any);
 app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
 

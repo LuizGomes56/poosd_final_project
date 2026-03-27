@@ -1,4 +1,4 @@
-import { BACKEND_ROUTES, type SwaggerDocs } from "../../../backend";
+import { BACKEND_ROUTES, type SwaggerDocs } from "backend";
 
 export async function api<
     P extends keyof SwaggerDocs,
