@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
-import path from "path";
 import { Response } from "express";
+import { fileURLToPath } from "url";
 
 type HttpBody = Record<string, any>;
 
@@ -114,6 +114,8 @@ export function getRouteMethods(express: any) {
         .join("\n");
     const routesTypeDef = `export const BACKEND_ROUTES = {\n${routesObjectEntries}\n} as const;\n`;
 
-    const filePath = path.resolve(__dirname, `../routes/methods.ts`);
-    writeFileSync(filePath, routesTypeDef, 'utf-8');
+    const filePath = fileURLToPath(
+        new URL("../routes/methods.ts", import.meta.url)
+    );
+    writeFileSync(filePath, routesTypeDef, "utf-8");
 }

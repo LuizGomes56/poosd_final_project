@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Dotenv } from "../index";
-import type { Controller } from "../types";
-import { USERS } from "../model/users";
-import { HttpResponse } from "../utils/http";
+import { Dotenv } from "../index.js";
+import type { Controller } from "../types.js";
+import { USERS } from "../model/users.js";
+import { HttpResponse } from "../utils/http.js";
 
 export const UsersController = {
     login: async function (req, res) {

@@ -1,6 +1,6 @@
-import { Dotenv } from "../index";
-import type { Controller } from "../types";
-import { HttpResponse } from "../utils/http";
+import { Dotenv } from "../index.js";
+import type { Controller } from "../types.js";
+import { HttpResponse } from "../utils/http.js";
 
 export const TopicsController = {
     create: async function (req, res) {
