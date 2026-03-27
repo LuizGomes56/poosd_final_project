@@ -3,7 +3,6 @@ import Button from "../components/Button";
 import { Field } from "../components/Form";
 import { api } from "../utils/request";
 import { useNavigate } from "react-router-dom";
-import { api } from "../utils/request";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -16,6 +15,7 @@ export default function Login() {
         if(response.ok && response.body != undefined)
         {
             let token = response.body.token;
+            localStorage.setItem("token",token);
             localStorage.setItem("full_name", response.body.full_name || "");
             localStorage.setItem("email", response.body.email || "");
             navigate('/');
