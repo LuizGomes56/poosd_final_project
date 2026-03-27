@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import { Field } from "../components/Form";
+import { api } from "../utils/request";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [ErrorText, setErrorText] = useState("");
+    const navigate = useNavigate();
 
-    const loginRequest = async (email: string, password: string) => {
-        
+    const loginRequest = async () => {
+        const response = await api("users/login", {email, password})
+        if(response.ok && response.body != undefined)
+        {
+            let token = response.body.token;
+            navigate('/login');
+        }
+        setErrorText(response.message);
     }
 
     return (
@@ -32,8 +42,9 @@ export default function Login() {
                 extraClasses="place-self-end w-fit"
                 color={"emerald"}
                 text={"Submit"}
-                onClick={async () => loginRequest(email, password)}
+                onClick={loginRequest}
             />
+            <p>{ErrorText}</p>
         </div>
     )
 }
