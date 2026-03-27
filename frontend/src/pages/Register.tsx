@@ -44,6 +44,7 @@ export default function Register() {
                 value={password}
                 hook={setPassword}
                 placeholder="Your password"
+                type="password"
             />
             <Button
                 color="emerald"

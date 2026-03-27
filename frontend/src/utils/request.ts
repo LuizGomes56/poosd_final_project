@@ -6,5 +6,6 @@ export async function api<
     O extends SwaggerDocs[P]["output"]
 >(path: P, ...input: I extends undefined ? [] : [I]): Promise<O> {
     const method = BACKEND_ROUTES[path];
+    console.log(input, method, path);
     return 0 as any;
 }

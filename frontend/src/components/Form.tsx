@@ -1,11 +1,12 @@
 type FieldProps = {
     name: string,
+    type?: string,
     value: string,
     placeholder?: string,
     hook: (value: string) => void
 }
 
-export const Field = ({ name, value, placeholder, hook }: FieldProps) => {
+export const Field = ({ name, value, placeholder, hook, type }: FieldProps) => {
     return (
         <label className="w-full flex flex-col gap-2">
             <span className="
@@ -15,7 +16,7 @@ export const Field = ({ name, value, placeholder, hook }: FieldProps) => {
                 {name}
             </span>
             <input
-                type="text"
+                type={type || "text"}
                 value={value}
                 placeholder={placeholder}
                 className="py-2 border border-zinc-700 rounded-md px-4"
