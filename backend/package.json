@@ -4,7 +4,9 @@
     "exports": {
         ".": {
             "types": "./dist/lib.d.ts",
-            "default": "./dist/lib.js"
+            "default": "./dist/lib.js",
+            "import": "./dist/lib.js",
+            "require": "./dist/lib.js"
         }
     },
     "type": "module",
@@ -42,6 +44,6 @@
         "nodemon": "^3.1.7",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
-        "typescript": "^5.6.3"
+        "typescript": "^5.9.3"
     }
 }

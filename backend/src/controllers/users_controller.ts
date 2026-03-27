@@ -23,7 +23,7 @@ export const UsersController = {
         const token = jwt.sign(payload satisfies jwt.JwtPayload, Dotenv.jwt_secret);
 
         res.cookie("authorization", `Bearer ${token}`);
-        return HttpResponse.Ok().message("User logged in successfully").body({ token });
+        return HttpResponse.Ok().message("User logged in successfully").body({ token, ...payload });
     },
     logout: async function (req, res) {
         const token = req.headers.authorization?.trim().replace("Bearer ", "");

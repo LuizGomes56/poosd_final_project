@@ -8,5 +8,5 @@
         "node_modules/*",
         "./src/routes/methods.ts"
     ],
-    "exec": "npx tsc && node ./dist/index.js"
+    "exec": "npx tsc && cd ../frontend && npm run build && cd ../backend && node ./dist/index.js"
 }
