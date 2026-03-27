@@ -2,7 +2,7 @@ import users from "./users";
 import questions from "./questions";
 import topics from "./topics";
 import { NextFunction, Router } from "express";
-import { ControllerFn } from "./types";
+import { ControllerFn } from "../types";
 import { HttpResponse } from "../utils/http";
 
 const router = Router();

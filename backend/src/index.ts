@@ -45,7 +45,7 @@ app.listen(Dotenv.port, async (e) => {
     if (e) {
         console.error(e);
     }
-    console.log("Server started on port 3000");
+    console.log(`Server started on port ${Dotenv.port}`);
 });
 
 export default app;

@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Dotenv } from "../index";
-import type { Controller } from "../routes/types";
+import type { Controller } from "../types";
 import { USERS } from "../model/users";
 import { HttpResponse } from "../utils/http";
 

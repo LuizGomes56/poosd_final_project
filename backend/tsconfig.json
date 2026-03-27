@@ -7,19 +7,17 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
+        "emitDeclarationOnly": false,
+        "declaration": true,
+        "declarationMap": true,
         "outDir": "./dist",
-        "rootDir": "./",
+        "rootDir": "./src",
         "allowJs": true,
         "checkJs": true,
-        "baseUrl": ".",
-        // "paths": {
-        //     "*": [
-        //         "node_modules/*"
-        //     ]
-        // }
+        "baseUrl": "./src",
     },
     "include": [
-        "**/*.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"

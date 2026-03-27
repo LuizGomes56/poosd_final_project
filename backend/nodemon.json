@@ -1,12 +1,12 @@
 {
     "watch": [
-        "./"
+        "./src"
     ],
     "ext": "ts,js",
     "ignore": [
         "dist/*",
         "node_modules/*",
-        "./routes/methods.ts"
+        "./src/routes/methods.ts"
     ],
-    "exec": "ts-node -r tsconfig-paths/register ./index.ts"
+    "exec": "npx tsc && node ./dist/index.js"
 }

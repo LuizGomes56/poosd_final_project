@@ -1,5 +1,5 @@
 import { Dotenv } from "../index";
-import type { Controller } from "../routes/types";
+import type { Controller } from "../types";
 import { HttpResponse } from "../utils/http";
 
 export const QuestionsController = {

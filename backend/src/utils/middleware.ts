@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { BACKEND_ROUTES } from "../routes/methods";
 import { SCHEMA } from "../schema";
-import { HttpResponse } from "../utils/http";
+import { HttpResponse } from "./http";
 
 /**
  * Helper functions to use on `req` object as method
@@ -46,7 +46,7 @@ export const Middleware = {
         }
 
         try {
-            const validator = SCHEMA[path!];
+            const validator = SCHEMA[path as keyof typeof SCHEMA];
             if (validator === undefined) {
                 return HttpResponse.NotImplemented()
                     .message(`Route: ${path} input schema not implemented`)

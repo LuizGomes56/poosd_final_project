@@ -1,11 +1,11 @@
-import type { UsersController } from "../controllers/users_controller";
-import type { InputSchema } from "../schema";
-import type { BACKEND_ROUTES } from "./methods";
-import type { QuestionsController } from "../controllers/questions_controller";
-import type { TopicsController } from "../controllers/topics_controller";
+import type { UsersController } from "./controllers/users_controller";
+import type { InputSchema } from "./schema";
+import type { BACKEND_ROUTES } from "./routes/methods";
+import type { QuestionsController } from "./controllers/questions_controller";
+import type { TopicsController } from "./controllers/topics_controller";
 import type { Response, Request } from "express";
-import type { ReqHelpers, ResHelpers } from "../utils/middleware";
-import type { HttpBuilder } from "../utils/http";
+import type { ReqHelpers, ResHelpers } from "./utils/middleware";
+import type { HttpBuilder } from "./utils/http";
 
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsNever<T> = [T] extends [never] ? true : false;
@@ -34,7 +34,7 @@ export type GetSchema<
         ? F extends keyof M[P]
         ? M[P][F] extends (...args: any[]) => any ? {
             method: typeof BACKEND_ROUTES[K];
-            output: Awaited<ReturnType<M[P][F]>>;
+            output: ReturnType<Awaited<ReturnType<M[P][F]>>["json"]>;
             input: InputSchema[K];
         }
         : never
@@ -52,7 +52,7 @@ export type Controllers = {
 export type ControllerFn<R extends keyof InputSchema> = (
     req: Omit<Request, "body"> & { body: InputSchema[R] } & ReqHelpers,
     res: Response & ResHelpers
-) => Promise<HttpBuilder>
+) => Promise<HttpBuilder<any, any>>
 
 type RoutesInPrefix<P extends string> =
     Extract<Route, `${P}/${string}`>;

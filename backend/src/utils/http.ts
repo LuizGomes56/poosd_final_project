@@ -1,32 +1,46 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import type { SwaggerDocs } from "../routes/types";
-import { BACKEND_ROUTES } from "../routes/methods";
 import { Response } from "express";
 
 type HttpBody = Record<string, any>;
 
-export type HttpBuilder<T extends HttpBody = {}> = HttpResponseBuilder<T>;
+export type HttpBuilder<Body extends HttpBody | undefined = undefined, Msg extends boolean = false> = HttpResponseBuilder<Body, Msg>;
 
-class HttpResponseBuilder<T extends HttpBody = {}> {
+class HttpResponseBuilder<
+    Body extends HttpBody | undefined = undefined,
+    Msg extends boolean = false
+> {
+    /**
+     * Similar to Rust's PhantomData. Do not remove because this is used 
+     * for type inference
+     */
+    declare public __phantom_body?: (value: Body) => Body;
+    declare public __phantom_message?: (value: Msg) => Msg;
+
     private constructor(
-        private readonly _status: number,
-        private readonly _message?: string,
-        private readonly _body?: T
+        public _status: number,
+        public _message?: string,
+        public _body?: Body
     ) { }
 
-    static status(status: number) {
+    static status(status: number): HttpResponseBuilder {
         return new HttpResponseBuilder(status);
     }
 
-    public message(
-        message: string
-    ) {
-        return new HttpResponseBuilder(this._status, message, this._body);
+    public message(message: string): HttpResponseBuilder<Body, true> {
+        return new HttpResponseBuilder(
+            this._status,
+            message,
+            this._body
+        );
     }
 
-    public body<B extends HttpBody>(body: B) {
-        return new HttpResponseBuilder(this._status, this._message, body);
+    public body<B extends HttpBody>(body: B): HttpResponseBuilder<B, Msg> {
+        return new HttpResponseBuilder(
+            this._status,
+            this._message,
+            body
+        );
     }
 
     public send(res: Response) {
@@ -37,8 +51,8 @@ class HttpResponseBuilder<T extends HttpBody = {}> {
         return {
             ok: this._status >= 200 && this._status < 300,
             status: this._status,
-            message: this._message,
-            body: this._body || {}
+            message: this._message as Msg extends true ? string : undefined,
+            body: this._body as Body
         };
     }
 }
@@ -50,51 +64,24 @@ export const HttpResponse = (() => {
         Unauthorized: 401,
         NotFound: 404,
         InternalServerError: 500,
+        NotImplemented: 501
     };
 
-    const methods = {
-        NotImplemented: () => HttpResponseBuilder
-            .status(501)
-            .message("This route was not yet implemented")
-    };
+    const methods = {} as Record<string, any>;
 
     for (const [f, status] of Object.entries(statuses)) {
         methods[f] = (() => HttpResponseBuilder.status(status));
     }
 
-    type Methods = typeof methods & {
+    type Methods = {
         [K in keyof typeof statuses]: () => HttpResponseBuilder;
     };
 
     return methods as Methods;
 })();
 
-/**
- * Export to frontend
- */
-export async function api<
-    P extends keyof SwaggerDocs,
-    I extends SwaggerDocs[P]["input"],
-    O extends SwaggerDocs[P]["output"]
->(path: P, ...input: I extends undefined ? [] : [I]): Promise<O> {
-    const method = BACKEND_ROUTES[path];
-    // Fetch must have to include credentials: include in the 
-    // fetch json, additionally the JWT on the backend must be 
-    // set to HttpOnly flag
-    return 0 as any;
-}
-
-// const s = api("users/login", {
-//     "email": "",
-//     "password": ""
-// }).then(r => {
-//     if (r.body) {
-//         return r.body.token;
-//     }
-// });
-
 export function getRouteMethods(express: any) {
-    const routes = {};
+    const routes = {} as Record<string, string>;
 
     function extractRoutes(stack: any[], basePath = "") {
         stack.forEach((middleware) => {
