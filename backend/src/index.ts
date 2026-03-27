@@ -9,12 +9,6 @@ import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
 dotenv.config();
 
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
     jwt_secret: process.env.JWT_SECRET!,
