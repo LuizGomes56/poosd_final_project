@@ -1,13 +1,23 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../components/Button";
 import { Field } from "../components/Form";
+import { api } from "../utils/request";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const loginRequest = async (email: string, password: string) => {
-        
+    async function login() {
+        const response = await api("users/login", {
+            email,
+            password
+        });
+
+        if (response.ok) {
+            localStorage.setItem("token", response.body!.token);
+        } else {
+            console.warn(response.message);
+        }
     }
 
     return (
@@ -32,7 +42,7 @@ export default function Login() {
                 extraClasses="place-self-end w-fit"
                 color={"emerald"}
                 text={"Submit"}
-                onClick={async () => loginRequest(email, password)}
+                onClick={login}
             />
         </div>
     )
