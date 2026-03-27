@@ -1,27 +1,25 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "strict": true,
-        "noImplicitAny": false,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "./dist",
-        "rootDir": "./",
-        "allowJs": true,
-        "checkJs": true,
-        "baseUrl": ".",
-        // "paths": {
-        //     "*": [
-        //         "node_modules/*"
-        //     ]
-        // }
-    },
-    "include": [
-        "**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "./",
+    "allowJs": true,
+    "checkJs": true,
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist-types"
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist-types"
+  ]
 }

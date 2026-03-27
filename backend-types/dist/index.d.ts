@@ -1,0 +1,1 @@
+export type { SwaggerDocs } from "../../backend/dist-types/routes/types";
