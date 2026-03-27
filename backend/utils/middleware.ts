@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+import { Dotenv } from "../index";
 import { NextFunction, Response } from "express";
 import { Routes } from "../routes/methods";
 import { SCHEMA } from "./schema";
@@ -103,12 +105,17 @@ export const Middleware = {
             } as HttpResponse);
         }
 
+        const data = jwt.verify(token, Dotenv.jwt_secret);
+
+        req.token = token;
+        req.token_data = data;
+
         next();
     } catch (e: any) {
         return res.status(HttpStatus.Unauthorized).json({
             ok: false,
             status: HttpStatus.Unauthorized,
-            message: "Unauthorized"
+            message: "Invalid or expired token"
         } as HttpResponse);
     }
 }

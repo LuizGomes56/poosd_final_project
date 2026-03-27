@@ -32,8 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/", Middleware.schema);
-app.use("/api", Middleware.require, routes);
+app.use("/api", Middleware.schema);
+app.use("/api", Middleware.require, Middleware.auth, routes);
 getRouteMethods(app);
 
 app.listen(3000, (e) => {
