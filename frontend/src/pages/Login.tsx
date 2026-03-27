@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../components/Button";
 import { Field } from "../components/Form";
 import { api } from "../utils/request";
 import { useNavigate } from "react-router-dom";
+import { api } from "../utils/request";
 
 export default function Login() {
     const [email, setEmail] = useState("");
