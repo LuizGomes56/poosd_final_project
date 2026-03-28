@@ -29,21 +29,16 @@ for (const [key, value] of Object.entries(Dotenv)) {
 
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const frontendPath = path.join(__dirname, "../../frontend/dist");
-app.use(express.static(frontendPath));
-app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
-});
-
-app.use(cors({
-    origin: ["http://localhost:5173"],
-    // origin: [
-    //     "*"
-    // ],
+const corsOptions = {
+    origin: "http://localhost:5173",
     credentials: true,
-}));
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -55,6 +50,15 @@ app.use(cookieParser());
 app.use("/api", Middleware.schema as any);
 app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendPath = path.join(__dirname, "../../frontend/dist");
+
+app.use(express.static(frontendPath));
+app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 app.listen(Dotenv.port, async (e) => {
     const conn = await mongoose.connect(Dotenv.database_url);

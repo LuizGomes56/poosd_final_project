@@ -17,10 +17,16 @@ export async function api<
             credentials: "include"
         };
 
-        const body = input[0];
+        const token = localStorage.getItem("token");
+        if (token) {
+            args.headers = {
+                ...args.headers,
+                Authorization: `Bearer ${token}`,
+            };
+        }
 
-        if (body && method !== "GET") {
-            args.body = JSON.stringify(body);
+        if (method !== "GET") {
+            args.body = JSON.stringify(input[0]);
         }
 
         const request = await fetch(`${URL}/${path}`, args);
