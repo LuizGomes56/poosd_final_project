@@ -1,7 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY ./backend ./backend
-COPY ./frontend/ ./frontend
 WORKDIR /app/backend
 RUN npm install
 # Defaults Might change however
