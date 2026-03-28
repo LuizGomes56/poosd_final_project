@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../utils/request";
+//import { api } from "../utils/request";
 
 export default function Header() {
     const [name, setName] = useState("");
