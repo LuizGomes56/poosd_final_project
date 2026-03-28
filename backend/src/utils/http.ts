@@ -109,13 +109,16 @@ export function getRouteMethods(express: any) {
     } else {
         console.warn("No route registered in the app");
     }
+
+    delete routes["*"];
+
     const routesObjectEntries = Object.entries(routes)
         .map(([route, method]) => `    "${route}": "${method}",`)
         .join("\n");
     const routesTypeDef = `export const BACKEND_ROUTES = {\n${routesObjectEntries}\n} as const;\n`;
 
     const filePath = fileURLToPath(
-        new URL("../routes/methods.ts", import.meta.url)
+        new URL("../../src/routes/methods.ts", import.meta.url)
     );
     writeFileSync(filePath, routesTypeDef, "utf-8");
 }
