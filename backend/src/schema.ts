@@ -9,7 +9,7 @@ const R = z.object({
         .max(64, { error: "Name must be at most 64 characters long" }),
     EMAIL: z.email({ error: "Invalid email" }),
     PASSWORD: z.string().min(4).max(32).describe("Password must be a string and be defined."),
-    NOTHING: z.undefined({ error: "This route does not expect any input" }),
+    NOTHING: z.object({}),
 }).shape;
 
 export const SCHEMA = {
@@ -23,6 +23,7 @@ export const SCHEMA = {
         email: R.EMAIL,
         password: R.PASSWORD,
     }),
+    "users/verify": R.NOTHING,
     "questions/create": R.NOTHING,
     "topics/create": R.NOTHING
 } as const satisfies Record<Route, any>;

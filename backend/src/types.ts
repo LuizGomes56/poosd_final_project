@@ -7,6 +7,10 @@ import type { Response, Request } from "express";
 import type { ReqHelpers, ResHelpers } from "./utils/middleware.js";
 import type { HttpBuilder } from "./utils/http.js";
 
+type Is<T, U> =
+    [T] extends [U]
+    ? ([U] extends [T] ? true : false)
+    : false;
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsNever<T> = [T] extends [never] ? true : false;
 type IsUnknown<T> = unknown extends T
@@ -35,7 +39,7 @@ export type GetSchema<
         ? M[P][F] extends (...args: any[]) => any ? {
             method: typeof BACKEND_ROUTES[K];
             output: ReturnType<Awaited<ReturnType<M[P][F]>>["json"]>;
-            input: InputSchema[K];
+            input: Is<InputSchema[K], Record<string, never>> extends true ? undefined : InputSchema[K];
         }
         : never
         : never
