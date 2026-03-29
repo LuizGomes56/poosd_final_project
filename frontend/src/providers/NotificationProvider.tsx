@@ -82,7 +82,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 export const useNotification = () => {
     const context = useContext(NotificationContext);
     if (!context) {
-        throw new Error("useNotification deve ser usado dentro de um NotificationProvider");
+        throw new Error("useNotification must be called inside a NotificationProvider");
     }
     return context;
 };

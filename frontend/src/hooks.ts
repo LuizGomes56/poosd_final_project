@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Hook que dispara um callback quando um clique ocorre fora do elemento referenciado.
- * @param callback Função a ser chamada quando o clique for fora dos elementos protegidos.
- * @param exceptions Refs que não devem disparar o evento.
- * @returns Ref principal para ser atribuído ao elemento principal.
+ * Hook that triggers a callback when a click happens outside the referenced element.
+ * @param callback Function to be called when the click happens outside the protected elements.
+ * @param exceptions Refs that should not trigger this event.
+ * @returns Main ref to be passed to the main element.
  */
 export function useClickOut<T extends HTMLElement = any>(
     callback: () => void,
@@ -45,7 +45,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 /**
- * Skips first component render 
+ * `useEffect` but Skips first component render 
  */
 export function useSkip(fn: () => void, deps: any[] = []) {
     const isMounted = useRef(false);

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Field } from "../components/Form";
 import Button from "../components/Button";
-import {api} from "../utils/request";
-import { useNavigate} from "react-router-dom";
-// const login_url = ""
+import { api } from "../utils/request";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
     const [email, setEmail] = useState("");
@@ -12,14 +11,14 @@ export default function Register() {
     const [ErrorString, setErrorString] = useState("");
     const navigate = useNavigate();
 
-     let register = async () => {
-        const response = await api("users/register", {full_name: fullName, email: email, password: password});
-        if(response.ok) {
+    const register = async () => {
+        const response = await api("users/register", { full_name: fullName, email: email, password: password });
+        if (response.ok) {
             navigate('/login');
-            
+
         }
         setErrorString(response.message);
-     }
+    }
 
     return (
         <div className="
@@ -49,10 +48,10 @@ export default function Register() {
             <Button
                 color="emerald"
                 text={"Register"}
-             onClick={register}
+                onClick={register}
             />
             <p>{ErrorString}</p>
         </div>
-        
+
     )
 }
