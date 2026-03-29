@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useUser } from "./providers/UserProvider";
+import type { NotificationProps } from "./consts";
+import { api } from "./utils/request";
 
 /**
  * Hook that triggers a callback when a click happens outside the referenced element.
@@ -8,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
  */
 export function useClickOut<T extends HTMLElement = any>(
     callback: () => void,
-    exceptions: React.RefObject<HTMLElement>[] = []
+    exceptions: React.RefObject<HTMLElement | null>[] = []
 ) {
     const ref = useRef<T | null>(null);
 
@@ -57,3 +60,48 @@ export function useSkip(fn: () => void, deps: any[] = []) {
         fn();
     }, deps);
 }
+
+/**
+ * This hook is not ready because a route to update the user's data does not exist
+ */
+export const useUpdateUser = () => {
+    const { user, setUser } = useUser();
+
+    const updateUser = async (value: any, id?: string, addNotification: (obj: NotificationProps) => void = () => { }) => {
+        if (!id) {
+            addNotification({ type: "error", msg: "Internal error (User Id not provided)" });
+            return;
+        }
+        if (!user) {
+            addNotification({ type: "error", msg: "User does not exist" });
+            return;
+        }
+        if (user[id as keyof typeof user] == value || user.data[id] == value) {
+            addNotification({ type: "info", msg: "No changes were made" });
+            return;
+        }
+        const user_id = user.user_id;
+        if (!user_id) {
+            addNotification({ type: "error", msg: "Unable to identify the user" });
+            return;
+        }
+        try {
+            const response = await api("users/patch" as any, { [id]: value });
+            if (response.body) {
+                setUser((current) =>
+                    current
+                        ? {
+                            ...current,
+                            ...response.body,
+                        }
+                        : null
+                );
+                addNotification({ type: "success", msg: "Update successful" });
+            }
+        } catch (e) {
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+        }
+    };
+
+    return updateUser;
+};
