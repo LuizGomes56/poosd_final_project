@@ -8,7 +8,11 @@ const router = Router();
 router.get("/logout", route(UsersController.logout));
 router.post("/login", route(UsersController.login));
 router.post("/register", route(UsersController.register));
-router.get("/verify", route(UsersController.verify));
+router.get(
+    "/verify",
+    Middleware.authentication,
+    route(UsersController.verify)
+);
 /*
  --> Add these routes to the correct router location. Here 
  --> we should have only things related to the current user

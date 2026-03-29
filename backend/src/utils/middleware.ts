@@ -2,11 +2,15 @@ import type { NextFunction, Request, Response } from "express";
 import { BACKEND_ROUTES } from "../routes/methods.js";
 import { SCHEMA } from "../schema.js";
 import { HttpResponse } from "./http.js";
+import { Dotenv } from "../index.js";
+import jwt from "jsonwebtoken";
 
 /**
  * Helper functions to use on `req` object as method
  */
-export interface ReqHelpers { }
+export interface ReqHelpers {
+    jwt: () => string | undefined
+}
 
 /**
  * Helper functions to use on `res` object as method
@@ -15,7 +19,29 @@ export interface ResHelpers { }
 
 export const Middleware = {
     helpers: async (req: Request & ReqHelpers, res: Response & ResHelpers, next: NextFunction) => {
-        next()
+        req.jwt = () => req.headers.authorization?.trim().replace("Bearer ", "");
+
+        next();
+    },
+    authentication: async (req: Request, res: Response, next: NextFunction) => {
+        const token = (req as any).jwt();
+
+        if (!token) {
+            return HttpResponse.Unauthorized()
+                .message("Could not extract token from the request headers")
+                .send(res);
+        }
+
+        try {
+            const payload = jwt.verify(token, Dotenv.jwt_secret) as jwt.JwtPayload;
+            (req as any).token = token;
+            (req as any).payload = payload;
+            next();
+        } catch (e: any) {
+            return HttpResponse.Unauthorized()
+                .message(e?.message || "Failed to verify token signature")
+                .send(res);
+        }
     },
     /**
      * Dynamically checks which route was called and verifies if `req.body` is valid

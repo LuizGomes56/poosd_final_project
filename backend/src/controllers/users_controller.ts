@@ -26,7 +26,7 @@ export const UsersController = {
         return HttpResponse.Ok().message("User logged in successfully").body({ token, ...payload });
     },
     logout: async function (req, res) {
-        const token = req.headers.authorization?.trim().replace("Bearer ", "");
+        const token = req.jwt();
 
         if (!token) {
             console.warn("Non-authenticated user is trying to logout");
@@ -72,14 +72,6 @@ export const UsersController = {
         }
     },
     verify: async function (req) {
-        const token = req.headers.authorization?.trim().replace("Bearer ", "");
-
-        if (!token) {
-            return HttpResponse.Unauthorized()
-                .message("Could not extract token from the request headers");
-        }
-
-        const payload = jwt.verify(token, Dotenv.jwt_secret) as jwt.JwtPayload;
-        return HttpResponse.Ok().body(payload);
+        return HttpResponse.Ok().body(req.payload);
     }
 } as const satisfies Controller["users"];

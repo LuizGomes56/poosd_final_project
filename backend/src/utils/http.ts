@@ -44,7 +44,7 @@ class HttpResponseBuilder<
     }
 
     public send(res: Response) {
-        res.status(this._status).json(this.json());
+        return res.status(this._status).json(this.json());
     }
 
     public json() {
@@ -82,24 +82,85 @@ export const HttpResponse = (() => {
 
 export function getRouteMethods(express: any) {
     const routes = {} as Record<string, string>;
+    const protectedRoutes = new Set<string>();
 
-    function extractRoutes(stack: any[], basePath = "") {
-        stack.forEach((middleware) => {
-            if (middleware.route) {
-                const methods = Object.keys(middleware.route.methods)
-                    .map(m => m.toUpperCase())
-                    .join(', ');
-                let cleanPath = basePath.replace(/^\/api\//, '') + middleware.route.path;
-                cleanPath = cleanPath.replace(/\/:[^/]+/g, '');
-                cleanPath = cleanPath.replace(/\/$/, '');
+    function normalizePath(path: string) {
+        if (!path) return "";
+        let result = path.replace(/\/+/g, "/");
+        result = result.replace(/^\/api\//, "");
+        result = result.replace(/\/:[^/]+/g, "");
+        result = result.replace(/\/$/, "");
+        return result;
+    }
+
+    function getLayerMountPath(layer: any) {
+        const source = layer?.regexp?.source;
+        if (!source) return "";
+
+        if (source === "^\\/?(?=\\/|$)") {
+            return "";
+        }
+
+        return source
+            .replace("^\\", "")
+            .replace("\\/?(?=\\/|$)", "")
+            .replace(/\\\//g, "/");
+    }
+
+    function isAuthenticationLayer(layer: any) {
+        return layer?.name === "authentication";
+    }
+
+    function extractRoutes(
+        stack: any[],
+        basePath = "",
+        inheritedProtected = false
+    ) {
+        let stackProtected = inheritedProtected;
+        const protectedMounts = new Set<string>();
+
+        for (const layer of stack) {
+            const mountFragment = getLayerMountPath(layer);
+            const mountPath = normalizePath(basePath + mountFragment);
+
+            if (layer.route) {
+                const methods = Object.keys(layer.route.methods)
+                    .map((m) => m.toUpperCase())
+                    .join(", ");
+
+                const cleanPath = normalizePath(basePath + layer.route.path);
+
                 routes[cleanPath] = methods;
-            } else if (middleware.name === "router" && middleware.handle.stack) {
-                extractRoutes(
-                    middleware.handle.stack,
-                    basePath + (middleware.regexp.source.replace("^\\", "").replace("\\/?(?=\\/|$)", "") || '')
-                );
+
+                const routeProtected =
+                    stackProtected ||
+                    layer.route.stack.some((routeLayer: any) =>
+                        isAuthenticationLayer(routeLayer)
+                    );
+
+                if (routeProtected) {
+                    protectedRoutes.add(cleanPath);
+                }
+
+                continue;
             }
-        });
+
+            if (isAuthenticationLayer(layer)) {
+                if (mountPath === normalizePath(basePath)) {
+                    stackProtected = true;
+                } else {
+                    protectedMounts.add(mountPath);
+                }
+                continue;
+            }
+
+            if (layer.name === "router" && layer.handle?.stack) {
+                const nestedProtected =
+                    stackProtected || protectedMounts.has(mountPath);
+
+                extractRoutes(layer.handle.stack, mountPath, nestedProtected);
+            }
+        }
     }
 
     const router = express._router;
@@ -115,10 +176,22 @@ export function getRouteMethods(express: any) {
     const routesObjectEntries = Object.entries(routes)
         .map(([route, method]) => `    "${route}": "${method}",`)
         .join("\n");
-    const routesTypeDef = `export const BACKEND_ROUTES = {\n${routesObjectEntries}\n} as const;\n`;
+
+    const routesTypeDef =
+        `export const BACKEND_ROUTES = {\n${routesObjectEntries}\n} as const;\n`;
+
+    const protectedRoutesDef = [...protectedRoutes]
+        .map((route) => `"${route}"`)
+        .join(",\n\t");
+
+    const protectedRoutesTypeDef =
+        `\nexport const BACKEND_PROTECTED_ROUTES = [\n\t${protectedRoutesDef}\n] as const;\n`;
+
+    const result = routesTypeDef + protectedRoutesTypeDef;
 
     const filePath = fileURLToPath(
         new URL("../../src/routes/methods.ts", import.meta.url)
     );
-    writeFileSync(filePath, routesTypeDef, "utf-8");
+
+    writeFileSync(filePath, result, "utf-8");
 }
