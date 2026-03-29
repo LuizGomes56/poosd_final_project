@@ -1,11 +1,12 @@
 import type { UsersController } from "./controllers/users_controller.js";
 import type { InputSchema } from "./schema.js";
-import type { BACKEND_ROUTES } from "./routes/methods.js";
+import type { BACKEND_PROTECTED_ROUTES, BACKEND_ROUTES } from "./routes/methods.js";
 import type { QuestionsController } from "./controllers/questions_controller.js";
 import type { TopicsController } from "./controllers/topics_controller.js";
 import type { Response, Request } from "express";
 import type { ReqHelpers, ResHelpers } from "./utils/middleware.js";
 import type { HttpBuilder } from "./utils/http.js";
+import { JwtPayload } from "jsonwebtoken";
 
 type Is<T, U> =
     [T] extends [U]
@@ -40,6 +41,7 @@ export type GetSchema<
             method: typeof BACKEND_ROUTES[K];
             output: ReturnType<Awaited<ReturnType<M[P][F]>>["json"]>;
             input: Is<InputSchema[K], Record<string, never>> extends true ? undefined : InputSchema[K];
+            protected: K extends typeof BACKEND_PROTECTED_ROUTES[number] ? true : false
         }
         : never
         : never
@@ -54,7 +56,13 @@ export type Controllers = {
 };
 
 export type ControllerFn<R extends keyof InputSchema> = (
-    req: Omit<Request, "body"> & { body: InputSchema[R] } & ReqHelpers,
+    req: Omit<Request, "body">
+        & { body: InputSchema[R] }
+        & ReqHelpers
+        & (R extends typeof BACKEND_PROTECTED_ROUTES[number] ? {
+            token: string,
+            payload: JwtPayload
+        } : {}),
     res: Response & ResHelpers
 ) => Promise<HttpBuilder<any, any>>
 
