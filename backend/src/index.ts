@@ -47,17 +47,17 @@ app.use(cookieParser());
  * I guarantee that the following middlewares will always work, so we cast
  * them to `any`
  */
-app.use("/api", Middleware.schema as any);
+app.use("/api", Middleware.schema);
 app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendPath = path.join(__dirname, "../../frontend/dist");
+const frontend = path.join(__dirname, "../../frontend/dist");
 
-app.use(express.static(frontendPath));
-app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
+app.use(express.static(frontend));
+app.get("*", (_, res) => {
+    res.sendFile(path.join(frontend, "index.html"));
 });
 
 app.listen(Dotenv.port, async (e) => {

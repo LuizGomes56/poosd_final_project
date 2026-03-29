@@ -6,3 +6,9 @@ export const BACKEND_ROUTES = {
     "questions/create": "POST",
     "topics/create": "POST",
 } as const;
+
+export const BACKEND_PROTECTED_ROUTES = [
+	"users/verify",
+	"questions/create",
+	"topics/create"
+] as const;
