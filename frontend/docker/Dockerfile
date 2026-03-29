@@ -1,6 +1,10 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY ./backend ./backend
+WORKDIR /app/backend
+RUN npm install 
+RUN npx tsc
+WORKDIR /app
 COPY ./frontend ./frontend
 WORKDIR /app/frontend
 RUN npm install

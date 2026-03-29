@@ -12,7 +12,7 @@ const fetchData = async () => {
         throw new Error("Authentication Token not found. You must log in again");
     }
 
-    return await api("users/verify");
+    return await api("users/register");
 }
 
 const RequireLogin = () => {
