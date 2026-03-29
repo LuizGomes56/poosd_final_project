@@ -26,7 +26,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [user]);
 
-    /** Logout local apenas, eliminando o "user", e removendo o token */
     const logout = () => {
         setUser(null);
         localStorage.removeItem("token");

@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { Response } from "express";
 import { fileURLToPath } from "url";
 
@@ -189,9 +189,17 @@ export function getRouteMethods(express: any) {
 
     const result = routesTypeDef + protectedRoutesTypeDef;
 
-    const filePath = fileURLToPath(
+    const srcFilePath = fileURLToPath(
         new URL("../../src/routes/methods.ts", import.meta.url)
     );
 
-    writeFileSync(filePath, result, "utf-8");
+    const distFilePath = fileURLToPath(
+        new URL("../../dist/routes/methods.ts", import.meta.url)
+    );
+
+    writeFileSync(srcFilePath, result, "utf-8");
+
+    if (existsSync(distFilePath)) {
+        writeFileSync(distFilePath, result, "utf-8");
+    }
 }
