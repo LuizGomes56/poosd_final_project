@@ -37,10 +37,3 @@ export async function api<
         throw e;
     }
 }
-
-// const s = await api("users/login", {
-//     "email": "d",
-//     "password": "d"
-// })
-
-// const t = s.body?.token

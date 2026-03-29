@@ -1,7 +1,7 @@
 import { BiCheck } from "react-icons/bi";
 import type { SetState } from "../consts";
 
-const FormCheckbox = ({
+const FormCheckbox2 = ({
     id,
     title,
     value,
@@ -48,4 +48,4 @@ const FormCheckbox = ({
         </div>
     </div>
 )
-export default FormCheckbox;
+export default FormCheckbox2;

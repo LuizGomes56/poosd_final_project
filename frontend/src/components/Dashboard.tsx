@@ -1,14 +1,13 @@
 import { useState } from "react";
-import ColoredButton from "./ColoredButton";
 import Table from "./Table";
 import { translate, type ActionFn } from "../consts";
 
 const Example = () => {
-    const [action, setAction] = useState<ActionFn>(null);
+    const [_action, setAction] = useState<ActionFn>(null);
 
     return (
         <div className="flex flex-col flex-1 max-w-full gap-4 mt-4">
-            <h2 className="text-xl mx-4 dark:text-white">Serviços aprovados</h2>
+            <h2 className="text-xl mx-4 dark:text-white">Your tests/quizzes</h2>
             <Table
                 checkboxes
                 actions={setAction}

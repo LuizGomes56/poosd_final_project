@@ -12,6 +12,10 @@ const ConfigEditor = <T,>({
     const updateUser = useUpdateUser();
 
     useSkip(() => {
+        /**
+         * TODO: Verify if this id is in fact suitable to find the user using mongodb
+         * ? maybe it comes as `user._id` from the API?
+         */
         updateUser(value, id, (addNotification ? addNotification : () => void 0));
     }, [value]);
 
