@@ -2,7 +2,7 @@ import users from "./users.js";
 import questions from "./questions.js";
 import topics from "./topics.js";
 import { NextFunction, Router } from "express";
-import { HttpBuilder, HttpResponse } from "../utils/http.js";
+import { type HttpResponseBuilder, HttpResponse } from "../utils/http.js";
 import { Middleware } from "../utils/middleware.js";
 
 const router = Router();
@@ -18,7 +18,7 @@ router.use("/topics", Middleware.authentication, topics);
  * the req.body input type, nothing else
  */
 
-export function route(f: (req: any, res: any) => Promise<HttpBuilder<any, any>>) {
+export function route(f: (req: any, res: any) => Promise<HttpResponseBuilder<any, any>>) {
     const name = f.name;
     console.log(name);
     return async (req: any, res: any, next: NextFunction) => {

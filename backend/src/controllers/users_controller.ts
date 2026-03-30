@@ -15,11 +15,12 @@ export const UsersController = {
                 .message("User does not exist. Verify the provided email address");
         }
 
-        if (!bcrypt.compareSync(password, user.password_hash)) {
+        const { password_hash, ...payload } = user;
+
+        if (!bcrypt.compareSync(password, password_hash)) {
             return HttpResponse.Unauthorized().message("Password is incorrect")
         }
 
-        const { password_hash: _, ...payload } = user;
         const token = jwt.sign(payload satisfies jwt.JwtPayload, Dotenv.jwt_secret);
 
         res.cookie("authorization", `Bearer ${token}`);
