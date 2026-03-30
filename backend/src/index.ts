@@ -11,10 +11,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 dotenv.config();
 
-// import { __init } from "./seed.js";
-
-// (async () => { await __init() })();
-
 export const Dotenv = {
     database_url: process.env.DATABASE_URL!,
     jwt_secret: process.env.JWT_SECRET!,
@@ -23,7 +19,7 @@ export const Dotenv = {
 
 for (const [key, value] of Object.entries(Dotenv)) {
     if (!value) {
-        throw new Error(`Environment variable ${key}:snake:upper is not defined`);
+        throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
     }
 }
 

@@ -4,9 +4,7 @@ import { fileURLToPath } from "url";
 
 type HttpBody = Record<string, any>;
 
-export type HttpBuilder<Body extends HttpBody | undefined = undefined, Msg extends boolean = false> = HttpResponseBuilder<Body, Msg>;
-
-class HttpResponseBuilder<
+export class HttpResponseBuilder<
     Body extends HttpBody | undefined = undefined,
     Msg extends boolean = false
 > {
@@ -14,13 +12,13 @@ class HttpResponseBuilder<
      * Similar to Rust's PhantomData. Do not remove because this is used 
      * for type inference
      */
-    declare public __phantom_body?: (value: Body) => Body;
-    declare public __phantom_message?: (value: Msg) => Msg;
+    declare private __phantom_body?: (value: Body) => Body;
+    declare private __phantom_message?: (value: Msg) => Msg;
 
     private constructor(
-        public _status: number,
-        public _message?: string,
-        public _body?: Body
+        private _status: number,
+        private _message?: string,
+        private _body?: Body
     ) { }
 
     static status(status: number): HttpResponseBuilder {
@@ -43,6 +41,13 @@ class HttpResponseBuilder<
         );
     }
 
+    /**
+     * Returns an Http response directly to the client, not a JSON object!
+     * 
+     * ## Note 
+     * **NEVER CALL THIS FUNCTION INSIDE ANY FILE IN `/controllers/*.ts`**
+     * - This function is meant to be used inside middlewares 
+     */
     public send(res: Response) {
         return res.status(this._status).json(this.json());
     }

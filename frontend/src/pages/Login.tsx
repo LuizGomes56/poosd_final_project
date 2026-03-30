@@ -53,8 +53,7 @@ export default function Login() {
                 placeholder="Your password"
             />
             <Button
-                extraClasses="place-self-end w-fit"
-                color={"emerald"}
+                className="place-self-end w-fit"
                 text={"Submit"}
                 onClick={loginRequest}
             />

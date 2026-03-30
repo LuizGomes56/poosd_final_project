@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Route } from "./types.js";
 
-const R = z.object({
+const S = z.object({
     UUID: z.uuid({ error: "Invalid UUID" }),
     JWT: z.jwt({ error: "Invalid JWT Token" }),
     NAME: z.string()
@@ -14,19 +14,20 @@ const R = z.object({
 
 export const SCHEMA = {
     "users/login": z.object({
-        email: R.EMAIL,
-        password: R.PASSWORD,
+        email: S.EMAIL,
+        password: S.PASSWORD,
     }),
-    "users/logout": R.NOTHING,
+    "users/logout": S.NOTHING,
     "users/register": z.object({
-        full_name: R.NAME,
-        email: R.EMAIL,
-        password: R.PASSWORD,
+        full_name: S.NAME,
+        email: S.EMAIL,
+        password: S.PASSWORD,
     }),
-    "users/verify": R.NOTHING,
-    "questions/create": R.NOTHING,
-    "topics/create": R.NOTHING
-} as const satisfies Record<Route, any>;
+    "users/verify": S.NOTHING,
+    "questions/create": S.NOTHING,
+    "topics/create": S.NOTHING,
+    "topics/all": S.NOTHING
+} as const satisfies Record<(string & {}) | Route, Record<string, any>>;
 
 export type InputSchema = {
     [K in keyof typeof SCHEMA]: z.infer<typeof SCHEMA[K]>
