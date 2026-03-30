@@ -1,27 +1,27 @@
-export interface ButtonProps {
-    color: string;
-    text: string;
-    id?: string;
-    onClick?: () => void;
-    extraClasses?: string;
-}
-
-export default function Button(props: ButtonProps) {
-    const { color, text, id, onClick, extraClasses } = props;
-
-    return (
-        <button
-            type="submit"
-            id={id}
-            className={`
-                min-w-28 transition-all duration-300 
-                hover:bg-${color}-400 hover:border-b-${color}-600 
-                font-medium w-full p-2 text-white bg-${color}-500 
-                border-b-4 border-b-${color}-700 rounded ${extraClasses}
-            `}
-            onClick={onClick}
-        >
+const Button = ({
+    disabled = false,
+    type = "button",
+    text,
+    onClick,
+    className = ""
+}: {
+    disabled?: boolean,
+    type?: "button" | "submit" | "reset",
+    className?: string, text: string, onClick?: (...args: any[]) => any
+}) => (
+    <button
+        type={type}
+        disabled={disabled}
+        onClick={onClick}
+        className={`px-6 py-2.5 text-nowrap transition-colors duration-200 font-medium 
+            text-white rounded-lg bg-purple-700
+            shadow not-dark:shadow-zinc-400 dark:shadow-zinc-900
+            not-dark:dark:bg-purple-700 dark:hover:bg-purple-600 ${className}`}
+    >
+        <span className="dark:text-std-shadow-0.5 font-medium">
             {text}
-        </button>
-    );
-};
+        </span>
+    </button>
+)
+
+export default Button

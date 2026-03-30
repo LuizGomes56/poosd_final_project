@@ -46,7 +46,6 @@ export default function Register() {
                 type="password"
             />
             <Button
-                color="emerald"
                 text={"Register"}
                 onClick={register}
             />
