@@ -21,7 +21,10 @@ export const UsersController = {
             return HttpResponse.Unauthorized().message("Password is incorrect")
         }
 
-        const token = jwt.sign(payload satisfies jwt.JwtPayload, Dotenv.jwt_secret);
+        const token = jwt.sign({
+            user_id: payload._id.toString(),
+            ...payload
+        } satisfies jwt.JwtPayload, Dotenv.jwt_secret);
 
         res.cookie("authorization", `Bearer ${token}`);
         return HttpResponse.Ok().message("User logged in successfully").body({ token, ...payload });

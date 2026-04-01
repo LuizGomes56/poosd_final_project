@@ -5,6 +5,8 @@ export const BACKEND_ROUTES = {
     "users/verify": "GET",
     "questions/create": "POST",
     "topics/create": "POST",
+    "topics/delete": "DELETE",
+    "topics/update": "PUT",
     "topics/all": "GET",
 } as const;
 
@@ -12,5 +14,7 @@ export const BACKEND_PROTECTED_ROUTES = [
 	"users/verify",
 	"questions/create",
 	"topics/create",
+	"topics/delete",
+	"topics/update",
 	"topics/all"
 ] as const;
