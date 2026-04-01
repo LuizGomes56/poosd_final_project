@@ -5,6 +5,7 @@ import { route } from "./index.js";
 const router = Router();
 
 router.post("/create", route(TopicsController.create));
+router.post("/delete", route(TopicsController.delete));
 router.get("/all", route(TopicsController.all));
 
 export default router;

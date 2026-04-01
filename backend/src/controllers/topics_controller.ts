@@ -14,6 +14,16 @@ export const TopicsController = {
         const body = topic.toObject();
         return HttpResponse.Ok().body(body);
     },
+    delete: async function (req) {
+        const { topic_id } = req.body;
+        const topic = await TOPICS.findByIdAndDelete(topic_id).lean();
+
+        if (!topic) {
+            return HttpResponse.NotFound().message("Topic not found");
+        }
+
+        return HttpResponse.Ok().body(topic);
+    },
     all: async function (req) {
         const { user_id } = req.payload;
         const data = await TOPICS.find({
