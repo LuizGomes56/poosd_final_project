@@ -27,7 +27,8 @@ const App = () => {
     let webpages = [
                         { id: "dashboard", text: "Dashboard", icon: <MdGridView className="h-5 w-5" /> },
                         { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
-                        {id: "questions", text: "My Questions", icon: <MdGridView className="h-5 w-5" />}];
+                        {id: "questions", text: "My Questions", icon: <MdGridView className="h-5 w-5" />},
+                        {id: "topics", text: "My Topics", icon: <MdGridView className="h-5 w-5" />}];
 
     return (
         <div className="flex flex-col h-screen">
