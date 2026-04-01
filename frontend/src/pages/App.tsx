@@ -5,9 +5,13 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { MdGridView } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
+import QuestionsPage from "../components/QuestionsPage";
+import TopicsPage from "../components/TopicsPage";
 
 const componentMap: Record<string, React.ComponentType> = {
     dashboard: Dashboard,
+    questions: QuestionsPage,
+    topics: TopicsPage,
     account: AccountSettings,
 };
 
