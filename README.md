@@ -126,6 +126,7 @@ cd mobile
 flutter doctor
 flutter pub get
 flutter run
+```
 
 ### Running Tests
 ```bash
