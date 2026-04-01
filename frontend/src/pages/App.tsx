@@ -3,9 +3,11 @@ import Dashboard from "../components/Dashboard";
 import AccountSettings from "./AccountSettings";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import Topics from "./Topics";
 
 const componentMap: Record<string, React.ComponentType> = {
     dashboard: Dashboard,
+    topics: Topics,
     account: AccountSettings,
 };
 

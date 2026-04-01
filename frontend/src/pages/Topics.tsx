@@ -61,10 +61,6 @@ export default function Topics() {
 
             {/* Page header */}
             <div className="flex flex-col gap-0.5">
-                <p className="text-xs dark:text-zinc-500 text-zinc-400">
-                    dashboard /{" "}
-                    <span className="dark:text-zinc-300 text-zinc-600">topics</span>
-                </p>
                 <h1 className="text-2xl font-bold dark:text-white">Topics</h1>
             </div>
 
