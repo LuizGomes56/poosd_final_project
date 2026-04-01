@@ -1,23 +1,44 @@
 import { useState } from "react";
 import Table from "./Table";
-import { translate, type ActionFn } from "../consts";
+import { translate, type ActionFn, type SetState } from "../consts";
 import { api } from "../utils/request";
-type TableEntries = {
+import QuestionEditPopup from "./QuestionEdit";
+import QuestionEditPage from "./QuestionEdit";
+type TableEntry = {
     value: string,
     style?: string
 }
 type QuestionTableBody = [
-    [id: string, [TableEntries, ...TableEntries[]]]
+    [id: string, [TableEntry, TableEntry, TableEntry]]
 ]
+type NullableQuestionTable = QuestionTableBody | null;
+
+//Should maybe take in arguments to determine the
+//Sorting order and text queries
 function requestQuestions(){
     //api("") Query questions 
-}
+    return null as NullableQuestionTable
+} 
 
-const QuestionsPage = () => {
-     const [_action, setAction] = useState<ActionFn>(null);
-
-    
-    return(
+const QuestionDisplay = ({questions, setAction}
+    :
+    {
+        questions: NullableQuestionTable
+        setAction: SetState<ActionFn>
+    }
+) => {
+    //remember to change this back to 
+    // questions === null
+    // Maybe === is unnecessary
+    if(questions != null) {
+        return (
+            <div className="content-center">
+                <p className="text-pretty text-white text-4xl ">Nothing to see here folks</p>
+            </div>
+        )
+    }
+    else {
+        return(
         <div className="flex flex-col flex-1 max-w-full gap-4 mt-4">
             <h2 className="text-xl mx-4 dark:text-white">Your tests/quizzes</h2>
             <Table
@@ -31,31 +52,43 @@ const QuestionsPage = () => {
                 ]}
                 pattern={{
                     header: [
-                        { name: "Topics", style: "pl-6 pr-4" },
-                        { name: "Questions" },
+                        { name: "Question", style: "pl-6 pr-4" },
+                        { name: "Type" },
                         { name: "Date of creation" },
                     ],
-                    body: [
+                    body: questions ? questions : [
                         ["a", [
-                            { value: "Mathematics", style: "pl-6 pr-4" },
-                            { value: "52" },
-                            { value: translate(new Date(), "en-US") }
-                        ]],
-                        ["b", [
-                            { value: "Physics", style: "pl-6 pr-4" },
-                            { value: "22" },
-                            { value: translate(new Date(new Date().getTime() - 1000 * 60 * 60 * 24), "en-US") }
-                        ]],
-                        ["c", [
-                            { value: "Chemistry", style: "pl-6 pr-4" },
-                            { value: "94" },
-                            { value: translate(new Date(new Date().getTime() - 63 * 1000 * 60 * 60 * 24), "en-US") }
-                        ]],
+                            {value: "test", style: "pl-6 pr-4"},
+                            {value: "test"},
+                            {value: "test"}
+                        ]
+                    ]
                     ]
                 }}
             />
         </div>
     )
+    }
+}
+
+const QuestionsPage = () => {
+     const [_action, setAction] = useState<ActionFn>(null);
+     console.log(_action)
+    let questions = requestQuestions();
+    if(_action != null && _action.mode == "UPDATE") {
+        return (
+            <div>
+                <QuestionEditPage id={_action.id}/>
+            </div>
+        )
+    }
+    else {
+        return (
+            <div>
+                <QuestionDisplay questions={questions} setAction={setAction}/>
+            </div>
+        )
+    }
 }
 
 export default QuestionsPage;
