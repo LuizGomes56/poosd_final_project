@@ -5,6 +5,7 @@ import { api } from "../utils/request";
 import FormBuilder from "../forms/FormBuilder";
 import FormTextField from "../forms/FormTextField";
 import FormButton from "../forms/FormButton";
+import { FaTimes } from "react-icons/fa";
 
 
 type TableEntry = {
@@ -29,6 +30,7 @@ function questionCrudOperations(id: any) {
     ]
     }
 }
+//
 const QuestionDisplay = ({questions, setAction}
     :
     {
@@ -49,7 +51,7 @@ const QuestionDisplay = ({questions, setAction}
     else {
         return(
         <div className="flex flex-col flex-1 max-w-full gap-4 mt-4">
-            <h2 className="text-xl mx-4 dark:text-white">Your tests/quizzes</h2>
+            <h2 className="text-xl mx-4 dark:text-white">Your Questions</h2>
             <Table
                 checkboxes
                 actions={setAction}
@@ -86,17 +88,31 @@ const QuestionsPage = () => {
     const [show, setShow] = useState(false);
     const [question, setQuestion] = useState(individualQuestion.question);
     const [answers, setAnswers] = useState(individualQuestion.answers);
+    const [showView, setView] = useState(false);
      console.log(_action)
     let questions = requestQuestions();
+    // Delete button would need to be changed later
     useEffect(() => {
         console.log("Effect has been executed")
         if(_action?.mode == "UPDATE") {
             setShow(true);
         }
-    })
+        else if(_action?.mode == "VIEW") {
+            setView(true);
+        }
+    }, [_action])
+    useEffect(() => {
+        if(show == false) {
+            setAction(null);
+        }
+        if(showView == false) {
+            console.log("showView Disabled");
+            setAction(null);
+        }
+    },[show, showView])
 
     answers.map((answer, index)=> {console.log(`answer: ${answer}, index: ${index}`)})
-
+    // Need to change CSS Styling to re arrange the 
     return (
         <div>
             <div className="">
@@ -111,7 +127,7 @@ const QuestionsPage = () => {
                         let localAnswers = structuredClone(answers);
                         localAnswers[index].answer = newValue;
                         setAnswers(localAnswers);
-                    }} title={"Question #" + (index+1)} titleStyle={"text-black"}/>
+                    }} title={"Answer #" + (index+1)} titleStyle={"text-black"}/>
                     <FormButton type="button" text="delete"/>
                     </>
                 ))
@@ -121,7 +137,26 @@ const QuestionsPage = () => {
                 <FormButton type="submit" text="update"/>
                 <FormButton type="button" text="Add Question"/>
             </FormBuilder>
-
+            {/* Should add feature that removes window when clicking out of it though I have to research this or read mroe the formbuilder also fixed the icon at wrong pos */}
+            <div className={`flex justify-center py-8 px-4  sm:px-0 items-center fixed top-0 left-0 w-full h-full bg-black/50 z-50 ${showView ? "" : "hidden"}`}>
+            <div className="flex max-h-full overflow-y-auto  flex-col w-full gap-6 p-8 bg-white dark:bg-std-gray-700 
+                rounded-xl dark:shadow-std-neutral-700">
+                <FaTimes
+                                    className="h-5 w-5 absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                                    onClick={() => setView(false)}
+                                />
+            
+                <p>{question}</p>
+                <div className="overflow-y-auto flex flex-col gap-6 p-8">
+                {answers.map((answer, index) => (
+                    <>
+                        <h5>{"Answer #" + (index+1)}</h5>
+                        <p>{answer.answer}</p>
+                    </>
+                ))}
+                </div>
+                </div>
+            </div>
             
             {/* <Field name="Question" value={question} hook={setQuestion} textStyle="text-white" spanStyle="font-medium text-white text-lg border-b-2 pb-1 border-b-white"/>
             {answers.map((answer) => (
