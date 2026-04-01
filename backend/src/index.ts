@@ -26,7 +26,11 @@ for (const [key, value] of Object.entries(Dotenv)) {
 const app = express();
 
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5173",
+        "http://YOURIPV4:3000",
+        "http://localhost:3000",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -56,7 +60,7 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-app.listen(Dotenv.port, async (e) => {
+app.listen(Dotenv.port, "0.0.0.0", async (e) => {
     const conn = await mongoose.connect(Dotenv.database_url);
     console.log(`MongoDB connected: ${conn.connection.host}`);
     if (e) {
