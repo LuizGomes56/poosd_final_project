@@ -2,7 +2,7 @@
 const TopicsPage = () => {
     return (
         <div>
-            
+
         </div>
     )
 }
