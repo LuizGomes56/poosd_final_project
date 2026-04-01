@@ -2,14 +2,23 @@ import { assert, describe, expect, test } from "vitest";
 import { api } from "./api";
 import { login } from "./users.test";
 
-const getToken = async () => (await login()).body?.token;
+let token: string | undefined;
+(async () => {
+    const data = await login();
+    token = data.body?.token
+})();
 
-describe("Testing topic creation route (\"topics/create\")", () => {
-    test("Creating a new topic", async () => {
+describe("Testing topic routes", () => {
+    let topic_id: string | undefined;
+
+    test("Testing topic create route (\"topics/create\")", async () => {
         const r = await api("topics/create", {
             name: "Test Generated Topic",
             description: "Generated through test"
-        }, await getToken());
+        }, token);
+
+        topic_id = r.body?.topic_id;
+
         expect(r).toMatchObject({
             ok: true,
             status: 200,
@@ -22,32 +31,31 @@ describe("Testing topic creation route (\"topics/create\")", () => {
         })
     });
 
-    describe('Testing topic creation route ("topics/create")', () => {
-        test("Verifying and deleting the previously created topic", async () => {
-            const r = await api("topics/all", await getToken());
+    describe("Testing topic update route (\"topics/update\")", () => {
+        test("Updating a topic", async () => {
+            if (!topic_id) {
+                assert.fail("Topic id not found");
+            }
 
-            const len = r.body.length;
-
-            assert(len > 0, "There should be at least one topic created for this user");
-            expect(r).toMatchObject({
-                ok: true,
-                status: 200,
-                body: expect.arrayContaining([
-                    expect.objectContaining({ name: "Test Generated Topic" })
-                ])
-            });
-
-            const topic = [...r.body].reverse().find((topic) => topic.name === "Test Generated Topic");
-            const topic_id = topic?._id;
-            assert(topic_id && typeof topic_id === "string", "Topic ID not found");
-
-            const v = await api("topics/delete", { topic_id }, await getToken());
-
+            const v = await api("topics/update", { topic_id, name: "Updated Topic Name" }, token);
             expect(v).toMatchObject({
                 ok: true,
                 status: 200,
-                body: expect.objectContaining({ name: "Test Generated Topic" })
+                body: expect.objectContaining({ name: "Updated Topic Name" })
             });
+        });
+    });
+
+    test("Testing topic delete route (\"topics/delete\")", async () => {
+        if (!topic_id) {
+            assert.fail("Topic id not found");
+        }
+
+        const v = await api("topics/delete", { topic_id }, token);
+        expect(v).toMatchObject({
+            ok: true,
+            status: 200,
+            body: expect.objectContaining({ name: "Updated Topic Name" })
         });
     });
 });

@@ -12,11 +12,42 @@ export const TopicsController = {
             description
         });
         const body = topic.toObject();
-        return HttpResponse.Ok().body(body);
+        return HttpResponse.Ok().body({
+            ...body,
+            topic_id: body._id.toString()
+        });
     },
     delete: async function (req) {
         const { topic_id } = req.body;
         const topic = await TOPICS.findByIdAndDelete(topic_id).lean();
+
+        if (!topic) {
+            return HttpResponse.NotFound().message("Topic not found");
+        }
+
+        return HttpResponse.Ok().body(topic);
+    },
+    /**
+     * It just updates whatever was provided
+     */
+    update: async function (req) {
+        const { topic_id, name, description } = req.body;
+
+        const data = {} as Record<string, string>;
+
+        if (name) {
+            data.name = name;
+        }
+
+        if (description) {
+            data.description = description;
+        }
+
+        const topic = await TOPICS.findByIdAndUpdate(
+            topic_id,
+            data,
+            { new: true }
+        ).lean();
 
         if (!topic) {
             return HttpResponse.NotFound().message("Topic not found");

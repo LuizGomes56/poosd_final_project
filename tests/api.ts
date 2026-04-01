@@ -19,6 +19,12 @@ export async function api<P extends keyof SwaggerDocs>(
     const method = BACKEND_ROUTES[path];
     const URL = "http://localhost:3000/api";
 
+    const route = `${URL}/${String(path)}`;
+
+    if (!method) {
+        throw new Error(`No request method found for route ${route}`);
+    }
+
     let payload: SwaggerDocs[P]["input"] | undefined;
     let token: string | undefined;
 
@@ -54,12 +60,11 @@ export async function api<P extends keyof SwaggerDocs>(
             args.body = JSON.stringify(payload);
         }
 
-        const request = await fetch(`${URL}/${String(path)}`, args);
+        const request = await fetch(route, args);
         const response = await request.json();
 
         return response as SwaggerDocs[P]["output"];
     } catch (e) {
-        console.error(e);
-        throw e;
+        throw new Error(`Error calling after calling ${route}[${method}]: ${String(e)}`);
     }
 }

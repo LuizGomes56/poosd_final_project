@@ -11,6 +11,7 @@ const S = z.object({
     EMAIL: z.email({ error: "Invalid email" }),
     PASSWORD: z.string().min(4).max(32).describe("Password must be a string and be defined."),
     NOTHING: z.object({}),
+    DESCRIPTION: z.string().max(256, { error: "Description must be at most 256 characters long" })
 }).shape;
 
 export const SCHEMA = {
@@ -28,12 +29,23 @@ export const SCHEMA = {
     "questions/create": S.NOTHING,
     "topics/create": z.object({
         name: S.NAME,
-        description: z.string().max(256, { error: "Description must be at most 256 characters long" }).optional(),
+        description: S.DESCRIPTION.optional(),
     }),
     "topics/all": S.NOTHING,
     "topics/delete": z.object({
         topic_id: S.OBJECT_ID
-    })
+    }),
+    "topics/update": z.object({
+        topic_id: S.OBJECT_ID,
+        name: S.NAME.optional(),
+        description: S.DESCRIPTION.optional(),
+    }).refine(
+        (data) => data.name !== undefined || data.description !== undefined,
+        {
+            message: "At least one of \"name\" or \"description\" must be provided",
+            path: ["name"],
+        }
+    )
 } as const satisfies Record<(string & {}) | Route, Record<string, any>>;
 
 export type InputSchema = {
