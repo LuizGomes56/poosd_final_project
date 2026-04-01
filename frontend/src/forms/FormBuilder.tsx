@@ -27,7 +27,7 @@ const FormBuilder = ({
                 })}
                 onSubmit={handleSubmit}
                 ref={formRef}
-                className={`flex max-h-full overflow-y-auto relative flex-col w-full gap-6 p-8 bg-white dark:bg-std-gray-700 
+                className={`flex max-h-full overflow-y-auto relative flex-col w-full gap-6 p-8 not-dark:bg-white dark:bg-std-gray-700 
                 rounded-xl dark:shadow-std-neutral-700 ${className} ${!className.includes("max-w") ? "w-full max-w-xl" : ""}`}
             >
                 <>
