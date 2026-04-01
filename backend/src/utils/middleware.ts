@@ -44,6 +44,8 @@ export const Middleware = {
             // it are automatically inferred statically through the generation of 
             // `routes/methods.ts` when the server runs
             const payload = jwt.verify(token, Dotenv.jwt_secret) as jwt.JwtPayload;
+            payload.user_id = payload._id;
+            delete payload._id;
             (req as any).token = token;
             (req as any).payload = payload;
             next();

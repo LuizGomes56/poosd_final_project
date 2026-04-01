@@ -25,7 +25,10 @@ export const SCHEMA = {
     }),
     "users/verify": S.NOTHING,
     "questions/create": S.NOTHING,
-    "topics/create": S.NOTHING,
+    "topics/create": z.object({
+        name: S.NAME,
+        description: z.string().max(256, { error: "Description must be at most 256 characters long" }).optional(),
+    }),
     "topics/all": S.NOTHING
 } as const satisfies Record<(string & {}) | Route, Record<string, any>>;
 
