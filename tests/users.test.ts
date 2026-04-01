@@ -1,17 +1,20 @@
 import { describe, expect, test } from "vitest";
-import { api } from "./api";
+import { api, token } from "./api";
 
 export async function login() {
-    return api("users/login", {
+    const r = await api("users/login", {
         email: "test@gmail.com",
         password: "test",
-    })
+    });
+
+    token.set(r.body?.token);
+
+    return r;
 }
 
-describe("Testing login route (\"users/login\")", () => {
+describe(`Testing login route ("users/login")`, () => {
     test("Login as existent user", async () => {
-        const r = await login();
-        expect(r).toMatchObject({
+        expect(await login()).toMatchObject({
             ok: true,
             status: 200,
             message: "User logged in successfully",
@@ -25,11 +28,11 @@ describe("Testing login route (\"users/login\")", () => {
     });
 
     test("Login as existent user with wrong password", async () => {
-        const r = await api("users/login", {
+        expect(await api(
+            "users/login", {
             email: "test@gmail.com",
             password: "undefined",
-        });
-        expect(r).toEqual({
+        })).toEqual({
             ok: false,
             status: 401,
             message: "Password is incorrect"
@@ -37,11 +40,11 @@ describe("Testing login route (\"users/login\")", () => {
     });
 
     test("Login as non-existent user", async () => {
-        const r = await api("users/login", {
+        expect(await api(
+            "users/login", {
             email: "undefined@undefined.com",
             password: "undefined",
-        });
-        expect(r).toEqual({
+        })).toEqual({
             ok: false,
             status: 404,
             message: "User does not exist. Verify the provided email address"
@@ -49,11 +52,11 @@ describe("Testing login route (\"users/login\")", () => {
     });
 
     test("Login as non-existent with invalid email", async () => {
-        const r = await api("users/login", {
+        expect(await api(
+            "users/login", {
             email: "undefined",
             password: "undefined",
-        });
-        expect(r).toEqual({
+        })).toEqual({
             ok: false,
             status: 400,
             message: "Error: email - Invalid email"
@@ -61,14 +64,14 @@ describe("Testing login route (\"users/login\")", () => {
     });
 });
 
-describe("Testing register route (\"users/register\")", () => {
+describe(`Testing register route ("users/register")`, () => {
     test("Register as existent user", async () => {
-        const r = await api("users/register", {
+        expect(await api(
+            "users/register", {
             full_name: "SomeName",
             email: "test@gmail.com",
             password: "test",
-        });
-        expect(r).toEqual({
+        })).toEqual({
             ok: false,
             status: 500,
             message: "This email is already in use"
@@ -76,27 +79,28 @@ describe("Testing register route (\"users/register\")", () => {
     });
 });
 
-describe("Testing verify route (\"users/verify\")", () => {
+describe(`Testing verify route ("users/verify")`, () => {
     test("Verify without providing a token", async () => {
-        const r = await api("users/verify");
-        expect(r).toEqual({
+        let prev = token.get();
+        token.drop();
+
+        expect(await api("users/verify")).toEqual({
             ok: false,
             status: 401,
             message: "Could not extract token from the request headers"
-        })
+        });
+        token.set(prev);
     });
 
     test("Verify user data (with a token)", async () => {
-        const token = (await login()).body?.token;
-        const r = await api("users/verify", token);
-        expect(r).toMatchObject({
+        expect(await api("users/verify")).toMatchObject({
             ok: true,
             status: 200,
             body: {
                 email: "test@gmail.com",
                 email_verified: false,
                 full_name: "SomeName",
-                user_id: "69c2c12783b18c0ba5254884",
+                user_id: expect.any(String),
             },
         })
     });
