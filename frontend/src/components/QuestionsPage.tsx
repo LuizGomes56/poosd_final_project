@@ -151,7 +151,7 @@ const QuestionsPage = () => {
             {/* Should add feature that removes window when clicking out of it though I have to research this or read mroe the formbuilder also fixed the icon at wrong pos
             Also Perhaps I should change this to another form object where it only contains text fields for consistency however that will be later */}
             <div className={`flex justify-center py-8 px-4  sm:px-0 items-center fixed top-0 left-0 w-full h-full bg-black/50 z-50 ${showView ? "" : "hidden"}`}>
-            <div className="flex max-h-full overflow-y-auto  flex-col w-full gap-6 p-8 bg-white dark:bg-std-gray-700 
+            <div className="flex max-h-full overflow-y-auto  flex-col w-full gap-6 p-8 not-dark:bg-white dark:bg-std-gray-700 
                 rounded-xl dark:shadow-std-neutral-700">
                         <FaTimes
                             className="h-5 w-5 absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 cursor-pointer"
