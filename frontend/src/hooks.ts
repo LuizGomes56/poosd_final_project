@@ -64,8 +64,8 @@ export const useUpdateUser = () => {
     const { user, setUser } = useUser();
 
     const updateUser = async (
-        value: any, 
-        id?: string, 
+        value: any,
+        id?: string,
         addNotification: (obj: NotificationProps) => void = () => { }
     ) => {
         if (!id) {
@@ -92,9 +92,9 @@ export const useUpdateUser = () => {
                 addNotification({ type: "error", msg: response.message ?? "Update failed" });
             }
         } catch (e) {
-            addNotification({ 
-                type: "error", 
-                msg: e instanceof Error ? e.message : "Network error" 
+            addNotification({
+                type: "error",
+                msg: e instanceof Error ? e.message : "Network error"
             });
         }
     };

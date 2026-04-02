@@ -8,6 +8,8 @@ export async function api<
     const method = BACKEND_ROUTES[path];
     const URL = "http://localhost:3000/api";
 
+    const route = `${URL}/${String(path)}`;
+
     try {
         const args: RequestInit = {
             method,
@@ -29,18 +31,12 @@ export async function api<
             args.body = JSON.stringify(input[0]);
         }
 
-        const request = await fetch(`${URL}/${path}`, args);
+        const request = await fetch(route, args);
         const response = await request.json();
         return response as O;
     } catch (e) {
-        console.error(e);
-        throw e;
+        const message = `Error calling after calling ${route}[${method}]: ${String(e)}`;
+        console.error(message);
+        throw new Error(message);
     }
 }
-
-// const s = await api("users/login", {
-//     "email": "d",
-//     "password": "d"
-// })
-
-// const t = s.body?.token

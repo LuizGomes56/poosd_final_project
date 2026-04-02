@@ -21,10 +21,10 @@ export default function Register() {
 
         setIsLoading(true);
         try {
-            const response = await api("users/register", { 
-                full_name: fullName, 
-                email: email, 
-                password: password 
+            const response = await api("users/register", {
+                full_name: fullName,
+                email: email,
+                password: password
             });
 
             if (response.ok) {
@@ -57,7 +57,7 @@ export default function Register() {
 
     return (
         <div className="place-self-center my-12 rounded-xl max-w-md w-full flex flex-col gap-4 p-8 bg-zinc-900 border border-zinc-800 text-white shadow-2xl">
-            
+
             <div className="text-center mb-2">
                 <h1 className="text-2xl font-bold">Create account</h1>
                 <p className="text-zinc-500 text-sm">Join as an instructor</p>

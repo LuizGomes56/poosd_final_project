@@ -25,7 +25,7 @@ const ConfigTextField = ({
                 <h2 className="text-zinc-400 text-xs uppercase tracking-widest font-bold">
                     {title}
                 </h2>
-                
+
                 <p className="text-zinc-300 text-sm leading-relaxed max-w-md">
                     {description}
                 </p>
@@ -33,13 +33,13 @@ const ConfigTextField = ({
 
             {checkbox && (
                 <div className="flex items-center pl-4">
-                    <Checkbox 
-                        enabled={checkbox.value} 
+                    <Checkbox
+                        enabled={checkbox.value}
                         onEvent={() => {
                             const newValue = !checkbox.value;
                             checkbox.setValue(newValue);
                             handleUpdate(newValue);
-                        }} 
+                        }}
                     />
                 </div>
             )}

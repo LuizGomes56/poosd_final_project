@@ -8,7 +8,7 @@ import { translate } from "../consts";
 
 const AccountSettings = () => {
     const { user } = useUser();
-    
+
     const [name, setName] = useState<string>(user?.full_name ?? "");
     const [email, setEmail] = useState<string>(user?.email ?? "");
     const { addNotification } = useNotification();

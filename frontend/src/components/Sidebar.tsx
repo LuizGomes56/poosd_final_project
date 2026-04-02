@@ -61,29 +61,29 @@ export default function Sidebar() {
 
             <nav className="flex-1 p-4 overflow-y-auto">
                 {navItems.map((item) => (
-                    <SidebarButton 
-                        key={item.path} 
-                        to={item.path} 
-                        text={item.label} 
-                        icon={item.icon} 
+                    <SidebarButton
+                        key={item.path}
+                        to={item.path}
+                        text={item.label}
+                        icon={item.icon}
                     />
                 ))}
             </nav>
 
             <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
-                <NavLink 
+                <NavLink
                     to="/settings/account"
-                    className={({ isActive }) => 
+                    className={({ isActive }) =>
                         `flex items-center gap-3 mb-4 p-2 rounded-xl transition-all duration-200 group
-                        ${isActive 
-                            ? "bg-zinc-800 ring-1 ring-emerald-500/30" 
+                        ${isActive
+                            ? "bg-zinc-800 ring-1 ring-emerald-500/30"
                             : "hover:bg-zinc-800 hover:ring-1 hover:ring-zinc-700"
                         }`
                     }
                 >
-                    <Photo 
-                        className="w-10 h-10 border border-zinc-700 group-hover:border-emerald-500/50 transition-colors" 
-                        text={user?.full_name} 
+                    <Photo
+                        className="w-10 h-10 border border-zinc-700 group-hover:border-emerald-500/50 transition-colors"
+                        text={user?.full_name}
                     />
                     <div className="overflow-hidden flex-1">
                         <p className="text-white text-xs font-bold truncate group-hover:text-emerald-400 transition-colors">
@@ -94,7 +94,7 @@ export default function Sidebar() {
                         </p>
                     </div>
                 </NavLink>
-                
+
                 <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 w-full px-3 py-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5 rounded-lg text-xs font-medium transition-all group"

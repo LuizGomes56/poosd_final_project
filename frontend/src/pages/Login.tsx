@@ -22,7 +22,7 @@ export default function Login() {
         setIsLoading(true);
         try {
             const response = await api("users/login", { email, password });
-            
+
             if (response.ok && response.body) {
                 localStorage.setItem("token", response.body.token);
                 localStorage.setItem("full_name", response.body.full_name ?? "");
@@ -52,7 +52,7 @@ export default function Login() {
 
     return (
         <div className="place-self-center my-20 rounded-xl max-w-md w-full flex flex-col gap-4 p-8 bg-zinc-900 border border-zinc-800 text-white shadow-2xl">
-            
+
             <div className="text-center mb-4">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-zinc-500 text-sm">Sign in to your account</p>

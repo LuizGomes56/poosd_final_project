@@ -5,8 +5,8 @@ import type { QuestionsController } from "./controllers/questions_controller.js"
 import type { TopicsController } from "./controllers/topics_controller.js";
 import type { Response, Request } from "express";
 import type { ReqHelpers, ResHelpers } from "./utils/middleware.js";
-import type { HttpBuilder } from "./utils/http.js";
-import { JwtPayload } from "jsonwebtoken";
+import type { HttpResponseBuilder } from "./utils/http.js";
+import type { JwtPayload } from "jsonwebtoken";
 
 type Is<T, U> =
     [T] extends [U]
@@ -61,13 +61,13 @@ export type ControllerFn<R extends keyof InputSchema> = (
         & ReqHelpers
         & (R extends typeof BACKEND_PROTECTED_ROUTES[number] ? {
             token: string,
-            payload: JwtPayload
+            payload: JwtPayload & { user_id: string }
         } : {}),
     res: Response & ResHelpers
-) => Promise<HttpBuilder<any, any>>
+) => Promise<HttpResponseBuilder<any, any>>
 
 type RoutesInPrefix<P extends string> =
-    Extract<Route, `${P}/${string}`>;
+    Extract<keyof InputSchema, `${P}/${string}`>;
 
 /**
  * Adds type checking to our controllers. It will prevent you from
@@ -77,7 +77,7 @@ type RoutesInPrefix<P extends string> =
  * include a property defined in `HttpResponse`, your code will not compile.
  */
 export type Controller = {
-    [P in PrefixName<Route>]: {
+    [P in PrefixName<keyof InputSchema>]: {
         [R in RoutesInPrefix<P> as PostfixName<R>]: ControllerFn<R>
     }
 };

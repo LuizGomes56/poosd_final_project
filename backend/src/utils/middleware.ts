@@ -19,11 +19,17 @@ export interface ResHelpers { }
 
 export const Middleware = {
     helpers: async (req: Request & ReqHelpers, res: Response & ResHelpers, next: NextFunction) => {
-        req.jwt = () => req.headers.authorization?.trim().replace("Bearer ", "");
+        req.jwt = () => {
+            const auth = (src: Record<string, any>) => src.authorization?.trim().replace("Bearer ", "");
+            return auth(req.headers) || auth(req.cookies);
+        };
 
         next();
     },
     authentication: async (req: Request, res: Response, next: NextFunction) => {
+        // Middleware "helpers" is always assigned before this one, so this function
+        // must be defined, although not being correctly typed because default object
+        // "Request" from Express does not have it defined
         const token = (req as any).jwt();
 
         if (!token) {
@@ -33,6 +39,10 @@ export const Middleware = {
         }
 
         try {
+            // We add properties `token` and `payload` to the `req` object if and only if
+            // this middleware is invoked before the controller. Routes that eventually use
+            // it are automatically inferred statically through the generation of 
+            // `routes/methods.ts` when the server runs
             const payload = jwt.verify(token, Dotenv.jwt_secret) as jwt.JwtPayload;
             (req as any).token = token;
             (req as any).payload = payload;

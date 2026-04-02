@@ -15,7 +15,7 @@ const Button = ({
     className = "",
     color = "emerald"
 }: ButtonProps) => {
-    
+
     const colorVariants = {
         emerald: "bg-emerald-600 hover:bg-emerald-500 text-black shadow-emerald-950/20",
         purple: "bg-purple-700 hover:bg-purple-600 text-white shadow-purple-950/20",

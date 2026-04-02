@@ -15,7 +15,7 @@ export type SetState<T = any> = React.Dispatch<React.SetStateAction<T>>;
 export type ActionFn = { id: string, mode: "VIEW" | "UPDATE" | "DELETE" } | null;
 
 export const STYLES = {
-    border: "border-zinc-800", 
+    border: "border-zinc-800",
     borderLight: "border-zinc-800/50",
     borderDark: "border-zinc-700",
     focus: "focus:outline-none focus:ring-1 focus:border-emerald-500 focus:ring-inset focus:ring-emerald-500",
@@ -63,7 +63,7 @@ export function getLogicalColor(text: string, factor: number = 0) {
 
 export const translate = (date: Date | string | number | undefined, language: string = "en-US"): string => {
     if (!date) return "N/A";
-    
+
     const d = new Date(date);
     if (isNaN(d.getTime())) return "Invalid Date";
 
