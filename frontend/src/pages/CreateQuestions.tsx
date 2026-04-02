@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../utils/request";
 import Checkbox from "../components/Checkbox";
 import Button from "../components/Button";
 import ColoredButton from "../components/ColoredButton";
@@ -8,16 +7,16 @@ import ColoredButton from "../components/ColoredButton";
 export default function NewQuestion() {
     const [type, setType] = useState("FRQ");
     const [tfAnswer, setTfAnswer] = useState(true);
-    const [selectedTopic, setSelectedTopic] = useState("");
+    const [_selectedTopic, setSelectedTopic] = useState("");
     const [choices, setChoices] = useState(["", "", "", ""]);
     const [checkedIndexes, setCheckedIndexes] = useState<number[]>([]);
-    const correctAnswers = checkedIndexes.map(i => choices[i]);
+    // const correctAnswers = checkedIndexes.map(i => choices[i]);
 
-    const [topics, setTopics] = useState([
+    const topics = [
         { _id: "1", name: "Math" },
         { _id: "2", name: "Physics" },
         { _id: "3", name: "Chemistry" },
-    ]);
+    ];
 
     // TODO: replace when backend is ready
     /*
