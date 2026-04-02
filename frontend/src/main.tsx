@@ -7,6 +7,7 @@ import AppProvider from "./providers/AppProvider.tsx";
 import RequireLogin from "./providers/RequireLogin.tsx";
 import App from "./pages/App.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import NewQuestion from "./pages/CreateQuestions.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
