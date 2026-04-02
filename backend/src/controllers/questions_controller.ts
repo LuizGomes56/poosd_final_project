@@ -3,29 +3,21 @@ import { TOPICS } from "../model/topics.js";
 import type { Controller } from "../types.js";
 import { HttpResponse } from "../utils/http.js";
 
-// This function will be inlined soon
-function serializeQuestion(question: Questions) {
-    return {
-        ...question,
-        topic_ids: Array.isArray(question.topic_ids)
-            ? question.topic_ids.map((id) => id?.toString?.() ?? String(id))
-            : []
-    };
-}
-
-// I think I'll assume all strings are normalized (lower case + no trailing whitespaces)
-function normalizeString(value: unknown) {
-    return String(value).trim().toLowerCase();
-}
-
-// [Later] Inline
-function uniqueIds(ids: string[]) {
+/**
+ * Removes duplicate values from an array of strings
+ * This is being used here to remove duplicated (if they exist eventually)
+ * `topic_id`s or `question_id`s
+ */
+function dedup(ids: string[]) {
     return [...new Set(ids)];
 }
 
-// Move this function to a service (I'll do it next time)
-async function validateTopicOwnership(topic_ids: string[], user_id: string) {
-    const uniqueTopicIds = uniqueIds(topic_ids);
+/**
+ * Verifies if that user indeed owns the topic that is being read or modified
+ * This is a validation step that should run before any topic is read or modified
+ */
+async function assertTopicOwnership(topic_ids: string[], user_id: string) {
+    const uniqueTopicIds = dedup(topic_ids);
 
     const count = await TOPICS.countDocuments({
         _id: { $in: uniqueTopicIds },
@@ -38,6 +30,7 @@ async function validateTopicOwnership(topic_ids: string[], user_id: string) {
 export const QuestionsController = {
     create: async function (req) {
         const { user_id } = req.payload;
+        const body = req.body;
         const {
             topic_ids,
             type,
@@ -45,34 +38,34 @@ export const QuestionsController = {
             difficulty,
             hint,
             explanation,
-            points,
-            choice,
-            frq
-        } = req.body as any;
+            points
+        } = body;
 
-        const ownsAllTopics = await validateTopicOwnership(topic_ids, user_id);
-
-        if (!ownsAllTopics) {
+        if (!await assertTopicOwnership(topic_ids, user_id)) {
             return HttpResponse.NotFound()
                 .message("One or more topics were not found for this user");
         }
 
         const question = await QUESTIONS.create({
             user_id,
-            topic_ids: uniqueIds(topic_ids),
+            topic_ids: dedup(topic_ids),
             type,
             prompt,
             difficulty,
             hint: hint ?? "",
             explanation: explanation ?? "",
             points: points ?? 100,
-            ...(choice ? { choice } : {}),
-            ...(frq ? { frq } : {})
+            ...(type === "FRQ"
+                ? { frq: body.frq }
+                : { choice: body.choice })
         });
 
-        const body = serializeQuestion(question.toObject() as any);
+        const result = {
+            question_id: question.question_id,
+            ...question.toObject()
+        };
 
-        return HttpResponse.Ok().body(body);
+        return HttpResponse.Ok().body(result);
     },
     get: async function (req) {
         const { user_id } = req.payload;
@@ -87,7 +80,7 @@ export const QuestionsController = {
             return HttpResponse.NotFound().message("Question not found");
         }
 
-        return HttpResponse.Ok().body(serializeQuestion(question as any));
+        return HttpResponse.Ok().body(question);
     },
     delete: async function (req) {
         const { user_id } = req.payload;
@@ -102,21 +95,21 @@ export const QuestionsController = {
             return HttpResponse.NotFound().message("Question not found");
         }
 
-        return HttpResponse.Ok().body(serializeQuestion(question as any));
+        return HttpResponse.Ok().body(question);
     },
     update: async function (req) {
         const { user_id } = req.payload;
         const { question_id, ...body } = req.body;
 
         if (body.topic_ids) {
-            const ownsAllTopics = await validateTopicOwnership(body.topic_ids, user_id);
+            const ownsAllTopics = await assertTopicOwnership(body.topic_ids, user_id);
 
             if (!ownsAllTopics) {
                 return HttpResponse.NotFound()
                     .message("One or more topics were not found for this user");
             }
 
-            body.topic_ids = uniqueIds(body.topic_ids);
+            body.topic_ids = dedup(body.topic_ids);
         }
 
         const $set: Record<string, any> = {};
@@ -168,8 +161,13 @@ export const QuestionsController = {
             return HttpResponse.NotFound().message("Question not found");
         }
 
-        return HttpResponse.Ok().body(serializeQuestion(question as any));
+        return HttpResponse.Ok().body(question);
     },
+    /**
+     * Returns a list of all questions that a user has.
+     * If `topic_id` is provided, we filter it to that specific topic
+     * Return data is always ordered by createdAt desc. This is not a search function
+     */
     all: async function (req) {
         const { user_id } = req.payload;
         const { topic_id } = req.body;
@@ -184,16 +182,18 @@ export const QuestionsController = {
             .sort({ createdAt: -1 })
             .lean();
 
-        return HttpResponse.Ok().body(data.map(serializeQuestion as any));
+        return HttpResponse.Ok().body(data);
     },
     check: async function (req) {
         const { user_id } = req.payload;
         const { question_id, answer } = req.body;
 
+        // We don't ask for topic_id, so any user can verify the answer of any question
+
         const question = await QUESTIONS.findOne({
             _id: question_id,
             user_id
-        }).lean<Questions | null>();
+        }).lean();
 
         if (!question) {
             return HttpResponse.NotFound().message("Question not found");
@@ -204,52 +204,60 @@ export const QuestionsController = {
                 const single = question.choice?.answers?.single;
                 const multiple = question.choice?.answers?.multiple;
 
-                if (single !== undefined) {
+                if (single) {
+                    // If it is a single, deterministic answer, just compare the literal
+                    // text inside
                     return typeof answer === "string" && answer === single;
                 }
 
+                // For multiple answers we have find if all provided answers match the expected
                 if (Array.isArray(multiple)) {
-                    if (!Array.isArray(answer)) return false;
+                    // If it we have multiple expected answers, we should also have multiple answers provided
+                    if (!Array.isArray(answer)) {
+                        return false
+                    };
 
+                    // Sorting them will ensure they're the correct order
                     const expected = [...multiple].sort();
                     const received = [...answer].sort();
 
-                    if (expected.length !== received.length) return false;
+                    // Both arrays should have the same length if the answers are correct
+                    if (expected.length !== received.length) {
+                        return false
+                    };
 
-                    return expected.every((value, index) => value === received[index]);
+                    // Check every element inside expected, and check if it matches the received ones
+                    return expected.every((value, i) => value === received[i]);
                 }
 
+                // If it didn't return true at this point, the answer is incorrect
                 return false;
             }
 
             if (question.type === "TF") {
                 const expected = question.choice?.answers?.single;
 
-                if (expected === undefined) return false;
+                // If no expected result is provided in the question's schema (Should be illegal)
+                // we just fallback to false (All answers will always be wrong)
+                if (!expected) {
+                    return false
+                };
 
-                if (typeof answer === "boolean") {
-                    return expected === (answer ? "True" : "False");
-                }
-
-                if (typeof answer === "string") {
-                    const normalized = normalizeString(answer);
-                    const mapped =
-                        normalized === "true" ? "True" :
-                            normalized === "false" ? "False" :
-                                answer;
-
-                    return mapped === expected;
-                }
-
-                return false;
+                // Boolean("false") is not false so we have to treat it
+                return (expected === "true" ? true : false) === answer;
             }
 
             if (question.type === "FRQ") {
                 if (!question.frq) return false;
 
+                // FRQ of type Number (We expect to see a simple numeric answer then)
                 if (question.frq.kind === "NUMBER") {
+                    // Here typeof answer should always be number, but we fallback to Number()
+                    // which if exists will likely be NaN which always generates "false"
                     const value = typeof answer === "number" ? answer : Number(answer);
 
+                    // Deny NaN values and Infinity (both positive and negative)
+                    // If we use infinity, the answer should be a LaTeX input, not numeric
                     if (!Number.isFinite(value)) {
                         return false;
                     }
@@ -257,16 +265,30 @@ export const QuestionsController = {
                     const accepted = question.frq.accepted_numbers ?? [];
                     const tolerance = question.frq.tolerance ?? 0;
 
+                    // Check if the tolerance is in range. Note that it is not a percentage value,
+                    // but rather the exact number.
+                    // If the answer is 100, and tolerance = 50, then if the user inputs 50, it is correct.
+                    // Plan the tolerance accordingly, and defaults to zero if not defined
                     return accepted.some((target) => Math.abs(target - value) <= tolerance);
                 }
 
                 if (question.frq.kind === "TEXT") {
-                    const value = normalizeString(answer);
-                    const accepted = (question.frq.accepted_texts ?? []).map(normalizeString);
-                    return accepted.includes(value);
+                    // We can accept multiple texts. Lets say the answer is "Yes",
+                    // we can accept "yes", "y" as well for example, so if any
+                    // value in the accepted array matches the answer, then it is correct
+                    const accepted = (question.frq.accepted_texts ?? []);
+
+                    // At this point `answer` should be a string
+                    // #[cold_path]
+                    if (typeof answer !== "string") {
+                        return false;
+                    }
+
+                    return accepted.includes(answer);
                 }
             }
 
+            // Fallback
             return false;
         })();
 
