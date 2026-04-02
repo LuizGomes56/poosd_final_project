@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "./providers/UserProvider"; // Fixed path
 import type { NotificationProps } from "./consts"; // Fixed path
-import { api } from "./utils/request";
+// import { api } from "./utils/request";
 
 export function useClickOut<T extends HTMLElement = any>(
     callback: () => void,
@@ -61,7 +61,7 @@ export function useSkip(fn: () => void, deps: any[] = []) {
  * This hook is not ready because a route to update the user's data does not exist
  */
 export const useUpdateUser = () => {
-    const { user, setUser } = useUser();
+    const { user, /* setUser */ } = useUser();
 
     const updateUser = async (
         value: any,
