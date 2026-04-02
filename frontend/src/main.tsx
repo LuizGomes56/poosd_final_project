@@ -16,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route element={<RequireLogin />}>
                     <Route path="/" element={<App />} />
                     <Route path="/settings/:tab" element={<App />} />
+                    <Route path="/settings/new-question" element={<NewQuestion />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
