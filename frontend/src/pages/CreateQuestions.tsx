@@ -1,21 +1,39 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../utils/request";
+import Checkbox from "../components/Checkbox";
+import Button from "../components/Button";
+import ColoredButton from "../components/ColoredButton";
 
 export default function NewQuestion() {
     const [type, setType] = useState("FRQ");
     const [tfAnswer, setTfAnswer] = useState(true);
-    const [topics, setTopics] = useState([]);
     const [selectedTopic, setSelectedTopic] = useState("");
     const [choices, setChoices] = useState(["", "", "", ""]);
-    const [correctIndex, setCorrectIndex] = useState<number | null>(null);
+    const [checkedIndexes, setCheckedIndexes] = useState<number[]>([]);
+    const correctAnswers = checkedIndexes.map(i => choices[i]);
 
+    const [topics, setTopics] = useState([
+        { _id: "1", name: "Math" },
+        { _id: "2", name: "Physics" },
+        { _id: "3", name: "Chemistry" },
+    ]);
+
+    // TODO: replace when backend is ready
+    /*
     useEffect(() => {
-    api("topics")
-        .then((data) => setTopics(data))
-        .catch((err) => console.error(err));
-    }, []); 
-
+        const fetchTopics = async () => {
+            try {
+                const data = await api("topics/all");
+                setTopics(data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchTopics();
+    }, []);
+    */
+   
     return (
         <div className="p-6">
             {/* header */}
@@ -88,40 +106,17 @@ export default function NewQuestion() {
                     <label className="text-zinc-400 text-xs block mb-2">
                         Question Type
                     </label>
-
                     <div className="flex gap-2">
-                        <button
-                            onClick={() => setType("MCQ")}
-                            className={`flex-1 border rounded-lg py-2 text-xs ${
-                                type === "MCQ"
-                                    ? "border-green-500 text-green-400"
-                                    : "border-zinc-700 text-white"
-                            }`}
-                        >
-                            Multiple Choice
-                        </button>
-
-                        <button
-                            onClick={() => setType("FRQ")}
-                            className={`flex-1 border rounded-lg py-2 text-xs ${
-                                type === "FRQ"
-                                    ? "border-green-500 text-green-400"
-                                    : "border-zinc-700 text-white"
-                            }`}
-                        >
-                            Short Answer
-                        </button>
-
-                        <button
-                            onClick={() => setType("TF")}
-                            className={`flex-1 border rounded-lg py-2 text-xs ${
-                                type === "TF"
-                                    ? "border-green-500 text-green-400"
-                                    : "border-zinc-700 text-white"
-                            }`}
-                        >
-                            True / False
-                        </button>
+                        {(["MCQ", "FRQ", "TF"] as const).map((t) => (
+                            <ColoredButton
+                                key={t}
+                                color="purple"
+                                onClick={() => setType(t)}
+                                className={type === t ? "opacity-100" : "opacity-50"}
+                            >
+                                {t === "MCQ" ? "Multiple Choice" : t === "FRQ" ? "Short Answer" : "True / False"}
+                            </ColoredButton>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -147,28 +142,25 @@ export default function NewQuestion() {
                         Correct Answer
                     </h2>
 
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => setTfAnswer(true)}
-                            className={`flex-1 rounded-lg py-6 border ${
-                                tfAnswer
-                                    ? "border-green-500 bg-green-500/10 text-green-400"
-                                    : "border-zinc-700 text-white"
-                            }`}
-                        >
-                            ✔ True
-                        </button>
-
-                        <button
-                            onClick={() => setTfAnswer(false)}
-                            className={`flex-1 rounded-lg py-6 border ${
-                                !tfAnswer
-                                    ? "border-green-500 bg-green-500/10 text-green-400"
-                                    : "border-zinc-700 text-red-400"
-                            }`}
-                        >
-                            ✖ False
-                        </button>
+                    <div className="flex flex-col gap-3">
+                        <label className="flex items-center gap-2 text-white text-sm">
+                            <input
+                                type="radio"
+                                name="tfAnswer"
+                                checked={tfAnswer === true}
+                                onChange={() => setTfAnswer(true)}
+                            />
+                            True
+                        </label>
+                        <label className="flex items-center gap-2 text-white text-sm">
+                            <input
+                                type="radio"
+                                name="tfAnswer"
+                                checked={tfAnswer === false}
+                                onChange={() => setTfAnswer(false)}
+                            />
+                            False
+                        </label>
                     </div>
                 </div>
             )}
@@ -182,10 +174,15 @@ export default function NewQuestion() {
                         {["A", "B", "C", "D"].map((label, index) => (
                 <div key={label} className="flex items-center gap-2 mb-2">
                     {/* select correct option */}
-                    <input
-                        type="radio"
-                        name="correct"
-                        onChange={() => setCorrectIndex(index)}
+                    <Checkbox
+                        onEvent={() => {
+                            setCheckedIndexes(prev =>
+                                prev.includes(index)
+                                    ? prev.filter(i => i !== index)
+                                    : [...prev, index]
+                            )
+                        }}
+                        enabled={checkedIndexes.includes(index)}
                     />
 
                     {/* options */}
@@ -206,14 +203,9 @@ export default function NewQuestion() {
 
             {/* buttons */}
             <div className="flex gap-3">
-                <button className="bg-green-500 hover:bg-green-600 text-black font-semibold text-sm px-4 py-2 rounded-lg">
-                    Save Question
-                </button>
+                <Button text="Save Question" onClick={() => {}} />
 
-                <Link
-                    to="/dashboard/questions"
-                    className="border border-zinc-700 text-zinc-400 text-sm px-4 py-2 rounded-lg"
-                >
+                <Link to="/" className="border border-zinc-700 text-zinc-400 text-sm px-4 py-2 rounded-lg">
                     Cancel
                 </Link>
             </div>
