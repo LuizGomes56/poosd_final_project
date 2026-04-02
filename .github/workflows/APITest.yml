@@ -1,0 +1,46 @@
+# .github/workflows/ci.yml
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Setting up environment variables
+        run: |
+            cat > backend/.env << EOF
+            DATABASE_URL=mongodb://root:testpassword@mongodb:27017
+            JWT_SECRET=todo
+      - name: Setting up services
+        run: docker compose up --build -d mongodb backend
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+    
+      - name: Dependencies Backend
+        run: npm --prefix ./backend install ./backend
+      - name: Builiding backend
+        run: npm --prefix ./backend run build
+      - name: Dependencies frontend (For tests)
+        run: npm --prefix ./frontend install ./frontend
+      - name: Building frontend
+        run: npm --prefix ./frontend run build
+
+
+      - name: Install dependencies
+        run: npm --prefix ./tests install ./tests
+
+      - name: Run tests
+        run: npm --prefix ./tests test 
+
+      - name: Stop docker compose
+        run: docker compose down
