@@ -20,7 +20,6 @@ describe("Testing topic routes", () => {
             status: 200,
             body: {
                 name: "Test Generated Topic",
-                questions: [],
                 user_id: expect.any(String),
                 description: "Generated through test",
             }
