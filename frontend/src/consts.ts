@@ -15,12 +15,12 @@ export type SetState<T = any> = React.Dispatch<React.SetStateAction<T>>;
 export type ActionFn = { id: string, mode: "VIEW" | "UPDATE" | "DELETE" } | null;
 
 export const STYLES = {
-    border: "border-zinc-800",
-    borderLight: "border-zinc-800/50",
-    borderDark: "border-zinc-700",
+    border: "dark:border-zinc-700 not-dark:border-zinc-300",
+    borderLight: "not-dark:border-zinc-300",
+    borderDark: "dark:border-zinc-700",
     focus: "focus:outline-none focus:ring-1 focus:border-emerald-500 focus:ring-inset focus:ring-emerald-500",
     focusWithin: "focus-within:outline-none focus-within:ring-1 focus-within:border-emerald-500 focus-within:ring-inset focus-within:ring-emerald-500"
-} as const
+} as const;
 
 export type ComponentProps<T = any, U = string> = {
     title?: string,

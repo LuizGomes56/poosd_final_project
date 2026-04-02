@@ -23,7 +23,7 @@ const SidebarButton = ({
         className={({ isActive }) =>
             `flex items-center relative cursor-pointer transition-all duration-200 p-2.5 rounded-lg
             ${isActive
-                ? "bg-purple-600 dark:bg-std-pink-700 text-white font-medium"
+                ? "not-dark:bg-emerald-600 dark:bg-emerald-700 text-white font-medium"
                 : "dark:hover:bg-std-gray-600"
             }`
         }

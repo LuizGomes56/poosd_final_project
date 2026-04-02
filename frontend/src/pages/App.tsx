@@ -5,10 +5,12 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { MdGridView } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
+import TestPage from "../components/TestPage";
 
 const componentMap: Record<string, React.ComponentType> = {
     dashboard: Dashboard,
     account: AccountSettings,
+    testpage: TestPage
 };
 
 const App = () => {
@@ -23,6 +25,7 @@ const App = () => {
     let webpages = [
         { id: "dashboard", text: "Dashboard", icon: <MdGridView className="h-5 w-5" /> },
         { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
+        { id: "testpage", text: "testpage", icon: <></> }
     ];
 
     return (
