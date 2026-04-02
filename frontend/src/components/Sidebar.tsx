@@ -1,5 +1,5 @@
 import { BsPersonCircle } from "react-icons/bs";
-import { MdGridView } from "react-icons/md";
+import { MdGridView, MdOutlineQuiz } from "react-icons/md";
 import { Navigate, NavLink, useParams } from "react-router-dom";
 import { useUser } from "../providers/UserProvider";
 import Photo from "./Photo";
@@ -37,6 +37,7 @@ const Sidebar = () => {
     const menuItems = [
         { id: "dashboard", text: "Dashboard", icon: <MdGridView className="h-5 w-5" /> },
         { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
+        { id: "new-question", text: "New Question", icon: <MdOutlineQuiz className="h-5 w-5" /> }
     ];
 
     if (!tab || !menuItems.some(({ id }) => id == tab)) {
