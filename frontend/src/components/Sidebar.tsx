@@ -1,108 +1,75 @@
-import { BsQuestionCircle } from "react-icons/bs";
-import { MdGridView, MdLogout, MdTopic } from "react-icons/md"; // Removed MdSettings
-import { NavLink, useNavigate } from "react-router-dom";
+import { Navigate, NavLink, useParams } from "react-router-dom";
 import { useUser } from "../providers/UserProvider";
-import { api } from "../utils/request";
 import Photo from "./Photo";
+import type { JSX } from "react";
 
-const SidebarButton = ({ to, text, icon }: { to: string; text: string; icon: React.ReactNode }) => (
+type SidebarProps = {
+    id: string,
+    text: string,
+    icon: JSX.Element
+}
+
+const SidebarButton = ({
+    id,
+    text,
+    children
+}: {
+    id: string;
+    text: string;
+    children: React.ReactNode;
+}) => (
     <NavLink
-        to={to}
+        to={`/settings/${id}`}
         className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm transition-all duration-200
+            `flex items-center relative cursor-pointer transition-all duration-200 p-2.5 rounded-lg
             ${isActive
-                ? "bg-emerald-500/10 text-emerald-400 font-medium shadow-sm shadow-emerald-500/5"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                ? "bg-purple-600 dark:bg-std-pink-700 text-white font-medium"
+                : "dark:hover:bg-std-gray-600"
             }`
         }
     >
-        <span className="text-lg">{icon}</span>
-        <span>{text}</span>
+        <div className="flex items-center gap-3">
+            {children ?? null}
+            <span>{text}</span>
+        </div>
     </NavLink>
 );
 
-export default function Sidebar() {
-    const { user, logout } = useUser();
-    const navigate = useNavigate();
+const Sidebar = ({ pages }: { pages: SidebarProps[] }) => {
+    const { tab } = useParams<{ tab?: string }>();
+    const { user } = useUser();
 
-    const handleLogout = async () => {
-        try {
-            await api("users/logout");
-        } catch (e) {
-            console.error("Logout request failed:", e);
-        }
-        logout();
-        navigate("/login");
-    };
+    const full_name = user?.full_name || "Unknown";
 
-    // Cleaned up: only show core management pages here
-    const navItems = [
-        { label: "Dashboard", path: "/dashboard", icon: <MdGridView /> },
-        { label: "Questions", path: "/dashboard/questions", icon: <BsQuestionCircle /> },
-        { label: "Topics", path: "/dashboard/topics", icon: <MdTopic /> },
-    ];
+    const menuItems = pages;
+    if (!tab || !menuItems.some(({ id }) => id == tab)) {
+        return <Navigate to="/settings/dashboard" replace />;
+    }
 
     return (
-        <aside className="w-64 flex-shrink-0 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen fixed md:relative z-10">
-            {/* Logo Section */}
-            <div className="p-6 border-b border-zinc-800">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
-                        🎓
-                    </div>
-                    <div>
-                        <p className="text-white text-sm font-bold leading-tight">EduCMS</p>
-                        <p className="text-emerald-500 text-[10px] uppercase tracking-widest font-bold">
-                            Instructor
-                        </p>
-                    </div>
+        <div className="fixed w-64 z-0 hidden not-dark:bg-white dark:bg-std-gray-850 h-full dark:text-zinc-200 p-4 md:flex flex-col gap-2">
+            <NavLink to="/settings/account" className="flex mt-2.5 mb-1.5 gap-4 ml-1">
+                <Photo className="w-10 h-10" text={full_name} />
+                <div className="flex flex-col overflow-hidden">
+                    <span className="leading-4 dark:text-zinc-200 text-md font-medium truncate">{full_name}</span>
+                    <span className="leading-7 truncate text-sm dark:text-zinc-400 text-zinc-600">
+                        {user?.email || "Email not found"}
+                    </span>
                 </div>
-            </div>
-
-            <nav className="flex-1 p-4 overflow-y-auto">
-                {navItems.map((item) => (
+            </NavLink>
+            <div className="flex flex-col gap-2">
+                {menuItems.map(({ id, text, icon }) => (
                     <SidebarButton
-                        key={item.path}
-                        to={item.path}
-                        text={item.label}
-                        icon={item.icon}
-                    />
+                        key={id}
+                        id={id}
+                        text={text}
+                    >
+                        {icon}
+                    </SidebarButton>
                 ))}
-            </nav>
-
-            <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
-                <NavLink
-                    to="/settings/account"
-                    className={({ isActive }) =>
-                        `flex items-center gap-3 mb-4 p-2 rounded-xl transition-all duration-200 group
-                        ${isActive
-                            ? "bg-zinc-800 ring-1 ring-emerald-500/30"
-                            : "hover:bg-zinc-800 hover:ring-1 hover:ring-zinc-700"
-                        }`
-                    }
-                >
-                    <Photo
-                        className="w-10 h-10 border border-zinc-700 group-hover:border-emerald-500/50 transition-colors"
-                        text={user?.full_name}
-                    />
-                    <div className="overflow-hidden flex-1">
-                        <p className="text-white text-xs font-bold truncate group-hover:text-emerald-400 transition-colors">
-                            {user?.full_name ?? "Instructor"}
-                        </p>
-                        <p className="text-zinc-500 text-[10px] truncate">
-                            Account Settings
-                        </p>
-                    </div>
-                </NavLink>
-
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 w-full px-3 py-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5 rounded-lg text-xs font-medium transition-all group"
-                >
-                    <MdLogout className="text-lg group-hover:-translate-x-1 transition-transform" />
-                    <span>Sign out</span>
-                </button>
             </div>
-        </aside>
+        </div>
     );
-}
+};
+
+export default Sidebar;

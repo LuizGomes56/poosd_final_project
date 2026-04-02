@@ -81,16 +81,20 @@ export const useUpdateUser = () => {
         if (currentValue === value) return;
 
         try {
-            const response = await api("users/patch" as any, { [id]: value });
 
-            if (response.ok && response.body) {
-                setUser((current: any) =>
-                    current ? { ...current, ...response.body } : null
-                );
-                addNotification({ type: "success", msg: `${id.replace('_', ' ')} updated!` });
-            } else {
-                addNotification({ type: "error", msg: response.message ?? "Update failed" });
-            }
+            // const response = await api("users/patch" as any, { [id]: value });
+
+            // if (response.ok && response.body) {
+            //     setUser((current: any) =>
+            //         current ? { ...current, ...response.body } : null
+            //     );
+            //     addNotification({ type: "success", msg: `${id.replace('_', ' ')} updated!` });
+            // } else {
+            addNotification({
+                type: "error",
+                msg: /* response.message ?? */ "Update failed"
+            });
+            // }
         } catch (e) {
             addNotification({
                 type: "error",

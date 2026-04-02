@@ -5,15 +5,13 @@ const NotFound = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-zinc-950 text-white p-4">
-            <div className="mb-8 opacity-20 text-8xl">
+        <div className="flex flex-col items-center pt-20 h-screen bg-zinc-950 text-white p-4">
+            <div className="opacity-20 text-8xl">
                 🚫
             </div>
-
-            <h1 className="text-9xl font-black text-emerald-500/20 absolute select-none">
+            <h1 className="text-9xl my-4 font-black text-emerald-500/20 select-none">
                 404
             </h1>
-
             <div className="relative z-10 flex flex-col items-center">
                 <h2 className="text-3xl font-bold mb-2">Page not found</h2>
                 <p className="text-zinc-500 text-center max-w-xs mb-8">

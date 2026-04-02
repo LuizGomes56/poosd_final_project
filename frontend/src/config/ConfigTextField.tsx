@@ -1,5 +1,5 @@
 import Checkbox from "../components/Checkbox";
-import { type SetState } from "../consts";
+import { STYLES, type SetState } from "../consts";
 import { useUpdateUser } from "../hooks";
 
 const ConfigTextField = ({
@@ -14,37 +14,27 @@ const ConfigTextField = ({
     const updateUser = useUpdateUser();
 
     const handleUpdate = async (value: boolean) => {
-        if (checkbox?.id) {
-            await updateUser(value, checkbox.id);
-        }
+        await updateUser(value, checkbox?.id);
     };
 
     return (
-        <div className={`flex items-center justify-between p-6 transition-colors hover:bg-zinc-800/20 group`}>
-            <div className="flex flex-col gap-1">
-                <h2 className="text-zinc-400 text-xs uppercase tracking-widest font-bold">
-                    {title}
-                </h2>
-
-                <p className="text-zinc-300 text-sm leading-relaxed max-w-md">
-                    {description}
-                </p>
+        <div className={`flex dark:text-zinc-200 gap-2 gap-x-8 border-b min-h-28 ${STYLES.border} pb-6`}>
+            <div className="flex flex-1 flex-col gap-4">
+                <h2 className="dark:text-white h-10 content-center">{title}</h2>
+                <p className="mx-4 dark:text-zinc-400 text-zinc-600">{description}</p>
             </div>
-
             {checkbox && (
-                <div className="flex items-center pl-4">
-                    <Checkbox
-                        enabled={checkbox.value}
-                        onEvent={() => {
-                            const newValue = !checkbox.value;
-                            checkbox.setValue(newValue);
+                <div className="h-10 content-center">
+                    <Checkbox enabled={checkbox.value} onEvent={() => {
+                        const newValue = !checkbox.value;
+                        checkbox.setValue(newValue);
+                        if (checkbox.id) {
                             handleUpdate(newValue);
-                        }}
-                    />
+                        }
+                    }} />
                 </div>
             )}
         </div>
-    );
-};
-
+    )
+}
 export default ConfigTextField;
