@@ -50,7 +50,7 @@ const FRQNumberSchema = z.object({
     accepted_numbers: z.array(z.number()).min(1, {
         error: "FRQ NUMBER must define at least one accepted number"
     }),
-    tolerance: z.number().min(0).default(0)
+    tolerance: z.number().min(0).default(0).optional()
 });
 
 const FRQTextSchema = z.object({

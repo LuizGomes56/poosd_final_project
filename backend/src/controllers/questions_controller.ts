@@ -182,7 +182,10 @@ export const QuestionsController = {
             .sort({ createdAt: -1 })
             .lean();
 
-        return HttpResponse.Ok().body(data);
+        return HttpResponse.Ok().body(data.map(v => ({
+            question_id: v._id,
+            ...v
+        })));
     },
     check: async function (req) {
         const { user_id } = req.payload;
@@ -214,7 +217,7 @@ export const QuestionsController = {
                 if (Array.isArray(multiple)) {
                     // If it we have multiple expected answers, we should also have multiple answers provided
                     if (!Array.isArray(answer)) {
-                        return false
+                        throw new Error("This MCQ answer requires multiple answers");
                     };
 
                     // Sorting them will ensure they're the correct order
