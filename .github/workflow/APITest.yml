@@ -1,0 +1,50 @@
+name: API test
+
+on: 
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Start Backend and Build frontend
+        run: docker compose up --build -d
+      
+      # - name: Setup Backend 
+      #   uses: shivammathur/setup-php@v2
+      #   with:
+      #     php-version: '8.5'
+      #     extensions: sdo_mysql, mysqli
+      # - name: Setup composer 
+      #   run: |
+      #     composer i --working-dir=./backend
+      #     composer dump-autoload --working-dir=./backend
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: 'npm'
+
+      # - name: Install Dependencies
+      #   run: npm install
+      # - name: Create .env file for tests
+      #   run: |
+      #     cat > backend/.env << EOF
+      #     DB_HOST=${{ secrets.DB_HOST }}
+      #     DB_PORT=${{ secrets.DB_PORT }}
+      #     DB_USERNAME=${{ secrets.DB_USERNAME }}
+      #     DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+      #     DB_DATABASE=${{ secrets.DB_DATABASE }}
+      #     EOF
+        
+      # - name: Run Tests and run backend
+      #   run: |
+      #     php -S localhost:8080 -t backend/public &
+      #     sleep 2
+      #     npm test
