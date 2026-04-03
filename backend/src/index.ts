@@ -11,18 +11,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 dotenv.config();
 
-export const Dotenv = {
-    database_url: process.env.DATABASE_URL!,
-    jwt_secret: process.env.JWT_SECRET!,
-    port: Number(process.env.port!) || 3000
-}
-
-for (const [key, value] of Object.entries(Dotenv)) {
-    if (!value) {
-        throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
-    }
-}
-
 const app = express();
 
 const corsOptions = {
@@ -60,7 +48,19 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-app.listen(Dotenv.port, "0.0.0.0", async (e) => {
+export const Dotenv = {
+    database_url: process.env.DATABASE_URL!,
+    jwt_secret: process.env.JWT_SECRET!,
+    port: Number(process.env.port!) || 3000
+}
+
+for (const [key, value] of Object.entries(Dotenv)) {
+    if (!value) {
+        throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
+    }
+}
+
+app.listen(Dotenv.port, async (e) => {
     const conn = await mongoose.connect(Dotenv.database_url);
     console.log(`MongoDB connected: ${conn.connection.host}`);
     if (e) {

@@ -37,3 +37,4 @@ export async function api<
         throw e;
     }
 }
+
