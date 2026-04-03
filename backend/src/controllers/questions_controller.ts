@@ -1,4 +1,4 @@
-import { Questions, QUESTIONS } from "../model/questions.js";
+import { QUESTIONS } from "../model/questions.js";
 import { TOPICS } from "../model/topics.js";
 import type { Controller } from "../types.js";
 import { HttpResponse } from "../utils/http.js";
@@ -183,7 +183,7 @@ export const QuestionsController = {
             .lean();
 
         return HttpResponse.Ok().body(data.map(v => ({
-            question_id: v._id,
+            question_id: v._id.toString(),
             ...v
         })));
     },

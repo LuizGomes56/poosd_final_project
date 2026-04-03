@@ -26,16 +26,16 @@ const FormSelector = ({ id, value, setValue, iterator, title }: EditFieldProps) 
                 relative w-full flex flex-col bg-transparent transition-colors duration-200
                 border-b-2 focus:outline-none font-medium rounded-t-md
                 dark:border-zinc-600 ${STYLES.borderLight}
-                dark:text-zinc-400 text-zinc-600 
-                dark:focus-within:border-b-sky-400 focus-within:border-b-sky-500
-                dark:focus-within:text-sky-400 focus-within:text-sky-500 
+                dark:text-zinc-400 not-dark:text-zinc-600 
+                dark:focus-within:border-b-sky-400 not-dark:focus-within:border-b-sky-500
+                dark:focus-within:text-sky-400 not-dark:focus-within:text-sky-500 
                 ${allowEdit
                     ? `
-                    dark:text-sky-500 text-sky-500
-                    dark:border-b-sky-500 border-b-sky-500`
+                    dark:text-sky-500 not-dark:text-sky-500
+                    dark:border-b-sky-500 not-dark:border-b-sky-500`
                     : `
-                    dark:hover:text-emerald-400 hover:text-emerald-500
-                    dark:hover:border-b-emerald-400 hover:border-b-emerald-400
+                    dark:hover:text-emerald-400 not-dark:hover:text-emerald-500
+                    dark:hover:border-b-emerald-400 not-dark:hover:border-b-emerald-400
                 `}
             `}>
                 <button
@@ -45,7 +45,7 @@ const FormSelector = ({ id, value, setValue, iterator, title }: EditFieldProps) 
                     type="button"
                 >
                     <span>
-                        {iterator[value] || "Não definido"}
+                        {iterator[value] || "Undefined"}
                     </span>
                     <TbChevronDown className="h-5 w-5" />
                 </button>
@@ -54,12 +54,15 @@ const FormSelector = ({ id, value, setValue, iterator, title }: EditFieldProps) 
                     className={`
                         absolute z-10 top-14 w-full max-h-56 overflow-y-auto flex flex-col
                         dark:text-zinc-300 text-zinc-700 
-                        bg-white dark:bg-std-gray-850
+                        not-dark:bg-white dark:bg-std-gray-850
                     `}>
                     {Object.entries(iterator).map(([key, val], index) => (
                         <label
                             key={index}
-                            className="has-checked:bg-violet-700 dark:has-checked:hover:bg-violet-700 has-checked:text-white has-checked:font-medium relative py-1.5 px-5 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors duration-200"
+                            className="not-dark:has-checked:bg-violet-700 dark:has-checked:hover:bg-violet-700 
+                            has-checked:text-white has-checked:font-medium relative py-1.5 px-5 
+                            not-dark:hover:bg-zinc-200 dark:hover:bg-zinc-700 
+                            transition-colors duration-200"
                         >
                             <input
                                 defaultChecked={key === value}
