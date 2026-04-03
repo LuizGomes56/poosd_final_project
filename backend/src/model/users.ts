@@ -6,8 +6,10 @@ const USERS_SCHEMA = new Schema(
             type: String,
             required: true,
             unique: true,
-            maxLength: 256,
-            index: true
+            index: true,
+            trim: true,
+            lowercase: true,
+            maxLength: 256
         },
         password_hash: {
             type: String,
@@ -21,12 +23,9 @@ const USERS_SCHEMA = new Schema(
         full_name: {
             type: String,
             required: true,
+            trim: true,
             minLength: 4,
             maxLength: 64
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
         }
     },
     { timestamps: true }

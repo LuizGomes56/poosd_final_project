@@ -61,7 +61,7 @@ export type ControllerFn<R extends keyof InputSchema> = (
         & ReqHelpers
         & (R extends typeof BACKEND_PROTECTED_ROUTES[number] ? {
             token: string,
-            payload: JwtPayload
+            payload: JwtPayload & { user_id: string }
         } : {}),
     res: Response & ResHelpers
 ) => Promise<HttpResponseBuilder<any, any>>
