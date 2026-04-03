@@ -7,6 +7,7 @@ import AppProvider from "./providers/AppProvider.tsx";
 import RequireLogin from "./providers/RequireLogin.tsx";
 import App from "./pages/App.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import NewQuestion from "./pages/CreateQuestions.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route element={<RequireLogin />}>
                     <Route path="/" element={<App />} />
                     <Route path="/settings/:tab" element={<App />} />
+                    <Route path="/settings/new-question" element={<NewQuestion />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
