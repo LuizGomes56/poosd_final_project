@@ -5,7 +5,11 @@ export async function api<
     I extends SwaggerDocs[P]["input"]
 >(path: P, ...input: I extends undefined ? [] : [I]) {
     const method = BACKEND_ROUTES[path];
-    const URL = "http://localhost:3001/api";
+    const URL = "http://localhost:3000/api";
+
+    const route = `${URL}/${path}`;
+
+    console.log("Calling route: ", route, "with method: ", method);
 
     try {
         const args: RequestInit = {
@@ -28,7 +32,9 @@ export async function api<
             args.body = JSON.stringify(input[0]);
         }
 
-        const request = await fetch(`${URL}/${path}`, args);
+        console.log(args);
+
+        const request = await fetch(route, args);
         const response = await request.json();
         return response as SwaggerDocs[P]["output"];
     } catch (e) {

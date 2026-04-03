@@ -1,188 +1,760 @@
-import { useEffect, useState } from "react";
-import Table from "../components/Table";
-import { type ActionFn, type SetState } from "../consts";
-import FormBuilder from "../forms/FormBuilder";
-import FormTextField from "../forms/FormTextField";
-import FormButton from "../forms/FormButton";
-import { FaTimes } from "react-icons/fa";
+import { translate, type ActionFn, type NotificationFn, type SetState } from "../consts"
+import Table from "../components/Table"
+import { useEffect, useState } from "react"
+import { useNotification } from "../providers/NotificationProvider"
+import { api } from "../utils/request"
+import FormTextField from "../forms/FormTextField"
+import FormButton from "../forms/FormButton"
+import FormBuilder from "../forms/FormBuilder"
+// import FormView from "../forms/FormView"
+import Loading from "../components/Loading"
+import FormSelector from "../forms/FormSelector"
+import FormRadiobox from "../forms/FormRadiobox"
+import type { Topics } from "./TopicsPage"
+import FormTextInserter from "../forms/FormTextInserter"
+import type { SwaggerDocs } from "backend";
 
-function random_str() {
-    let options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 6; i++) {
-        result += options.charAt(Math.floor(Math.random() * options.length));
+const CreateQuestion = ({
+    setShow,
+    show,
+    refresh,
+}: {
+    setShow: SetState<boolean>,
+    show: boolean,
+    refresh: () => void,
+}) => {
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [prompt, setPrompt] = useState<string>("");
+    const [topics, setTopics] = useState<Topics>([]);
+    const [choiceOptions, setChoiceOptions] = useState<string[]>(["Example 1", "Example 2"]);
+    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<string>("True");
+    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(["Response 1", "Response 2"]);
+    const [frqKind, setFrqKind] = useState<"NUMBER" | "TEXT">("NUMBER");
+    const [frqTolerance, setFrqTolerance] = useState<number>(0);
+    const [frqAcceptedNumbers, setFrqAcceptedNumbers] = useState<string[]>([]);
+    const [frqAcceptedTexts, setFrqAcceptedTexts] = useState<string[]>([]);
+    const [difficulty, setDifficulty] = useState<Questions[number]["difficulty"]>("EASY");
+    const [points, setPoints] = useState<Questions[number]["points"]>(100);
+    const [hint, setHint] = useState<Questions[number]["hint"]>("");
+    const [explanation, setExplanation] = useState<Questions[number]["explanation"]>("");
+    const [type, setType] = useState<Questions[number]["type"]>("FRQ");
+
+    const { addNotification } = useNotification();
+
+    useEffect(() => {
+        async function getTopics() {
+            try {
+                const response = await api("topics/all");
+                if (!response.body) {
+                    throw new Error(response.message);
+                }
+                setTopics(response.body);
+            } catch (e) {
+                addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+            }
+        }
+
+        getTopics();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        if (isSubmitting) return;
+        try {
+            const body = (
+                type === "FRQ"
+                    ? {
+                        type,
+                        frq: {
+                            kind: frqKind,
+                            tolerance: frqTolerance,
+                            accepted_numbers: frqAcceptedNumbers.map(Number),
+                            accepted_texts: frqAcceptedTexts,
+                        },
+                        difficulty,
+                        points,
+                        hint,
+                        explanation,
+                        prompt,
+                        topic_ids: topics.map((topic) => topic.topic_id),
+                    }
+                    : type === "TF"
+                        ? {
+                            choice: {} as any,
+                            type,
+                            difficulty,
+                            points,
+                            hint,
+                            explanation,
+                            prompt,
+                            topic_ids: topics.map((topic) => topic.topic_id),
+                        }
+                        : {
+                            choice: {} as any,
+                            type,
+                            difficulty,
+                            points,
+                            hint,
+                            explanation,
+                            prompt,
+                            topic_ids: topics.map((topic) => topic.topic_id),
+                        }
+            ) satisfies SwaggerDocs["questions/create"]["input"];
+
+            if (Object.keys(body).length === 0) {
+                throw new Error("Body cannot be empty");
+            }
+
+            console.log(body);
+
+            const response = await api(
+                "questions/create",
+                body as any
+            );
+
+            if (!response.body || !response.ok) {
+                throw new Error(response.message);
+            }
+
+            addNotification({ type: "success", msg: "Question created successfully" });
+            setShow(false);
+            refresh();
+        }
+        catch (e) {
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+        }
+        finally {
+            setIsSubmitting(false);
+        }
     }
-    return result;
-}
 
-
-
-type TableEntry = {
-    value: string,
-    style?: string
-}
-type QuestionTableBody = [
-    [id: string, [TableEntry, TableEntry, TableEntry]]
-]
-type NullableQuestionTable = QuestionTableBody | null;
-
-//Should maybe take in arguments to determine the
-//Sorting order and text queries
-function requestQuestions() {
-    //api("") Query questions 
-    return null as NullableQuestionTable
-}
-
-function questionCrudOperations(id: any) {
-    return {
-        id: id, question: "Who are you?", answers: [{ id: 0, answer: "testing one answer" }, { id: 1, answer: "testing two answers" }, { id: 2, answer: "testing three answers" }, { id: 3, answer: "testing four answers" },
-        { id: 4, answer: "testing five answers" }
-        ]
-    }
-}
-//
-const QuestionDisplay = ({ questions, setAction }
-    :
-    {
-        questions: NullableQuestionTable
-        setAction: SetState<ActionFn>
-    }
-) => {
-    //remember to change this back to 
-    // questions === null
-    // Maybe === is unnecessary
-    if (questions != null) {
-        return (
-            <div className="content-center">
-                <p className="text-pretty text-white text-4xl ">Nothing to see here folks</p>
-            </div>
-        )
-    }
-    else {
-        return (
-            <div className="flex flex-col flex-1 max-w-full gap-4 mt-4">
-                <h2 className="text-xl mx-4 dark:text-white">Your Questions</h2>
-                <Table
-                    checkboxes
-                    actions={setAction}
-                    btnText="Edit"
-                    cols={[
-                        { size: "1fr" },
-                        { size: "1fr" },
-                        { size: "fit-content(100%)" }
-                    ]}
-                    pattern={{
-                        header: [
-                            { name: "Question", style: "pl-6 pr-4" },
-                            { name: "Type" },
-                            { name: "Date of creation" },
-                        ],
-                        body: questions ? questions : Array.from({ length: 40 }).map(() => {
-                            return [random_str(), [
-                                { value: random_str() },
-                                { value: random_str() },
-                                { value: random_str() },
-                            ]]
-                        })
-
+    return (
+        <FormBuilder
+            show={show}
+            setShow={setShow}
+            handleSubmit={handleSubmit}
+        >
+            <h2 className="text-2xl font-medium leading-none dark:text-white">
+                Create a question
+            </h2>
+            <FormSelector
+                id="topics"
+                value={topics}
+                setValue={setTopics}
+                iterator={Object.fromEntries(topics.map((topic) => [topic.topic_id, topic.name]))}
+                title="Question's choices"
+            />
+            <FormTextField
+                id="prompt"
+                value={prompt}
+                setValue={setPrompt}
+                title="Question's prompt"
+                placeholder="What is the result of 1 + 1?"
+            />
+            <FormRadiobox
+                id="difficulty"
+                value={difficulty}
+                setValue={setDifficulty}
+                title="Question's difficulty"
+                iterator={{
+                    EASY: "Easy",
+                    MEDIUM: "Medium",
+                    HARD: "Hard"
+                }}
+            />
+            <FormTextField
+                id="points"
+                value={points}
+                setValue={setPoints}
+                title="Question's points"
+                placeholder="100"
+            />
+            <FormTextField
+                id="hint"
+                value={hint}
+                setValue={setHint}
+                title="Question's hint"
+                placeholder="Hint"
+            />
+            <FormTextField
+                id="explanation"
+                value={explanation}
+                setValue={setExplanation}
+                title="Question's explanation"
+                placeholder="Explanation"
+            />
+            <FormRadiobox
+                id="type"
+                value={type}
+                setValue={setType}
+                title="Question's type"
+                iterator={{
+                    FRQ: "Free Response Question",
+                    MCQ: "Multiple Choice",
+                    TF: "True or False"
+                }}
+            />
+            {type === "FRQ" && (
+                <>
+                    <FormRadiobox
+                        id="kind"
+                        value={frqKind}
+                        setValue={setFrqKind}
+                        title="Question's kind"
+                        iterator={{
+                            NUMBER: "Number",
+                            TEXT: "Text"
+                        }}
+                    />
+                    {frqKind === "NUMBER" ? (
+                        <>
+                            <FormTextField
+                                id="tolerance"
+                                value={frqTolerance}
+                                setValue={setFrqTolerance}
+                                title="Question's tolerance"
+                                placeholder="Tolerance"
+                            />
+                            <FormTextInserter
+                                id="answer"
+                                value={frqAcceptedNumbers}
+                                setValue={setFrqAcceptedNumbers}
+                                title="Question's answer"
+                                placeholder="Answer"
+                            />
+                        </>
+                    ) :
+                        <FormTextInserter
+                            id="answer"
+                            value={frqAcceptedTexts}
+                            setValue={setFrqAcceptedTexts}
+                            title="Question's answer"
+                            placeholder="Answer"
+                        />
+                    }
+                </>
+            )}
+            {type === "TF" && (
+                <FormRadiobox
+                    id="answer"
+                    value={choiceSingleAnswer}
+                    setValue={setChoiceSingleAnswer}
+                    title="Question's answer"
+                    iterator={{
+                        True: "True",
+                        False: "False"
                     }}
                 />
+            )}
+            {type === "MCQ" && (
+                <>
+                    <FormTextInserter
+                        id="choices"
+                        value={choiceOptions}
+                        setValue={setChoiceOptions}
+                        title="Question's choices"
+                        placeholder="Choice"
+                    />
+                    <FormTextInserter
+                        id="answer"
+                        value={choiceMultipleAnswers}
+                        setValue={setChoiceMultipleAnswers}
+                        title="Question's answer"
+                        placeholder="Answer"
+                    />
+                </>
+            )}
+            <div className="flex items-center gap-2 justify-center sm:justify-end">
+                <FormButton
+                    type="reset"
+                    text="Cancel"
+                    disabled={isSubmitting}
+                />
+                <FormButton
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="bg-violet-500 dark:bg-violet-700 hover:bg-violet-600 dark:hover:bg-violet-800"
+                    text="Save"
+                />
             </div>
-        )
-    }
+        </FormBuilder>
+    )
 }
 
-const QuestionsPage = () => {
-    let individualQuestion = questionCrudOperations("");
-    const [_action, setAction] = useState<ActionFn>(null);
-    const [show, setShow] = useState(false);
-    const [question, setQuestion] = useState(individualQuestion.question);
-    const [answers, setAnswers] = useState(individualQuestion.answers);
-    const [showView, setView] = useState(false);
-    console.log(_action)
-    let questions = requestQuestions();
-    // Delete button would need to be changed later
-    useEffect(() => {
-        console.log("Effect has been executed")
-        if (_action?.mode == "UPDATE") {
-            setShow(true);
-        }
-        else if (_action?.mode == "VIEW") {
-            setView(true);
-        }
-    }, [_action])
-    useEffect(() => {
-        if (show == false) {
-            setAction(null);
-        }
-        if (showView == false) {
-            console.log("showView Disabled");
-            setAction(null);
-        }
-    }, [show, showView])
-
-    answers.map((answer, index) => { console.log(`answer: ${answer}, index: ${index}`) })
-    // Need to change CSS Styling to re arrange the 
+const ViewQuestion = ({
+    info,
+    setShow,
+    addNotification
+}: {
+    addNotification: NotificationFn,
+    setShow: SetState<ActionFn>,
+    info: NonNullable<Awaited<ReturnType<typeof api<"questions/create", any>>>["body"]>
+}) => {
+    if (!info) {
+        addNotification({
+            msg: "Error fetching topic information",
+            type: "error"
+        });
+        return null;
+    }
     return (
-        <div>
-            <div className="">
-                <FormBuilder
-                    show={show}
-                    setShow={setShow}>
-                    <FormTextField id="Question" value={question} setValue={setQuestion} title="Question" titleStyle={"text-black"} />
-                    <div className="overflow-y-scroll">
-                        {answers.map((answer, index) => (
-                            <>
-                                <FormTextField id={String(index)} value={answer.answer} setValue={(newValue) => {
-                                    let localAnswers = structuredClone(answers);
-                                    localAnswers[index].answer = newValue;
-                                    setAnswers(localAnswers);
-                                }} title={"Answer #" + (index + 1)} titleStyle={"text-black"} />
-                                <FormButton type="button" text="delete" />
-                            </>
-                        ))
+        <FormBuilder show={true} setShow={() => setShow(null)} handleSubmit={() => { }}>
+            <h2 className="text-2xl font-medium leading-none dark:text-white">
+                Viewing <i className="text-xl dark:text-sky-300 text-sky-400">{info.question_id}</i>
+            </h2>
+            {/* <FormView title="Topic title" value={info.name} />
+            <FormView title="Topic description" value={info.description} /> */}
+            {/* Add table to see questions later */}
 
+
+        </FormBuilder>
+    )
+}
+
+const EditQuestion = ({
+    setShow,
+    refresh,
+    info,
+    question_id
+}: {
+    setShow: SetState<ActionFn>,
+    refresh: () => void,
+    question_id: string,
+    info: NonNullable<Awaited<ReturnType<typeof api<"questions/create", any>>>["body"]>
+}) => {
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [prompt, setPrompt] = useState<string>(info.prompt || "");
+    const [topics, setTopics] = useState<Topics>([]);
+    const [choiceOptions, setChoiceOptions] = useState<string[]>(info.choice?.options || []);
+    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<string>(info.choice?.answers?.single || "");
+    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(info.choice?.answers?.multiple || []);
+    const [frqKind, setFrqKind] = useState<"NUMBER" | "TEXT">(info.frq?.kind || "NUMBER");
+    const [frqTolerance, setFrqTolerance] = useState<number>(info.frq?.tolerance || 0);
+    const [frqAcceptedNumbers, setFrqAcceptedNumbers] = useState<string[]>(info.frq?.accepted_numbers?.map(String) || []);
+    const [frqAcceptedTexts, setFrqAcceptedTexts] = useState<string[]>(info.frq?.accepted_texts || []);
+    const [difficulty, setDifficulty] = useState<Questions[number]["difficulty"]>(info.difficulty || "EASY");
+    const [points, setPoints] = useState<Questions[number]["points"]>(info.points || 100);
+    const [hint, setHint] = useState<Questions[number]["hint"]>(info.hint || "");
+    const [explanation, setExplanation] = useState<Questions[number]["explanation"]>(info.explanation || "");
+    const [type, setType] = useState<Questions[number]["type"]>(info.type);
+
+    const { addNotification } = useNotification();
+
+    useEffect(() => {
+        async function getTopics() {
+            try {
+                const response = await api("topics/all");
+                if (!response.body) {
+                    throw new Error(response.message);
+                }
+                setTopics(response.body);
+            } catch (e) {
+                addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+            }
+        }
+
+        getTopics();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        if (isSubmitting) return;
+        try {
+            const body = (
+                type === "FRQ"
+                    ? {
+                        question_id,
+                        type,
+                        frq: {
+                            kind: frqKind,
+                            tolerance: frqTolerance,
+                            accepted_numbers: frqAcceptedNumbers.map(Number),
+                            accepted_texts: frqAcceptedTexts,
+                        },
+                        difficulty,
+                        points,
+                        hint,
+                        explanation,
+                        prompt,
+                        topic_ids: topics.map((topic) => topic.topic_id),
+                    }
+                    : type === "TF"
+                        ? {
+                            question_id,
+                            type,
+                            choice: {
+                                answers: choiceMultipleAnswers.length === 0 ? choiceSingleAnswer : choiceMultipleAnswers,
+                            } as any,
+                            difficulty,
+                            points,
+                            hint,
+                            explanation,
+                            prompt,
+                            topic_ids: topics.map((topic) => topic.topic_id),
                         }
-                    </div>
-                    <FormButton type="submit" text="update" />
-                    <FormButton type="button" text="Add Question" />
-                </FormBuilder>
-                {/* Should add feature that removes window when clicking out of it though I have to research this or read mroe the formbuilder also fixed the icon at wrong pos
-            Also Perhaps I should change this to another form object where it only contains text fields for consistency however that will be later */}
-                <div className={`flex justify-center py-8 px-4  sm:px-0 items-center fixed top-0 left-0 w-full h-full bg-black/50 z-50 ${showView ? "" : "hidden"}`}>
-                    <div className="flex max-h-full overflow-y-auto  flex-col w-full gap-6 p-8 not-dark:bg-white dark:bg-std-gray-700 
-                rounded-xl dark:shadow-std-neutral-700">
-                        <FaTimes
-                            className="h-5 w-5 absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 cursor-pointer"
-                            onClick={() => setView(false)}
+                        : {
+                            question_id,
+                            type,
+                            choice: {
+                                options: choiceOptions,
+                                answers: choiceMultipleAnswers.length === 0 ? choiceSingleAnswer : choiceMultipleAnswers,
+                            } as any,
+                            difficulty,
+                            points,
+                            hint,
+                            explanation,
+                            prompt,
+                            topic_ids: topics.map((topic) => topic.topic_id),
+                        }
+            ) satisfies SwaggerDocs["questions/update"]["input"];
+
+            if (Object.keys(body).length === 0) {
+                throw new Error("Body cannot be empty");
+            }
+
+            console.log(body);
+
+            const response = await api(
+                "questions/update",
+                body as any
+            );
+
+            if (!response.body || !response.ok) {
+                throw new Error(response.message);
+            }
+
+            addNotification({ type: "success", msg: "Question created successfully" });
+            setShow(null);
+            refresh();
+        }
+        catch (e) {
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+        }
+        finally {
+            setIsSubmitting(false);
+        }
+    }
+
+    return (
+        <FormBuilder
+            show={true}
+            setShow={() => setShow(null)}
+            handleSubmit={handleSubmit}
+        >
+            <h2 className="text-2xl font-medium leading-none dark:text-white">
+                Create a question
+            </h2>
+            <FormSelector
+                id="topics"
+                value={topics}
+                setValue={setTopics}
+                iterator={Object.fromEntries(topics.map((topic) => [topic.topic_id, topic.name]))}
+                title="Question's choices"
+            />
+            <FormTextField
+                id="prompt"
+                value={prompt}
+                setValue={setPrompt}
+                title="Question's prompt"
+                placeholder="What is the result of 1 + 1?"
+            />
+            <FormRadiobox
+                id="difficulty"
+                value={difficulty}
+                setValue={setDifficulty}
+                title="Question's difficulty"
+                iterator={{
+                    EASY: "Easy",
+                    MEDIUM: "Medium",
+                    HARD: "Hard"
+                }}
+            />
+            <FormTextField
+                id="points"
+                value={points}
+                setValue={setPoints}
+                title="Question's points"
+                placeholder="100"
+            />
+            <FormTextField
+                id="hint"
+                value={hint}
+                setValue={setHint}
+                title="Question's hint"
+                placeholder="Hint"
+            />
+            <FormTextField
+                id="explanation"
+                value={explanation}
+                setValue={setExplanation}
+                title="Question's explanation"
+                placeholder="Explanation"
+            />
+            <FormRadiobox
+                id="type"
+                value={type}
+                setValue={setType}
+                title="Question's type"
+                iterator={{
+                    FRQ: "Free Response Question",
+                    MCQ: "Multiple Choice",
+                    TF: "True or False"
+                }}
+            />
+            {type === "FRQ" && (
+                <>
+                    <FormRadiobox
+                        id="kind"
+                        value={frqKind}
+                        setValue={setFrqKind}
+                        title="Question's kind"
+                        iterator={{
+                            NUMBER: "Number",
+                            TEXT: "Text"
+                        }}
+                    />
+                    {frqKind === "NUMBER" ? (
+                        <>
+                            <FormTextField
+                                id="tolerance"
+                                value={frqTolerance}
+                                setValue={setFrqTolerance}
+                                title="Question's tolerance"
+                                placeholder="Tolerance"
+                            />
+                            <FormTextInserter
+                                id="answer"
+                                value={frqAcceptedNumbers}
+                                setValue={setFrqAcceptedNumbers}
+                                title="Question's answer"
+                                placeholder="Answer"
+                            />
+                        </>
+                    ) :
+                        <FormTextInserter
+                            id="answer"
+                            value={frqAcceptedTexts}
+                            setValue={setFrqAcceptedTexts}
+                            title="Question's answer"
+                            placeholder="Answer"
                         />
-
-                        <p>{question}</p>
-                        <div className="overflow-y-auto flex flex-col gap-6 p-8">
-                            {answers.map((answer, index) => (
-                                <>
-                                    <h5>{"Answer #" + (index + 1)}</h5>
-                                    <p>{answer.answer}</p>
-                                </>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* <Field name="Question" value={question} hook={setQuestion} textStyle="text-white" spanStyle="font-medium text-white text-lg border-b-2 pb-1 border-b-white"/>
-            {answers.map((answer) => (
-                <Field name="Answer" value={answer.answer} hook={(newValue) => { 
-                    let localAnswers = structuredClone(answers);
-                    localAnswers[answer.id].answer = newValue;
-                    setAnswers(localAnswers);
-                }} textStyle="text-white" spanStyle="font-medium text-white text-lg border-b-2 pb-1 border-b-white"/>
-            ))} */}
+                    }
+                </>
+            )}
+            {type === "TF" && (
+                <FormRadiobox
+                    id="answer"
+                    value={choiceSingleAnswer}
+                    setValue={setChoiceSingleAnswer}
+                    title="Question's answer"
+                    iterator={{
+                        True: "True",
+                        False: "False"
+                    }}
+                />
+            )}
+            {type === "MCQ" && (
+                <>
+                    <FormTextInserter
+                        id="choices"
+                        value={choiceOptions}
+                        setValue={setChoiceOptions}
+                        title="Question's choices"
+                        placeholder="Choice"
+                    />
+                    <FormTextInserter
+                        id="answer"
+                        value={choiceMultipleAnswers}
+                        setValue={setChoiceMultipleAnswers}
+                        title="Question's answer"
+                        placeholder="Answer"
+                    />
+                </>
+            )}
+            <div className="flex items-center gap-2 justify-center sm:justify-end">
+                <FormButton
+                    type="reset"
+                    text="Cancel"
+                    disabled={isSubmitting}
+                />
+                <FormButton
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="bg-violet-500 dark:bg-violet-700 hover:bg-violet-600 dark:hover:bg-violet-800"
+                    text="Save"
+                />
             </div>
-            )
-            <QuestionDisplay questions={questions} setAction={setAction} />
+        </FormBuilder>
+    )
+}
+
+const DeleteQuestion = ({
+    setShow,
+    question_id,
+    refresh
+}: {
+    question_id: string,
+    setShow: SetState<ActionFn>,
+    refresh: () => void
+}) => {
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const { addNotification } = useNotification();
+
+    const handleDeletion = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        if (isSubmitting) return;
+        try {
+            const response = await api(
+                "questions/delete",
+                { question_id }
+            );
+
+            if (!response.ok) {
+                throw new Error(response.message);
+            }
+
+            addNotification({ type: "success", msg: "Question excluded successfully" });
+            setShow(null);
+            refresh();
+        }
+        catch (e) {
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+        }
+    }
+
+    return (
+        <FormBuilder
+            show={true}
+            setShow={() => setShow(null)}
+            handleSubmit={handleDeletion}
+        >
+            <h2 className="text-2xl font-medium leading-none dark:text-white">
+                Exclude topic
+            </h2>
+            <h4 className="text-zinc-500 dark:text-zinc-400">
+                Are you sure want want to delete this topic?
+            </h4>
+            <h4 className="text-zinc-500 dark:text-zinc-400">
+                It will no longer be displayed inside the topics table.
+            </h4>
+            <div className="flex items-center gap-2 justify-center sm:justify-end">
+                <FormButton
+                    type="reset"
+                    text="Cancel"
+                    onClick={() => setShow(null)}
+                    disabled={isSubmitting}
+                />
+                <FormButton
+                    type="submit"
+                    onClick={handleDeletion}
+                    className="bg-red-500 dark:bg-red-700 hover:bg-red-600 dark:hover:bg-red-800"
+                    text="Exclude"
+                    disabled={isSubmitting}
+                />
+            </div>
+        </FormBuilder>
+    )
+}
+
+type Questions = Awaited<ReturnType<typeof api<"questions/all", any>>>["body"];
+
+const QuestionsPage = () => {
+    const [action, setAction] = useState<ActionFn>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [topicForm, setTopicForm] = useState<boolean>(false);
+    const [questions, setQuestions] = useState<Questions | null>(null);
+    const { addNotification } = useNotification();
+
+    const getQuestions = async () => {
+        setLoading(true);
+
+        try {
+            const response = await api("questions/all", {});
+
+            if (!response.body) {
+                throw new Error(response.message);
+            }
+
+            setQuestions(response.body);
+        } catch (e) {
+            addNotification({
+                type: "error",
+                msg: e instanceof Error ? e.message : String(e),
+            })
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        getQuestions();
+    }, []);
+
+    const targetQuestion = questions?.find(t => t.question_id === action?.id);
+
+    return (
+        <div className="flex flex-col gap-6">
+            {loading && <Loading />}
+            {questions && targetQuestion && action && action.mode === "UPDATE" && <EditQuestion
+                question_id={action.id}
+                setShow={setAction}
+                info={targetQuestion}
+                refresh={getQuestions}
+            />}
+            {action && targetQuestion && action.mode === "DELETE" && <DeleteQuestion
+                setShow={setAction}
+                refresh={getQuestions}
+                question_id={targetQuestion.question_id}
+            />}
+            {action && targetQuestion && action.mode === "VIEW" && <ViewQuestion
+                info={targetQuestion}
+                setShow={setAction}
+                addNotification={addNotification}
+            />}
+            <CreateQuestion
+                setShow={setTopicForm}
+                refresh={getQuestions}
+                show={topicForm}
+            />
+            <h1 className="text-2xl mb-2 sm:text-3xl font-medium dark:text-white"></h1>
+            {questions ? (
+                <Table
+                    checkboxes
+                    btnText="New Question"
+                    actions={setAction}
+                    setItemForm={setTopicForm}
+                    pattern={{
+                        header: [
+                            { name: "Prompt" },
+                            { name: "Type" },
+                            { name: "Difficulty" },
+                            { name: "Hint" },
+                            { name: "Explanation" },
+                            { name: "Points" },
+                            { name: "Creation date" },
+                            { name: "Last Updated" }
+                        ],
+                        body: questions.map(t => {
+                            return [t.question_id, [
+                                { value: t.prompt },
+                                { value: t.type },
+                                { value: t.difficulty },
+                                { value: t.hint },
+                                { value: t.explanation },
+                                { value: t.points },
+                                { value: translate(t.createdAt, "en-US") },
+                                { value: translate(t.updatedAt, "en-US") },
+                            ]]
+                        })
+                    }}
+                    title="Questions"
+                />
+            ) : loading ? null : "Nothing was found"}
         </div>
     )
-
 }
 
 export default QuestionsPage;

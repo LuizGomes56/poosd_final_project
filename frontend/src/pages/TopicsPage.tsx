@@ -262,7 +262,7 @@ const DeleteTopic = ({
     )
 }
 
-type Topics = Awaited<ReturnType<typeof api<"topics/all", any>>>["body"];
+export type Topics = Awaited<ReturnType<typeof api<"topics/all", any>>>["body"];
 
 const TopicsPage = () => {
     const [action, setAction] = useState<ActionFn>(null);
