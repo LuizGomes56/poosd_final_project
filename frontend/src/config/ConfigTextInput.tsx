@@ -7,7 +7,7 @@ const CancelButton = ({ onClick }: { onClick: () => void }) => (
         type="button"
         className={`px-6 ${STYLES.focus} py-2.5 border rounded-lg font-medium ${STYLES.border}`}
     >
-        Cancelar
+        Cancel
     </button>
 );
 
@@ -15,9 +15,12 @@ const SaveButton = ({ onClick }: { onClick: () => void }) => (
     <button
         onClick={onClick}
         type="button"
-        className={`px-6 ${STYLES.focus} py-2.5 border border-transparent dark:bg-purple-800 bg-purple-600 text-white hover:bg-purple-700 transition-all duration-200 font-medium rounded-lg`}
+        className={`px-6 ${STYLES.focus} 
+        py-2.5 border border-transparent dark:bg-emerald-800 bg-emerald-600 text-white 
+        hover:bg-emerald-700 transition-all duration-200 font-medium 
+        rounded-lg`}
     >
-        Salvar
+        Save
     </button>
 );
 
@@ -27,7 +30,7 @@ const EditButton = ({ onClick }: { onClick: () => void }) => (
         type="button"
         className={`px-6 ${STYLES.focus} py-2.5 border place-self-end rounded-lg ${STYLES.border}`}
     >
-        Editar
+        Edit
     </button>
 );
 

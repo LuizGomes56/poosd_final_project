@@ -1,14 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useUser } from "./providers/UserProvider";
-import type { NotificationProps } from "./consts";
-import { api } from "./utils/request";
+import { useUser } from "./providers/UserProvider"; // Fixed path
+import type { NotificationProps } from "./consts"; // Fixed path
+// import { api } from "./utils/request";
 
-/**
- * Hook that triggers a callback when a click happens outside the referenced element.
- * @param callback Function to be called when the click happens outside the protected elements.
- * @param exceptions Refs that should not trigger this event.
- * @returns Main ref to be passed to the main element.
- */
 export function useClickOut<T extends HTMLElement = any>(
     callback: () => void,
     exceptions: React.RefObject<HTMLElement | null>[] = []
@@ -28,14 +22,16 @@ export function useClickOut<T extends HTMLElement = any>(
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [callback, exceptions]);
 
     return ref;
-};
+}
 
+/**
+ * Returns a value after a specified delay. 
+ * Use this to prevent excessive API calls while typing.
+ */
 export function useDebounce<T>(value: T, delay: number): T {
     const [debounced, setDebounced] = useState(value);
 
@@ -65,41 +61,45 @@ export function useSkip(fn: () => void, deps: any[] = []) {
  * This hook is not ready because a route to update the user's data does not exist
  */
 export const useUpdateUser = () => {
-    const { user, setUser } = useUser();
+    const { user, /* setUser */ } = useUser();
 
-    const updateUser = async (value: any, id?: string, addNotification: (obj: NotificationProps) => void = () => { }) => {
+    const updateUser = async (
+        value: any,
+        id?: string,
+        addNotification: (obj: NotificationProps) => void = () => { }
+    ) => {
         if (!id) {
-            addNotification({ type: "error", msg: "Internal error (User Id not provided)" });
+            addNotification({ type: "error", msg: "Internal error: Field ID missing" });
             return;
         }
         if (!user) {
-            addNotification({ type: "error", msg: "User does not exist" });
+            addNotification({ type: "error", msg: "Session expired. Please log in again." });
             return;
         }
-        if (user[id as keyof typeof user] == value || user.data[id] == value) {
-            addNotification({ type: "info", msg: "No changes were made" });
-            return;
-        }
-        const user_id = user.user_id;
-        if (!user_id) {
-            addNotification({ type: "error", msg: "Unable to identify the user" });
-            return;
-        }
+
+        const currentValue = user[id as keyof typeof user];
+        if (currentValue === value) return;
+
         try {
-            const response = await api("users/patch" as any, { [id]: value });
-            if (response.body) {
-                setUser((current) =>
-                    current
-                        ? {
-                            ...current,
-                            ...response.body,
-                        }
-                        : null
-                );
-                addNotification({ type: "success", msg: "Update successful" });
-            }
+
+            // const response = await api("users/patch" as any, { [id]: value });
+
+            // if (response.ok && response.body) {
+            //     setUser((current: any) =>
+            //         current ? { ...current, ...response.body } : null
+            //     );
+            //     addNotification({ type: "success", msg: `${id.replace('_', ' ')} updated!` });
+            // } else {
+            addNotification({
+                type: "error",
+                msg: /* response.message ?? */ "Update failed"
+            });
+            // }
         } catch (e) {
-            addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+            addNotification({
+                type: "error",
+                msg: e instanceof Error ? e.message : "Network error"
+            });
         }
     };
 

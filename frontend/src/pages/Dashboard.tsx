@@ -49,7 +49,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+                
                 <div className="lg:col-span-2 flex flex-col gap-4 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
                     <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-800">
                         <h2 className="text-white text-sm font-bold">Recent Question Topics</h2>
