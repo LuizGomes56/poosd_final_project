@@ -136,7 +136,24 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: true,
                     prefixIcon: Icons.lock_outline
                   ),
+                const SizedBox(height: 16),
 
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => 
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Unimplemented Feature'),
+                            duration: Duration(seconds: 5),
+                          ),
+                        ),
+                        child: const Text('Forgot Password?'),
+                      ),
+                    ],
+                  ),
+                
                   if (_errorText.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(
