@@ -1,11 +1,11 @@
 import type React from "react";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../pages/Dashboard";
 import AccountSettings from "./AccountSettings";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { MdGridView } from "react-icons/md";
 import { BsPersonCircle } from "react-icons/bs";
-import QuestionsPage from "../components/QuestionsPage";
+import QuestionsPage from "../pages/QuestionsPage";
 import TopicsPage from "./TopicsPage";
 import TestPage from "../components/TestPage";
 

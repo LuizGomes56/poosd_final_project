@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Table from "./Table";
+import Table from "../components/Table";
 import { translate, type ActionFn } from "../consts";
 
 const Example = () => {

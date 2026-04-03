@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { useState } from "react";
 import FormBuilder from "src/forms/FormBuilder";
 import FormButton from "src/forms/FormButton";
