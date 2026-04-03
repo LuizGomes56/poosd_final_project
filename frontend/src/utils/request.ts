@@ -2,11 +2,10 @@ import { BACKEND_ROUTES, type SwaggerDocs } from "backend";
 
 export async function api<
     P extends keyof SwaggerDocs,
-    I extends SwaggerDocs[P]["input"],
-    O extends SwaggerDocs[P]["output"]
->(path: P, ...input: I extends undefined ? [] : [I]): Promise<O> {
+    I extends SwaggerDocs[P]["input"]
+>(path: P, ...input: I extends undefined ? [] : [I]): Promise<SwaggerDocs[P]["output"]> {
     const method = BACKEND_ROUTES[path];
-    const URL = "http://localhost:3000/api";
+    const URL = "http://localhost:3001/api";
 
     try {
         const args: RequestInit = {
