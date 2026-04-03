@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _loading = false);
 
     if (res.ok) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/account');
     } else {
       setState(() => _errorText = res.message);
     }
