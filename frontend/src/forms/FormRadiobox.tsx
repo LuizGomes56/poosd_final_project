@@ -37,7 +37,7 @@ const FormRadiobox = ({
                     <div className="aspect-square rounded-full h-6 border-2 border-zinc-500 peer-checked:bg-violet-600 flex items-center justify-center peer-checked:border-violet-600">
                         {value == key && <BiCheck className="text-white h-5 w-5" />}
                     </div>
-                    <span className="text-zinc-600 dark:text-zinc-400 peer-checked:text-black dark:peer-checked:text-white">{val}</span>
+                    <span className="not-dark:text-zinc-600 dark:text-zinc-400 peer-checked:text-black dark:peer-checked:text-white">{val}</span>
                 </label>
             ))}
         </div>

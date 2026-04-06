@@ -51,6 +51,7 @@ export default function Login() {
                 value={password}
                 hook={setPassword}
                 placeholder="Your password"
+                type="password"
             />
             <Button
                 className="place-self-end w-fit"

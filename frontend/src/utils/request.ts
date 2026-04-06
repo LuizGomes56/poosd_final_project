@@ -2,11 +2,14 @@ import { BACKEND_ROUTES, type SwaggerDocs } from "backend";
 
 export async function api<
     P extends keyof SwaggerDocs,
-    I extends SwaggerDocs[P]["input"],
-    O extends SwaggerDocs[P]["output"]
->(path: P, ...input: I extends undefined ? [] : [I]): Promise<O> {
+    I extends SwaggerDocs[P]["input"]
+>(path: P, ...input: I extends undefined ? [] : [I]) {
     const method = BACKEND_ROUTES[path];
     const URL = "http://localhost:3000/api";
+
+    const route = `${URL}/${path}`;
+
+    console.log("Calling route: ", route, "with method: ", method);
 
     try {
         const args: RequestInit = {
@@ -29,11 +32,14 @@ export async function api<
             args.body = JSON.stringify(input[0]);
         }
 
-        const request = await fetch(`${URL}/${path}`, args);
+        console.log(args);
+
+        const request = await fetch(route, args);
         const response = await request.json();
-        return response as O;
+        return response as SwaggerDocs[P]["output"];
     } catch (e) {
         console.error(e);
         throw e;
     }
 }
+

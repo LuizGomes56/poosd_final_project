@@ -1,16 +1,58 @@
 import { describe, expect, test } from "vitest";
 import { api, token } from "./api";
 
+function randomStr(n = 24) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < n; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+const full_name = randomStr();
+const email = `${randomStr(16)}@${randomStr(8)}.com`.toLowerCase();
+const password = randomStr(32);
+
 export async function login() {
     const r = await api("users/login", {
-        email: "test@gmail.com",
-        password: "test",
+        email,
+        password,
     });
 
     token.set(r.body?.token);
 
     return r;
 }
+
+describe(`Testing register route ("users/register")`, () => {
+    test("Register as non-existent user", async () => {
+        expect(await api(
+            "users/register", {
+            full_name,
+            email,
+            password,
+        })).toEqual({
+            ok: true,
+            status: 200,
+            message: "User registered successfully"
+        })
+    })
+
+    test("Register as existent user", async () => {
+        expect(await api(
+            "users/register", {
+            full_name,
+            email,
+            password,
+        })).toEqual({
+            ok: false,
+            status: 500,
+            message: "This email is already in use"
+        })
+    });
+});
 
 describe(`Testing login route ("users/login")`, () => {
     test("Login as existent user", async () => {
@@ -19,10 +61,10 @@ describe(`Testing login route ("users/login")`, () => {
             status: 200,
             message: "User logged in successfully",
             body: {
-                _id: "69c2c12783b18c0ba5254884",
-                email: "test@gmail.com",
+                _id: expect.any(String),
+                email,
                 email_verified: false,
-                full_name: "SomeName",
+                full_name,
             }
         })
     });
@@ -30,7 +72,7 @@ describe(`Testing login route ("users/login")`, () => {
     test("Login as existent user with wrong password", async () => {
         expect(await api(
             "users/login", {
-            email: "test@gmail.com",
+            email,
             password: "undefined",
         })).toEqual({
             ok: false,
@@ -64,21 +106,6 @@ describe(`Testing login route ("users/login")`, () => {
     });
 });
 
-describe(`Testing register route ("users/register")`, () => {
-    test("Register as existent user", async () => {
-        expect(await api(
-            "users/register", {
-            full_name: "SomeName",
-            email: "test@gmail.com",
-            password: "test",
-        })).toEqual({
-            ok: false,
-            status: 500,
-            message: "This email is already in use"
-        })
-    });
-});
-
 describe(`Testing verify route ("users/verify")`, () => {
     test("Verify without providing a token", async () => {
         let prev = token.get();
@@ -89,6 +116,7 @@ describe(`Testing verify route ("users/verify")`, () => {
             status: 401,
             message: "Could not extract token from the request headers"
         });
+
         token.set(prev);
     });
 
@@ -97,9 +125,9 @@ describe(`Testing verify route ("users/verify")`, () => {
             ok: true,
             status: 200,
             body: {
-                email: "test@gmail.com",
+                email,
                 email_verified: false,
-                full_name: "SomeName",
+                full_name,
                 user_id: expect.any(String),
             },
         })

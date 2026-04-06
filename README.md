@@ -104,6 +104,7 @@ poosd_final_project/
 - npm
 - Flutter SDK
 - MongoDB connection string
+- Android Studio (Android SDK, cmdline-tools, and Virtual Device)
 
 ### Backend
 ```bash
@@ -118,6 +119,13 @@ npm run start
 cd frontend
 npm install
 npm run dev
+```
+### Mobile
+```bash
+cd mobile
+flutter doctor
+flutter pub get
+flutter run
 ```
 
 ### Running Tests

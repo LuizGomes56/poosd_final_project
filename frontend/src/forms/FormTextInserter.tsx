@@ -38,7 +38,7 @@ const FormTextInserter = ({
                                     setValue(prev => [...prev.slice(0, i), ...prev.slice(i + 1)]);
                                 }}
                             >
-                                Remover
+                                Remove
                             </button>
                         )}
                     </div>
@@ -49,9 +49,9 @@ const FormTextInserter = ({
         {value.length < 5 && <button
             type="button"
             onClick={() => setValue(prev => [...prev, ""])}
-            className="my-2 font-semibold text-left dark:text-sky-400 text-sky-500 hover:underline"
+            className="my-2 font-semibold text-left dark:text-sky-400 not-dark:text-sky-500 hover:underline"
         >
-            Adicionar {title}
+            Add {title}
         </button>}
     </>
 )
