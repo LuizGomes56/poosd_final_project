@@ -1,5 +1,3 @@
-import { BsPersonCircle } from "react-icons/bs";
-import { MdGridView, MdOutlineQuiz } from "react-icons/md";
 import { Navigate, NavLink, useParams } from "react-router-dom";
 import { useUser } from "../providers/UserProvider";
 import Photo from "./Photo";
