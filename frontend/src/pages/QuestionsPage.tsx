@@ -8,27 +8,29 @@ import FormButton from "../forms/FormButton"
 import FormBuilder from "../forms/FormBuilder"
 // import FormView from "../forms/FormView"
 import Loading from "../components/Loading"
-import FormSelector from "../forms/FormSelector"
 import FormRadiobox from "../forms/FormRadiobox"
 import type { Topics } from "./TopicsPage"
 import FormTextInserter from "../forms/FormTextInserter"
 import type { SwaggerDocs } from "backend";
+import FormMultiselector from "../forms/FormMultiselector"
+import FormView from "../forms/FormView"
 
 const CreateQuestion = ({
     setShow,
     show,
     refresh,
+    topics
 }: {
     setShow: SetState<boolean>,
     show: boolean,
     refresh: () => void,
+    topics: Topics
 }) => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [prompt, setPrompt] = useState<string>("");
-    const [topics, setTopics] = useState<Topics>([]);
-    const [choiceOptions, setChoiceOptions] = useState<string[]>(["Example 1", "Example 2"]);
-    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<string>("True");
-    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(["Response 1", "Response 2"]);
+    const [choiceOptions, setChoiceOptions] = useState<string[]>(["Example 1", "Example 2", "Example 3", "Example 4"]);
+    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<"True" | "False">("True");
+    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(["Example 3"]);
     const [frqKind, setFrqKind] = useState<"NUMBER" | "TEXT">("NUMBER");
     const [frqTolerance, setFrqTolerance] = useState<number>(0);
     const [frqAcceptedNumbers, setFrqAcceptedNumbers] = useState<string[]>([]);
@@ -38,24 +40,8 @@ const CreateQuestion = ({
     const [hint, setHint] = useState<Questions[number]["hint"]>("");
     const [explanation, setExplanation] = useState<Questions[number]["explanation"]>("");
     const [type, setType] = useState<Questions[number]["type"]>("FRQ");
-
+    const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
     const { addNotification } = useNotification();
-
-    useEffect(() => {
-        async function getTopics() {
-            try {
-                const response = await api("topics/all");
-                if (!response.body) {
-                    throw new Error(response.message);
-                }
-                setTopics(response.body);
-            } catch (e) {
-                addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
-            }
-        }
-
-        getTopics();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -66,10 +52,12 @@ const CreateQuestion = ({
                 type === "FRQ"
                     ? {
                         type,
-                        frq: {
+                        frq: frqKind === "NUMBER" ? {
                             kind: frqKind,
                             tolerance: frqTolerance,
                             accepted_numbers: frqAcceptedNumbers.map(Number),
+                        } : {
+                            kind: frqKind,
                             accepted_texts: frqAcceptedTexts,
                         },
                         difficulty,
@@ -77,30 +65,48 @@ const CreateQuestion = ({
                         hint,
                         explanation,
                         prompt,
-                        topic_ids: topics.map((topic) => topic.topic_id),
+                        topic_ids: selectedTopicIds,
                     }
                     : type === "TF"
                         ? {
-                            choice: {} as any,
+                            choice: {
+                                answers: {
+                                    single: choiceSingleAnswer,
+                                },
+                            },
                             type,
                             difficulty,
                             points,
                             hint,
                             explanation,
                             prompt,
-                            topic_ids: topics.map((topic) => topic.topic_id),
+                            topic_ids: selectedTopicIds,
                         }
                         : {
-                            choice: {} as any,
+                            choice: {
+                                answers: {
+                                    multiple: choiceMultipleAnswers
+                                },
+                                options: choiceOptions
+                            },
                             type,
                             difficulty,
                             points,
                             hint,
                             explanation,
                             prompt,
-                            topic_ids: topics.map((topic) => topic.topic_id),
+                            topic_ids: selectedTopicIds,
                         }
             ) satisfies SwaggerDocs["questions/create"]["input"];
+
+            if (!body) {
+                throw new Error("Body cannot be empty");
+            }
+
+            if (type === "MCQ" && new Set(choiceOptions).size !== choiceOptions.length) {
+                throw new Error("MCQ options must be unique");
+            }
+
 
             if (Object.keys(body).length === 0) {
                 throw new Error("Body cannot be empty");
@@ -128,7 +134,7 @@ const CreateQuestion = ({
             setIsSubmitting(false);
         }
     }
-
+    {/* Have to make another hook because the original setter hook would overide the original pulled list and make it a non array object */ }
     return (
         <FormBuilder
             show={show}
@@ -138,10 +144,10 @@ const CreateQuestion = ({
             <h2 className="text-2xl font-medium leading-none dark:text-white">
                 Create a question
             </h2>
-            <FormSelector
+            <FormMultiselector
                 id="topics"
-                value={topics}
-                setValue={setTopics}
+                value={selectedTopicIds}
+                setValue={setSelectedTopicIds}
                 iterator={Object.fromEntries(topics.map((topic) => [topic.topic_id, topic.name]))}
                 title="Question's choices"
             />
@@ -166,7 +172,7 @@ const CreateQuestion = ({
             <FormTextField
                 id="points"
                 value={points}
-                setValue={setPoints}
+                setValue={(v) => setPoints(Number(v))}
                 title="Question's points"
                 placeholder="100"
             />
@@ -176,6 +182,7 @@ const CreateQuestion = ({
                 setValue={setHint}
                 title="Question's hint"
                 placeholder="Hint"
+                maxLength={6000}
             />
             <FormTextField
                 id="explanation"
@@ -183,6 +190,7 @@ const CreateQuestion = ({
                 setValue={setExplanation}
                 title="Question's explanation"
                 placeholder="Explanation"
+                maxLength={6000}
             />
             <FormRadiobox
                 id="type"
@@ -212,7 +220,7 @@ const CreateQuestion = ({
                             <FormTextField
                                 id="tolerance"
                                 value={frqTolerance}
-                                setValue={setFrqTolerance}
+                                setValue={(v) => setFrqTolerance(Number(v))}
                                 title="Question's tolerance"
                                 placeholder="Tolerance"
                             />
@@ -256,12 +264,15 @@ const CreateQuestion = ({
                         title="Question's choices"
                         placeholder="Choice"
                     />
-                    <FormTextInserter
-                        id="answer"
+                    <FormMultiselector
+                        id="answers"
                         value={choiceMultipleAnswers}
                         setValue={setChoiceMultipleAnswers}
-                        title="Question's answer"
-                        placeholder="Answer"
+                        iterator={Object.fromEntries(choiceOptions.map((choice, i) => [
+                            choice,
+                            `[${String.fromCharCode(65 + i)}] ${choice}`
+                        ]))}
+                        title="Question's answers"
                     />
                 </>
             )}
@@ -282,14 +293,18 @@ const CreateQuestion = ({
     )
 }
 
+type Question = NonNullable<Awaited<ReturnType<typeof api<"questions/all", any>>>["body"][number]>;
+
 const ViewQuestion = ({
     info,
     setShow,
-    addNotification
+    addNotification,
+    topics
 }: {
     addNotification: NotificationFn,
     setShow: SetState<ActionFn>,
-    info: NonNullable<Awaited<ReturnType<typeof api<"questions/create", any>>>["body"]>
+    info: Question,
+    topics: Topics
 }) => {
     if (!info) {
         addNotification({
@@ -298,17 +313,44 @@ const ViewQuestion = ({
         });
         return null;
     }
+
     return (
         <FormBuilder show={true} setShow={() => setShow(null)} handleSubmit={() => { }}>
             <h2 className="text-2xl font-medium leading-none dark:text-white">
-                Viewing <i className="text-xl dark:text-sky-300 text-sky-400">{info.question_id}</i>
+                Viewing <i className="text-xl dark:text-sky-300 text-sky-400">{info.prompt}</i>
             </h2>
+            {info.type == "MCQ"
+                ? <>
+                    <FormView title="Prompt" value={info.prompt} />
+                    <FormView title={`Topics (${topics.length})`} value={topics.map(t => t.name).join(", ")} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <FormView title="Type" value={info.type} />
+                        <FormView title="Difficulty" value={info.difficulty} />
+                        <FormView title="Points" value={info.points} />
+                    </div>
+                    <FormView title="Explanation" value={info.explanation} />
+                    <FormView title="Hint" value={info.hint} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {info.choice?.answers?.multiple?.map((value, index) => (
+                            <FormView title={"Answer #" + (index + 1)} value={value} />
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {info.choice?.options.map((value, index) => (
+                            <FormView title={"Options #" + (index + 1)} value={value} />
+                        ))}
+                    </div>
+                </>
+                : info.type === "FRQ"
+                    ? <div>FRQ</div>
+                    : <div>TF</div>}
+
             {/* <FormView title="Topic title" value={info.name} />
             <FormView title="Topic description" value={info.description} /> */}
             {/* Add table to see questions later */}
 
 
-        </FormBuilder>
+        </FormBuilder >
     )
 }
 
@@ -316,18 +358,19 @@ const EditQuestion = ({
     setShow,
     refresh,
     info,
-    question_id
+    question_id,
+    topics
 }: {
     setShow: SetState<ActionFn>,
     refresh: () => void,
     question_id: string,
-    info: NonNullable<Awaited<ReturnType<typeof api<"questions/create", any>>>["body"]>
+    info: Question,
+    topics: Topics
 }) => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [prompt, setPrompt] = useState<string>(info.prompt || "");
-    const [topics, setTopics] = useState<Topics>([]);
     const [choiceOptions, setChoiceOptions] = useState<string[]>(info.choice?.options || []);
-    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<string>(info.choice?.answers?.single || "");
+    const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<"True" | "False">(info.choice?.answers?.single as any || "True");
     const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(info.choice?.answers?.multiple || []);
     const [frqKind, setFrqKind] = useState<"NUMBER" | "TEXT">(info.frq?.kind || "NUMBER");
     const [frqTolerance, setFrqTolerance] = useState<number>(info.frq?.tolerance || 0);
@@ -338,24 +381,9 @@ const EditQuestion = ({
     const [hint, setHint] = useState<Questions[number]["hint"]>(info.hint || "");
     const [explanation, setExplanation] = useState<Questions[number]["explanation"]>(info.explanation || "");
     const [type, setType] = useState<Questions[number]["type"]>(info.type);
+    const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>(info.topic_ids || []);
 
     const { addNotification } = useNotification();
-
-    useEffect(() => {
-        async function getTopics() {
-            try {
-                const response = await api("topics/all");
-                if (!response.body) {
-                    throw new Error(response.message);
-                }
-                setTopics(response.body);
-            } catch (e) {
-                addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
-            }
-        }
-
-        getTopics();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -367,10 +395,12 @@ const EditQuestion = ({
                     ? {
                         question_id,
                         type,
-                        frq: {
+                        frq: frqKind === "NUMBER" ? {
                             kind: frqKind,
                             tolerance: frqTolerance,
                             accepted_numbers: frqAcceptedNumbers.map(Number),
+                        } : {
+                            kind: frqKind,
                             accepted_texts: frqAcceptedTexts,
                         },
                         difficulty,
@@ -378,37 +408,41 @@ const EditQuestion = ({
                         hint,
                         explanation,
                         prompt,
-                        topic_ids: topics.map((topic) => topic.topic_id),
+                        topic_ids: selectedTopicIds,
                     }
                     : type === "TF"
                         ? {
                             question_id,
-                            type,
                             choice: {
-                                answers: choiceMultipleAnswers.length === 0 ? choiceSingleAnswer : choiceMultipleAnswers,
-                            } as any,
+                                answers: {
+                                    single: choiceSingleAnswer,
+                                },
+                            },
+                            type,
                             difficulty,
                             points,
                             hint,
                             explanation,
                             prompt,
-                            topic_ids: topics.map((topic) => topic.topic_id),
+                            topic_ids: selectedTopicIds,
                         }
                         : {
                             question_id,
-                            type,
                             choice: {
-                                options: choiceOptions,
-                                answers: choiceMultipleAnswers.length === 0 ? choiceSingleAnswer : choiceMultipleAnswers,
-                            } as any,
+                                answers: {
+                                    multiple: choiceMultipleAnswers
+                                },
+                                options: choiceOptions
+                            },
+                            type,
                             difficulty,
                             points,
                             hint,
                             explanation,
                             prompt,
-                            topic_ids: topics.map((topic) => topic.topic_id),
+                            topic_ids: selectedTopicIds,
                         }
-            ) satisfies SwaggerDocs["questions/update"]["input"];
+            ) satisfies SwaggerDocs["questions/update"]["input"];;
 
             if (Object.keys(body).length === 0) {
                 throw new Error("Body cannot be empty");
@@ -446,10 +480,10 @@ const EditQuestion = ({
             <h2 className="text-2xl font-medium leading-none dark:text-white">
                 Create a question
             </h2>
-            <FormSelector
+            <FormMultiselector
                 id="topics"
-                value={topics}
-                setValue={setTopics}
+                value={selectedTopicIds}
+                setValue={setSelectedTopicIds}
                 iterator={Object.fromEntries(topics.map((topic) => [topic.topic_id, topic.name]))}
                 title="Question's choices"
             />
@@ -459,6 +493,7 @@ const EditQuestion = ({
                 setValue={setPrompt}
                 title="Question's prompt"
                 placeholder="What is the result of 1 + 1?"
+                maxLength={6000}
             />
             <FormRadiobox
                 id="difficulty"
@@ -474,7 +509,7 @@ const EditQuestion = ({
             <FormTextField
                 id="points"
                 value={points}
-                setValue={setPoints}
+                setValue={(v) => setPoints(Number(v))}
                 title="Question's points"
                 placeholder="100"
             />
@@ -484,6 +519,7 @@ const EditQuestion = ({
                 setValue={setHint}
                 title="Question's hint"
                 placeholder="Hint"
+                maxLength={6000}
             />
             <FormTextField
                 id="explanation"
@@ -491,6 +527,7 @@ const EditQuestion = ({
                 setValue={setExplanation}
                 title="Question's explanation"
                 placeholder="Explanation"
+                maxLength={6000}
             />
             <FormRadiobox
                 id="type"
@@ -520,7 +557,7 @@ const EditQuestion = ({
                             <FormTextField
                                 id="tolerance"
                                 value={frqTolerance}
-                                setValue={setFrqTolerance}
+                                setValue={(v) => setFrqTolerance(Number(v))}
                                 title="Question's tolerance"
                                 placeholder="Tolerance"
                             />
@@ -564,12 +601,16 @@ const EditQuestion = ({
                         title="Question's choices"
                         placeholder="Choice"
                     />
-                    <FormTextInserter
-                        id="answer"
+                    <FormMultiselector
+                        id="answers"
                         value={choiceMultipleAnswers}
                         setValue={setChoiceMultipleAnswers}
-                        title="Question's answer"
-                        placeholder="Answer"
+                        iterator={Object.fromEntries(choiceOptions.map((choice, i) => [
+                            choice,
+                            `[${String.fromCharCode(65 + i)}] ${choice}`
+                        ]))}
+                        title="Question's answers"
+                        text={`${choiceMultipleAnswers.length} / ${choiceOptions.length}`}
                     />
                 </>
             )}
@@ -667,6 +708,23 @@ const QuestionsPage = () => {
     const [topicForm, setTopicForm] = useState<boolean>(false);
     const [questions, setQuestions] = useState<Questions | null>(null);
     const { addNotification } = useNotification();
+    const [topics, setTopics] = useState<Topics>([]);
+
+    useEffect(() => {
+        async function getTopics() {
+            try {
+                const response = await api("topics/all");
+                if (!response.body) {
+                    throw new Error(response.message);
+                }
+                setTopics(response.body);
+            } catch (e) {
+                addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });
+            }
+        }
+
+        getTopics();
+    }, []);
 
     const getQuestions = async () => {
         setLoading(true);
@@ -699,6 +757,7 @@ const QuestionsPage = () => {
         <div className="flex flex-col gap-6">
             {loading && <Loading />}
             {questions && targetQuestion && action && action.mode === "UPDATE" && <EditQuestion
+                topics={topics}
                 question_id={action.id}
                 setShow={setAction}
                 info={targetQuestion}
@@ -710,11 +769,13 @@ const QuestionsPage = () => {
                 question_id={targetQuestion.question_id}
             />}
             {action && targetQuestion && action.mode === "VIEW" && <ViewQuestion
+                topics={topics}
                 info={targetQuestion}
                 setShow={setAction}
                 addNotification={addNotification}
             />}
             <CreateQuestion
+                topics={topics}
                 setShow={setTopicForm}
                 refresh={getQuestions}
                 show={topicForm}

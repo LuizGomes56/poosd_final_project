@@ -4,6 +4,7 @@ import { SCHEMA } from "../schema.js";
 import { HttpResponse } from "./http.js";
 import { Dotenv } from "../index.js";
 import jwt from "jsonwebtoken";
+import { USERS } from "../model/users.js";
 
 /**
  * Helper functions to use on `req` object as method
@@ -46,6 +47,18 @@ export const Middleware = {
             const payload = jwt.verify(token, Dotenv.jwt_secret) as jwt.JwtPayload;
             (req as any).token = token;
             (req as any).payload = payload;
+
+            const user = await USERS.findById(payload.user_id).lean();
+
+            if (!user) {
+                res.clearCookie("token");
+                res.removeHeader("authorization");
+
+                return HttpResponse.Unauthorized()
+                    .message("[USER_DELETED] User does not exist")
+                    .send(res);
+            }
+
             next();
         } catch (e: any) {
             return HttpResponse.Unauthorized()

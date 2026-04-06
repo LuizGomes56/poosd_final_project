@@ -1,5 +1,5 @@
 import type { JwtPayload, UserPayload } from "backend";
-import { createContext, useState, useContext, type ReactNode, useEffect } from "react";
+import { createContext, useState, useContext, type ReactNode } from "react";
 import type { SetState } from "../consts";
 
 type UserContextType = {
@@ -12,24 +12,12 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<UserContextType["user"] | null>(() => {
-        const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+    const [user, setUser] = useState<UserContextType["user"] | null>(null);
     const isAuthenticated = Boolean(user);
-
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user));
-        } else {
-            localStorage.removeItem("user");
-        }
-    }, [user]);
 
     const logout = () => {
         setUser(null);
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
     };
 
     return (
