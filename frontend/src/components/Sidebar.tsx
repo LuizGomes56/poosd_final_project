@@ -1,9 +1,5 @@
-<<<<<<< create-questions
 import { BsPersonCircle } from "react-icons/bs";
 import { MdGridView, MdOutlineQuiz } from "react-icons/md";
-=======
-
->>>>>>> main
 import { Navigate, NavLink, useParams } from "react-router-dom";
 import { useUser } from "../providers/UserProvider";
 import Photo from "./Photo";
@@ -51,17 +47,8 @@ const Sidebar = (
 ) => {
     const { tab } = useParams<{ tab?: string }>();
     const { user } = useUser();
-
-<<<<<<< create-questions
-    const menuItems = [
-        { id: "dashboard", text: "Dashboard", icon: <MdGridView className="h-5 w-5" /> },
-        { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
-        { id: "new-question", text: "New Question", icon: <MdOutlineQuiz className="h-5 w-5" /> }
-    ];
-
-=======
+    
     const menuItems = pages;
->>>>>>> main
     if (!tab || !menuItems.some(({ id }) => id == tab)) {
         return <Navigate to="/settings/dashboard" replace />;
     }
