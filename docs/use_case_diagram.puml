@@ -6,61 +6,70 @@ actor "Teacher (User)" as User
 
 rectangle "POOSD Final Project" {
 
-    ' ACCOUNT
-    (Create Account) as Register
-    (Log In) as Login
-    (Recover Password) as ForgotPassword
+    package "Authentication" {
+        (Create Account) as Register
+        (Log In) as Login
+        (Recover Password) as ForgotPassword
 
-    (Manage Account) as Account
-    (View Account Info) as ViewAcc
-    (Update Account Info) as UpdateAcc
+        Login .> ForgotPassword : <<extend>>\n
+    }
 
     User --> Register
     User --> Login
 
-    Login .> ForgotPassword : <<extend>>
 
-    User --> Account
-    Account --> ViewAcc : <<include>>
+    package "Account" {
+        (Manage Account) as ManageAcc
+        (View Account Info) as ViewAcc
+        (Update Account Info) as UpdateAcc
+        
+        ManageAcc --> ViewAcc : <<include>>
+        ManageAcc --> UpdateAcc : <<include>>
+    }
+
+    User --> ManageAcc
 
 
-    ' DASHBOARD
-    (View Dashboard) as Dashboard
+    package "Dashboard" {
+        (View Dashboard) as Dashboardd
+    }
+
     User --> Dashboard
 
+    package "Topics" {
+        (Manage Topics) as MT
+        (Create Topic) as CT
+        (Delete Topic) as DT
+        (Update Topic) as UT
+        (View Topics) as VT
 
-    ' TOPICS
-    (Manage Topics) as MT
-    (Create Topic) as CT
-    (Delete Topic) as DT
-    (Update Topic) as UT
-    (View Topics) as VT
+        MT --> UT : <<include>>
+        MT --> CT : <<include>>
+        MT --> DT : <<include>>
+        MT --> VT : <<include>>
+    }
 
     User --> MT
 
-    MT --> CT : <<include>>
-    MT --> DT : <<include>>
-    MT --> UT : <<include>>
-    MT --> VT : <<include>>
 
+    package "Questions" {
+        (Manage Questions) as MQ
+        (Create Question) as CQ
+        (Delete Question) as DQ
+        (View Questions) as VQ
+        (Get Question Details) as GQ
+        (Check Answers) as CA
 
-    ' QUESTIONS
-    (Manage Questions) as MQ
-    (Create Question) as CQ
-    (Delete Question) as DQ
-    (View Questions) as VQ
-    (Get Question Details) as GQ
-    (Check Answers) as CA
+        MQ --> CQ : <<include>>
+        MQ --> DQ : <<include>>
+        MQ --> VQ : <<include>>
+
+        VQ --> GQ : <<include>>
+        CA --> GQ : <<include>>
+    }
 
     User --> MQ
     User --> CA
-
-    MQ --> CQ : <<include>>
-    MQ --> DQ : <<include>>
-    MQ --> VQ : <<include>>
-
-    VQ --> GQ : <<include>>
-    CA --> GQ : <<include>>
 
 }
 
