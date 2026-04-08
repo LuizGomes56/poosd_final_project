@@ -33,22 +33,22 @@ export type ComponentProps<T = any, U = string> = {
 }
 
 export const TW_COLORS = {
-    blue: "dark:text-blue-400 dark:bg-blue-400 not-dark:text-blue-600 not-dark:bg-blue-600",
-    cyan: "dark:text-cyan-400 dark:bg-cyan-400 not-dark:text-cyan-600 not-dark:bg-cyan-600",
-    emerald: "dark:text-emerald-400 dark:bg-emerald-400 not-dark:text-emerald-600 not-dark:bg-emerald-600",
-    fuchsia: "dark:text-fuchsia-400 dark:bg-fuchsia-400 not-dark:text-fuchsia-600 not-dark:bg-fuchsia-600",
-    green: "dark:text-green-400 dark:bg-green-400 not-dark:text-green-600 not-dark:bg-green-600",
-    indigo: "dark:text-indigo-400 dark:bg-indigo-400 not-dark:text-indigo-600 not-dark:bg-indigo-600",
-    lime: "dark:text-lime-400 dark:bg-lime-400 not-dark:text-lime-600 not-dark:bg-lime-600",
-    orange: "dark:text-orange-400 dark:bg-orange-400 not-dark:text-orange-600 not-dark:bg-orange-600",
-    pink: "dark:text-pink-400 dark:bg-pink-400 not-dark:text-pink-600 not-dark:bg-pink-600",
-    purple: "dark:text-purple-400 dark:bg-purple-400 not-dark:text-purple-600 not-dark:bg-purple-600",
-    red: "dark:text-red-400 dark:bg-red-400 not-dark:text-red-600 not-dark:bg-red-600",
-    rose: "dark:text-rose-400 dark:bg-rose-400 not-dark:text-rose-600 not-dark:bg-rose-600",
-    sky: "dark:text-sky-400 dark:bg-sky-400 not-dark:text-sky-600 not-dark:bg-sky-600",
-    teal: "dark:text-teal-400 dark:bg-teal-400 not-dark:text-teal-600 not-dark:bg-teal-600",
-    violet: "dark:text-violet-400 dark:bg-violet-400 not-dark:text-violet-600 not-dark:bg-violet-600",
-    yellow: "dark:text-yellow-400 dark:bg-yellow-400 not-dark:text-yellow-600 not-dark:bg-yellow-600",
+    blue: "dark:text-blue-800 dark:bg-blue-400 not-dark:text-blue-200 not-dark:bg-blue-600",
+    cyan: "dark:text-cyan-800 dark:bg-cyan-400 not-dark:text-cyan-200 not-dark:bg-cyan-600",
+    emerald: "dark:text-emerald-800 dark:bg-emerald-400 not-dark:text-emerald-200 not-dark:bg-emerald-600",
+    fuchsia: "dark:text-fuchsia-800 dark:bg-fuchsia-400 not-dark:text-fuchsia-200 not-dark:bg-fuchsia-600",
+    green: "dark:text-green-800 dark:bg-green-400 not-dark:text-green-200 not-dark:bg-green-600",
+    indigo: "dark:text-indigo-800 dark:bg-indigo-400 not-dark:text-indigo-200 not-dark:bg-indigo-600",
+    lime: "dark:text-lime-800 dark:bg-lime-400 not-dark:text-lime-200 not-dark:bg-lime-600",
+    orange: "dark:text-orange-800 dark:bg-orange-400 not-dark:text-orange-200 not-dark:bg-orange-600",
+    pink: "dark:text-pink-800 dark:bg-pink-400 not-dark:text-pink-200 not-dark:bg-pink-600",
+    purple: "dark:text-purple-800 dark:bg-purple-400 not-dark:text-purple-200 not-dark:bg-purple-600",
+    red: "dark:text-red-800 dark:bg-red-400 not-dark:text-red-200 not-dark:bg-red-600",
+    rose: "dark:text-rose-800 dark:bg-rose-400 not-dark:text-rose-200 not-dark:bg-rose-600",
+    sky: "dark:text-sky-800 dark:bg-sky-400 not-dark:text-sky-200 not-dark:bg-sky-600",
+    teal: "dark:text-teal-800 dark:bg-teal-400 not-dark:text-teal-200 not-dark:bg-teal-600",
+    violet: "dark:text-violet-800 dark:bg-violet-400 not-dark:text-violet-200 not-dark:bg-violet-600",
+    yellow: "dark:text-yellow-800 dark:bg-yellow-400 not-dark:text-yellow-200 not-dark:bg-yellow-600",
 } as const;
 
 export function getLogicalColor(text: string, factor: number = 0) {

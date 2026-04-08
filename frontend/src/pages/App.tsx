@@ -23,7 +23,7 @@ const App = () => {
     const activeTab = tab || "dashboard";
     const ActiveComponent = componentMap[activeTab] || Dashboard;
 
-    const lazy = false;
+    const lazy = true;
 
     //Im sure there is a way to do this more dynamically but it would be a waste to expend that effort here
     let webpages = [

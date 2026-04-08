@@ -18,8 +18,6 @@ export default function Login() {
             if (response.ok && response.body != undefined) {
                 const token = response.body.token;
                 localStorage.setItem("token", token);
-                localStorage.setItem("full_name", response.body.full_name);
-                localStorage.setItem("email", response.body.email);
                 return navigate("/");
             } else {
                 setErrorText(response.message);
@@ -38,7 +36,7 @@ export default function Login() {
         <div className="
             place-self-center my-20 rounded-xl max-w-md
             w-full flex flex-col gap-4 p-6 bg-zinc-800 
-            text-white
+            text-white 
         ">
             <Field
                 name="Email Address"

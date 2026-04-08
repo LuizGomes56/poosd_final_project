@@ -1,9 +1,8 @@
 import { useRef } from "react";
-import type { SetState } from "../consts";
 //Honestly since I am passing so many style strings 
 //Perhaps it may be better to change this to a style
 //object rather than doing this individually
-const FormTextField = ({
+export default function FormTextField<T extends string | number>({
     id,
     title,
     placeholder = "",
@@ -15,15 +14,15 @@ const FormTextField = ({
     divStyle
 }: {
     id: string,
-    value: any,
-    setValue: SetState<any>,
+    value: T,
+    setValue: (value: string) => void,
     title: React.ReactNode,
     placeholder?: string,
     maxLength?: number,
     titleStyle?: string,
     placeholderStyle?: string,
     divStyle?: string,
-}) => {
+}) {
     // placeholders once set, cannot be changed
     const readonlyPlaceholder = useRef(placeholder);
     return (
@@ -54,5 +53,3 @@ const FormTextField = ({
         </div>
     )
 }
-
-export default FormTextField

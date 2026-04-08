@@ -17,7 +17,7 @@ const fetchData = async () => {
 
 const RequireLogin = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const { user, setUser } = useUser();
+    const { user, setUser, logout } = useUser();
     const { addNotification } = useNotification();
 
     useEffect(() => {
@@ -25,9 +25,10 @@ const RequireLogin = () => {
             try {
                 const response = await fetchData();
 
-                console.log(response);
-
                 if (!response.ok && response.message) {
+                    if ((response.message as any)?.includes("USER_DELETED")) {
+                        logout();
+                    }
                     throw new Error(response.message);
                 }
 
@@ -46,6 +47,7 @@ const RequireLogin = () => {
             checkAuth();
         }
         else {
+            console.log("!user == false");
             setIsAuthenticated(true);
         }
     }, [user])
