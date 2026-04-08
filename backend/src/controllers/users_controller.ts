@@ -4,6 +4,7 @@ import { Dotenv } from "../index.js";
 import type { Controller } from "../types.js";
 import { USERS } from "../model/users.js";
 import { HttpResponse } from "../utils/http.js";
+import transporter from "../utils/mailer.js";
 
 export const UsersController = {
     login: async function (req, res) {
@@ -77,5 +78,44 @@ export const UsersController = {
     },
     verify: async function (req) {
         return HttpResponse.Ok().body(req.payload);
+    },
+    /**
+     * Frontend has a button to verify your email (optional) and when you click on it, 
+     * you're calling this route
+     * It is going to send you a verification email, which is going to have a button inside.
+     * This button is going to call "/?" route
+     * ?verify=true
+     * -> We request a token for email verify
+     * -> we send token as param
+     * -> token expires
+     * or
+     * -> send jwt token (but this is unsafe or more precisely unsecure)
+     * ?verify_email=(email_verify_token)
+     */
+    // user id, email verify token, blacklisted
+
+    //Basically Authenticator numbers instead of token button
+    // We might have to fix the authentication schema 
+    //Missing password reset
+    //Missing view pages for TF and FRQ
+    //Missing dashboard implementation
+    // Generating auth codes (prob math.random()) - Code is going to have 6 characters
+
+    verify_email: async function (req, res) {
+        await transporter.sendMail({
+            from: Dotenv.email_sender,
+            to: req.payload.email,
+            subject: 'EduCMS Account Email Verification',
+            html: `
+            <div style="font-family: Arial, sans-serif; text-align: center;">
+                <h2>Welcome to EduCMS!</h2>
+                <p>Click the button below to verify your account:</p>
+                <span>Code</span>
+                
+            </div>
+        `
+        });
+
+        return HttpResponse.Ok().body(req);
     }
 } as const satisfies Controller["users"];

@@ -3,6 +3,7 @@ export const BACKEND_ROUTES = {
     "users/login": "POST",
     "users/register": "POST",
     "users/verify": "GET",
+    "users/verify_email": "GET",
     "questions/create": "POST",
     "questions/all": "POST",
     "questions/update": "PATCH",
@@ -17,6 +18,7 @@ export const BACKEND_ROUTES = {
 
 export const BACKEND_PROTECTED_ROUTES = [
 	"users/verify",
+	"users/verify_email",
 	"questions/create",
 	"questions/all",
 	"questions/update",

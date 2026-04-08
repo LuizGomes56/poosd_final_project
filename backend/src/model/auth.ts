@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const USERS_SCHEMA = new Schema(
+const AUTH_SCHEMA = new Schema(
     {
         email: {
             type: String,
@@ -11,14 +11,13 @@ const USERS_SCHEMA = new Schema(
             lowercase: true,
             maxLength: 256
         },
-        password_hash: {
+        code: {
             type: String,
             required: true
         },
-        email_verified: {
-            type: Boolean,
-            required: true,
-            default: false
+        expires_in: {
+            type: Number,
+            required: true
         },
         full_name: {
             type: String,
@@ -28,7 +27,7 @@ const USERS_SCHEMA = new Schema(
             maxLength: 64
         }
     },
-    { timestamps: true }
+    { timestamps: false }
 );
 
-export const USERS = model("users", USERS_SCHEMA);
+export const AUTH = model("users", AUTH_SCHEMA);

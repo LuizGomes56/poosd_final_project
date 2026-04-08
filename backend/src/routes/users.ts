@@ -13,6 +13,11 @@ router.get(
     Middleware.authentication,
     route(UsersController.verify)
 );
+router.get(
+    "/verify_email",
+    Middleware.authentication,
+    route(UsersController.verify_email)
+);
 /*
  --> Add these routes to the correct router location. Here 
  --> we should have only things related to the current user

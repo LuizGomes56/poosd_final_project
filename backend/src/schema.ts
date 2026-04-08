@@ -86,6 +86,7 @@ export const SCHEMA = {
         password: S.PASSWORD,
     }),
     "users/verify": S.NOTHING,
+    "users/verify_email": S.NOTHING,
     "questions/create": z.discriminatedUnion("type", [
         QuestionBaseSchema.extend({
             type: z.literal("MCQ"),
