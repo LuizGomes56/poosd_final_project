@@ -18,6 +18,12 @@ jobs:
             cat > backend/.env << EOF
             DATABASE_URL=mongodb://root:testpassword@mongodb:27017
             JWT_SECRET=todo
+            EMAIL_SENDER=${{secrets.EMAIL_SENDER}}
+            SES_SMTP_HOST=${{secrets.SES_SMTP_HOST}}
+            IAM_USER_NAME=${{secrets.SMTP_USER}}
+            SES_SMTP_PASSWORD=${{secrets.SES_SMTP_PASSWORD}}
+            DOMAIN=${{secrets.DOMAIN}}
+            
       - name: Setting up services
         run: docker compose up --build -d mongodb backend
 
