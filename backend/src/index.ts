@@ -2,14 +2,13 @@ import express from "express";
 import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import { Middleware } from "./utils/middleware.js";
 import { getRouteMethods } from "./utils/http.js";
 import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-dotenv.config();
+import { Dotenv } from "./utils/env.js";
 
 const app = express();
 
@@ -48,18 +47,8 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-export const Dotenv = {
-    database_url: process.env.DATABASE_URL!,
-    jwt_secret: process.env.JWT_SECRET!,
-    port: Number(process.env.port!) || 3000,
-    iam_user_name: process.env.IAM_USER_NAME!,
-    ses_smtp_password: process.env.SES_SMTP_PASSWORD!,
-    ses_smtp_user: process.env.SES_SMTP_USER!,
-    ses_smtp_host: process.env.SES_SMTP_HOST!,
-    email_sender: process.env.EMAIL_SENDER!,
-    domain: process.env.DOMAIN!,
-}
-
+// Validate environment variables, this is happening here because we want to allow
+// function getRouteMethods to run before this, so you can generate `/methods.ts` file
 for (const [key, value] of Object.entries(Dotenv)) {
     if (!value) {
         throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);

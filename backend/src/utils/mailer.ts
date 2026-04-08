@@ -1,4 +1,4 @@
-import { Dotenv } from "..";
+import { Dotenv } from "./env.js";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({

@@ -5,7 +5,6 @@ const AUTH_SCHEMA = new Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
             index: true,
             trim: true,
             lowercase: true,
@@ -30,4 +29,4 @@ const AUTH_SCHEMA = new Schema(
     { timestamps: false }
 );
 
-export const AUTH = model("users", AUTH_SCHEMA);
+export const AUTH = model("auth", AUTH_SCHEMA);
