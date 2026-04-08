@@ -45,6 +45,12 @@
 
 ---
 
+## 📊 Use Case Diagram
+
+![Use Case Diagram](docs/use_case_diagram_POOSD_final_project.png)
+
+The diagram represents the main interactions between the user and the system, including account management, question and topic management, and answer checking.
+
 ## 📁 Repository Structure
 
 ```
