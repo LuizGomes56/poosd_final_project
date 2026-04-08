@@ -342,8 +342,30 @@ const ViewQuestion = ({
                     </div>
                 </>
                 : info.type === "FRQ"
-                    ? <div>FRQ</div>
-                    : <div>TF</div>}
+                    ? <>
+                        <FormView title="Prompt" value={info.prompt} />
+                        <FormView title={`Topic (${topics.length})`} value={topics.map(t => t.name).join(", ")} />
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <FormView title="Type" value={info.type} />
+                            <FormView title="Difficulty" value={info.difficulty} />
+                            <FormView title="Points" value={info.points} />
+                        </div>
+                        <FormView title="Explanation" value={info.explanation} />
+                        <FormView title="Hint" value={info.hint} />
+                        <FormView title="Answer" value={info.choice?.answers?.single || ""} />
+                    </>
+                    : <>
+                        <FormView title="Prompt" value={info.prompt} />
+                        <FormView title={`Topic (${topics.length})`} value={topics.map(t => t.name).join(", ")} />
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <FormView title="Type" value={info.type} />
+                            <FormView title="Difficulty" value={info.difficulty} />
+                            <FormView title="Points" value={info.points} />
+                        </div>
+                        <FormView title="Explanation" value={info.explanation} />
+                        <FormView title="Hint" value={info.hint} />
+                        <FormView title="Answer" value={info.choice?.answers?.single || ""} />
+                    </>}
 
             {/* <FormView title="Topic title" value={info.name} />
             <FormView title="Topic description" value={info.description} /> */}
