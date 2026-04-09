@@ -58,5 +58,6 @@ jobs:
         working-directory: mobile
       - name: Run API tests
         run: dart test test/api_test.dart
+        working-directory: mobile
       - name: Stop docker compose
         run: docker compose down
