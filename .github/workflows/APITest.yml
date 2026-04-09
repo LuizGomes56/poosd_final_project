@@ -20,7 +20,7 @@ jobs:
             JWT_SECRET=todo
             EMAIL_SENDER=${{secrets.EMAIL_SENDER}}
             SES_SMTP_HOST=${{secrets.SES_SMTP_HOST}}
-            IAM_USER_NAME=${{secrets.SMTP_USER}}
+            IAM_USER_NAME=${{secrets.IAM_USER_NAME}}
             SES_SMTP_PASSWORD=${{secrets.SES_SMTP_PASSWORD}}
             DOMAIN=${{secrets.DOMAIN}}
             
@@ -40,13 +40,9 @@ jobs:
         run: npm --prefix ./frontend install ./frontend
       - name: Building frontend
         run: npm --prefix ./frontend run build
-
-
       - name: Install dependencies
         run: npm --prefix ./tests install ./tests
-
       - name: Run tests
         run: npm --prefix ./tests test 
-
       - name: Stop docker compose
         run: docker compose down
