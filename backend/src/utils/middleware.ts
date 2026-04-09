@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { BACKEND_ROUTES } from "../routes/methods.js";
 import { SCHEMA } from "../schema.js";
 import { HttpResponse } from "./http.js";
-import { Dotenv } from "../index.js";
+import { Dotenv } from "./env.js";
 import jwt from "jsonwebtoken";
 import { USERS } from "../model/users.js";
 

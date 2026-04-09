@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const TOPICS_SCHEMA = new Schema(
     {
@@ -25,5 +25,3 @@ const TOPICS_SCHEMA = new Schema(
 TOPICS_SCHEMA.index({ user_id: 1, name: 1 }, { unique: true });
 
 export const TOPICS = model("topics", TOPICS_SCHEMA);
-
-export type Topics = InferSchemaType<typeof TOPICS_SCHEMA>;

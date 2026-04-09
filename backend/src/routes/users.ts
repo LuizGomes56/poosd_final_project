@@ -8,10 +8,21 @@ const router = Router();
 router.get("/logout", route(UsersController.logout));
 router.post("/login", route(UsersController.login));
 router.post("/register", route(UsersController.register));
+router.post("/forgot_password", route(UsersController.forgot_password));
 router.get(
     "/verify",
     Middleware.authentication,
     route(UsersController.verify)
+);
+router.post(
+    "/verify_email",
+    Middleware.authentication,
+    route(UsersController.verify_email)
+);
+router.get(
+    "/send_email_verification",
+    Middleware.authentication,
+    route(UsersController.send_email_verification)
 );
 /*
  --> Add these routes to the correct router location. Here 
