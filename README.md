@@ -51,6 +51,12 @@
 
 The diagram represents the main interactions between the user and the system, including account management, question and topic management, and answer checking.
 
+## 📊 Activity Diagram
+
+![Activity Diagram](docs/uml/activity.png)
+
+This diagram shows the main system flow, including login, topic management, and question handling.
+
 ## 📁 Repository Structure
 
 ```
