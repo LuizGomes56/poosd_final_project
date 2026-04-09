@@ -1,0 +1,126 @@
+@startuml
+title POOSD Final Project
+
+start
+
+:User opens app;
+
+if (Has account?) then (No)
+    :Fill Register Form;
+    :POST /users/register;
+
+    if (Email already exists?) then (Yes)
+        :Show error message;
+        stop
+    else (No)
+        :User registered successfully;
+    endif
+endif
+
+:Go to Login;
+:Enter email + password;
+
+if (Forgot password?) then (Yes)
+    :Click "Forgot Password";
+    :Enter email;
+    :POST /users/forgot-password;
+
+    if (Email exists?) then (No)
+        :Show error;
+        stop
+    else (Yes)
+        :Generate reset token;
+        :Send email (SendGrid/NodeMailer);
+    endif
+
+    :Enter new password;
+    :POST /users/reset-password;
+
+    if (Token valid?) then (No)
+        :Invalid/expired token;
+        stop
+    else (Yes)
+        :Hash new password;
+        :Update DB;
+        :Password reset success;
+    endif
+endif
+
+:POST /users/login;
+
+if (User exists?) then (No)
+    :Return "User not found";
+    stop
+endif
+
+if (Password correct?) then (No)
+    :Return "Incorrect password";
+    stop
+endif
+
+:Generate JWT;
+:Set cookie / localStorage;
+:Login success;
+
+:User accesses dashboard;
+
+:Choose action;
+
+if (Manage Topics) then
+
+    :GET /topics/all;
+    :Fetch user topics;
+
+    if (Create Topic?) then (Yes)
+        :POST /topics/create;
+        :Save topic in DB;
+    endif
+
+    if (Update Topic?) then (Yes)
+        :PUT /topics/update;
+        :Update topic in DB;
+    endif
+
+    if (Delete Topic?) then (Yes)
+        :DELETE /topics/delete;
+        :Remove topic from DB;
+    endif
+
+elseif (Manage Questions)
+
+    :POST /questions/all;
+    :Fetch questions;
+
+    if (Create Question?) then (Yes)
+        :POST /questions/create;
+        :Validate topic;
+        :Save question in DB;
+    endif
+
+    if (Update Question?) then (Yes)
+        :PATCH /questions/update;
+        :Validate topic;
+        :Update DB fields;
+    endif
+
+    if (Delete Question?) then (Yes)
+        :DELETE /questions/delete;
+        :Delete from DB;
+    endif
+
+    if (Check Answer?) then (Yes)
+        :POST /questions/check;
+        :Evaluate answer;
+            if (Correct?) then (Yes)
+                :Return correct = true;
+            else
+                :Return correct = false;
+            endif
+    endif
+    
+endif
+
+:Return response (HttpResponse);
+
+stop
+@enduml
