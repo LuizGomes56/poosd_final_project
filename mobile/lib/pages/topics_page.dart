@@ -46,11 +46,10 @@ class TopicsPage extends StatefulWidget {
 }
 
 class _TopicsPageState extends State<TopicsPage> {
-  List<Topic>   _all      = [];
-  bool          _loading  = true;
-  String?       _error;
-  String        _search   = '';
-  final Set<String>        _selected  = {};
+  List<Topic> _all     = [];
+  bool        _loading = true;
+  String?     _error;
+  String      _search  = '';
   final TextEditingController _searchCtrl = TextEditingController();
 
   List<Topic> get _filtered {
@@ -94,8 +93,8 @@ class _TopicsPageState extends State<TopicsPage> {
   Future<void> _create(String name, String desc) async {
     final res = await ApiService.post('topics/create', {'name': name, 'description': desc});
     if (!mounted) return;
-    res.ok ? _load() : _snack(res.message, true);
-    if (res.ok) _snack('Topic created', false);
+    if (res.ok) { _load(); _snack('Topic created', false); }
+    else _snack(res.message, true);
   }
 
   Future<void> _update(String id, String name, String desc) async {
@@ -103,15 +102,15 @@ class _TopicsPageState extends State<TopicsPage> {
       'topic_id': id, 'name': name, 'description': desc,
     });
     if (!mounted) return;
-    res.ok ? _load() : _snack(res.message, true);
-    if (res.ok) _snack('Topic updated', false);
+    if (res.ok) { _load(); _snack('Topic updated', false); }
+    else _snack(res.message, true);
   }
 
   Future<void> _delete(String id) async {
     final res = await ApiService.delete_('topics/delete', {'topic_id': id});
     if (!mounted) return;
     if (res.ok) {
-      setState(() { _all.removeWhere((t) => t.topicId == id); _selected.remove(id); });
+      setState(() => _all.removeWhere((t) => t.topicId == id));
       _snack('Topic deleted', false);
     } else {
       _snack(res.message, true);
@@ -160,7 +159,7 @@ class _TopicsPageState extends State<TopicsPage> {
         _vrow('Questions',   '${t.questions}'),
         _vrow('Created',     _fmt(t.createdAt)),
         _vrow('Updated',     _fmt(t.updatedAt)),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Row(children: [
           Expanded(child: OutlinedButton.icon(
             onPressed: () { Navigator.pop(context); _openEdit(t); },
@@ -312,7 +311,11 @@ class _TopicsPageState extends State<TopicsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _error != null
-              ? _errorView()
+              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(_error!, style: const TextStyle(color: AppTheme.error)),
+                  const SizedBox(height: 12),
+                  ElevatedButton(onPressed: _load, child: const Text('Retry')),
+                ]))
               : Column(children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
@@ -343,79 +346,57 @@ class _TopicsPageState extends State<TopicsPage> {
                       ),
                     ),
                   ),
-
                   if (_search.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       child: Text(
                         '${filtered.length} result${filtered.length == 1 ? '' : 's'} for "$_search"',
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.textMuted),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
                       ),
                     ),
-
                   const SizedBox(height: 4),
-
                   Expanded(
                     child: filtered.isEmpty
-                        ? _emptyView()
+                        ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                            const Icon(Icons.topic_outlined, size: 48,
+                                color: AppTheme.textMuted),
+                            const SizedBox(height: 12),
+                            Text(_search.isEmpty
+                                    ? 'No topics yet'
+                                    : 'No topics match "$_search"',
+                                style: const TextStyle(color: AppTheme.textMuted)),
+                            if (_search.isEmpty) ...[
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(onPressed: _openCreate,
+                                  icon: const Icon(Icons.add, size: 16),
+                                  label: const Text('New Topic')),
+                            ],
+                          ]))
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
                             itemCount: filtered.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (_, i) {
-                              final t   = filtered[i];
-                              final sel = _selected.contains(t.topicId);
-                              return _TopicCard(
-                                topic:    t,
-                                selected: sel,
-                                onSelect: (v) => setState(() => v
-                                    ? _selected.add(t.topicId)
-                                    : _selected.remove(t.topicId)),
-                                onTap:    () => _openView(t),
-                                onEdit:   () => _openEdit(t),
-                                onDelete: () => _confirmDelete(t),
-                              );
-                            },
+                            separatorBuilder: (_, __) => const SizedBox(height: 8),
+                            itemBuilder: (_, i) => _TopicCard(
+                              topic:    filtered[i],
+                              onTap:    () => _openView(filtered[i]),
+                              onEdit:   () => _openEdit(filtered[i]),
+                              onDelete: () => _confirmDelete(filtered[i]),
+                            ),
                           ),
                   ),
                 ]),
     );
   }
-
-  Widget _errorView() => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-    Text(_error!, style: const TextStyle(color: AppTheme.error)),
-    const SizedBox(height: 12),
-    ElevatedButton(onPressed: _load, child: const Text('Retry')),
-  ]));
-
-  Widget _emptyView() => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-    const Icon(Icons.topic_outlined, size: 48, color: AppTheme.textMuted),
-    const SizedBox(height: 12),
-    Text(_search.isEmpty ? 'No topics yet' : 'No topics match "$_search"',
-        style: const TextStyle(color: AppTheme.textMuted)),
-    if (_search.isEmpty) ...[
-      const SizedBox(height: 12),
-      ElevatedButton.icon(onPressed: _openCreate,
-          icon: const Icon(Icons.add, size: 16), label: const Text('New Topic')),
-    ],
-  ]));
 }
 
 class _TopicCard extends StatelessWidget {
   final Topic topic;
-  final bool selected;
-  final ValueChanged<bool> onSelect;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _TopicCard({
     required this.topic,
-    required this.selected,
-    required this.onSelect,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -425,40 +406,13 @@ class _TopicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+      child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected
-              ? AppTheme.primary.withOpacity(0.1)
-              : AppTheme.surface,
+          color: AppTheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected
-                ? AppTheme.primary.withOpacity(0.4)
-                : Colors.transparent,
-          ),
         ),
         child: Row(children: [
-          GestureDetector(
-            onTap: () => onSelect(!selected),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 18, height: 18,
-              decoration: BoxDecoration(
-                color: selected ? AppTheme.primary : Colors.transparent,
-                border: Border.all(
-                    color: selected ? AppTheme.primary : AppTheme.border,
-                    width: 1.5),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: selected
-                  ? const Icon(Icons.check, size: 12, color: Colors.white)
-                  : null,
-            ),
-          ),
-          const SizedBox(width: 12),
-
           Expanded(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -483,8 +437,7 @@ class _TopicCard extends StatelessWidget {
               ]),
             ],
           )),
-
-          _IconBtn(icon: Icons.edit_outlined, onTap: onEdit),
+          _IconBtn(icon: Icons.edit_outlined,  onTap: onEdit),
           const SizedBox(width: 6),
           _IconBtn(icon: Icons.delete_outline, onTap: onDelete, danger: true),
         ]),
@@ -505,9 +458,7 @@ class _IconBtn extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
-          color: danger
-              ? AppTheme.error.withOpacity(0.1)
-              : AppTheme.surfaceHover,
+          color: danger ? AppTheme.error.withOpacity(0.1) : AppTheme.surfaceHover,
           borderRadius: BorderRadius.circular(8)),
       child: Icon(icon, size: 16,
           color: danger ? AppTheme.error : AppTheme.textMuted),
@@ -527,8 +478,8 @@ Widget _vrow(String label, String value) => Padding(
 
 Widget _dragHandle() => Center(child: Container(
   width: 40, height: 4,
-  decoration: BoxDecoration(color: AppTheme.border,
-      borderRadius: BorderRadius.circular(2)),
+  decoration: BoxDecoration(
+      color: AppTheme.border, borderRadius: BorderRadius.circular(2)),
 ));
 
 Widget _flabel(String text) => Text(text, style: const TextStyle(
