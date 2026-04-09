@@ -15,7 +15,8 @@ const app = express();
 const corsOptions = {
     origin: [
         "http://localhost:5173",
-        "http://YOURIPV4:3000",
+        "http://localhost",
+        "http://localhost/",
         "http://localhost:3000",
     ],
     credentials: true,
