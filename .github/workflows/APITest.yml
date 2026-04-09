@@ -48,8 +48,7 @@ jobs:
         run: npm --prefix ./tests test 
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
-        with: 
-          flutter-version: '3.32.0'
+        with:
           channel: 'stable'
       - name: Flutter pub get
         run: flutter pub get
