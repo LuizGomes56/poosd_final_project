@@ -1,25 +1,13 @@
 import { useEffect, useState } from "react";
-import { useSkip } from "../hooks";
 
 export default function Docs() {
-    const [docs, setDocs] = useState("");
+    const [docs, setDocs] = useState("Loading...");
 
     useEffect(() => {
-        (window as any)?.hljs?.highlightAll();
-    }, [])
-
-    useSkip(() => {
         async function getDocs() {
             const response = await fetch("/docs.txt");
             const data = await response.text();
-
-            if (data && typeof data === "string") {
-                let hljs = (window as any)?.hljs;
-                if (hljs) {
-                    const code = hljs.highlight(data, { language: "typescript" }).value;
-                    setDocs(code);
-                }
-            }
+            setDocs(data);
         }
         getDocs();
     }, []);
@@ -27,8 +15,12 @@ export default function Docs() {
     return (
         <pre>
             <code
-                className="language-typescript"
-                dangerouslySetInnerHTML={{ __html: docs }}
+                className="whitespace-pre-wrap text-[#d4d4d4]"
+                style={{ whiteSpace: "pre-wrap" }}
+                dangerouslySetInnerHTML={{
+                    __html: docs.replace(/\\n/g, "\n")
+                        .replace(/\n/g, "<br/>")
+                }}
             />
         </pre>
     )
