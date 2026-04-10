@@ -8,12 +8,14 @@ import { BsPersonCircle } from "react-icons/bs";
 import QuestionsPage from "../pages/QuestionsPage";
 import TopicsPage from "./TopicsPage";
 import TestPage from "../components/TestPage";
+import Docs from "./Docs";
 
 const componentMap: Record<string, React.ComponentType> = {
     dashboard: Dashboard,
     questions: QuestionsPage,
     topics: TopicsPage,
     account: AccountSettings,
+    docs: Docs,
     testpage: TestPage
 };
 
@@ -31,6 +33,7 @@ const App = () => {
         { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
         { id: "questions", text: "My Questions", icon: <MdGridView className="h-5 w-5" /> },
         { id: "topics", text: "My Topics", icon: <MdGridView className="h-5 w-5" /> },
+        { id: "docs", text: "Documentation", icon: <MdGridView className="h-5 w-5" /> },
         { id: "testpage", text: "testpage", icon: <></> }];
 
     return (
