@@ -12,12 +12,7 @@ import { Dotenv } from "./utils/env.js";
 
 const app = express();
 // CORS origin MUST BE THE DOMAIN NAME NOT IP ADDRESS
-export const Dotenv = {
-    database_url: process.env.DATABASE_URL!,
-    jwt_secret: process.env.JWT_SECRET!,
-    port: Number(process.env.port!) || 3000,
-    cors_origin: process.env.CORS_ORIGIN || "http://localhost"
-}
+
 
 for (const [key, value] of Object.entries(Dotenv)) {
     if (!value) {
