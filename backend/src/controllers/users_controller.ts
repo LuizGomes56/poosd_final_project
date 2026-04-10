@@ -86,7 +86,78 @@ export const UsersController = {
             return HttpResponse.NotFound().message("User does not exist");
         }
 
-        // Todo: Send email
+        const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+
+        await transporter.sendMail({
+            from: Dotenv.email_sender,
+            to: email,
+            subject: 'EduCMS Account Email Verification',
+            html: `
+            <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+                <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
+                    <tr>
+                    <td style="padding: 30px; text-align: center;">
+                        <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
+                        <p style="color: #555; font-size: 14px; margin-top: 10px;">
+                        We're glad to have you! Please verify your account using the code below or by clicking the button.
+                        </p>
+
+                        <div style="margin: 20px 0; font-size: 22px; font-weight: bold; color: #222;">
+                        ${code}
+                        </div>
+
+                        <a href="${Dotenv.domain}/reset_password/${code}"
+                        style="display: inline-block; padding: 12px 20px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold;">
+                        Verify Your Account
+                        </a>
+
+                        <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                        If you didn't request this, you can safely ignore this email.
+                        </p>
+                    </td>
+                    </tr>
+                </table>
+            </div>
+            `
+        });
+
+        // project.cop4331.cc:3000/api/users/forgot_password *Backend*
+        // project.cop4331.cc/reset_password *Frontend*
+
+        const auth = await AUTH.create({
+            email,
+            code,
+            expires_in: Date.now() + 15 * 60 * 1000
+        });
+
+        if (!auth) {
+            return HttpResponse.InternalServerError().message("Could not create verification code");
+        }
+
+        return HttpResponse.Ok();
+    },
+    reset_password: async function (req) {
+        const { code, password } = req.body;
+
+        const auth = await AUTH.findOne({ code }).lean();
+
+        if (!auth) {
+            return HttpResponse.BadRequest().message("Invalid verification code");
+        }
+
+        if (Date.now() > auth.expires_in) {
+            return HttpResponse.NotFound().message("Verification code has expired");
+        }
+
+        const users = await USERS.findOneAndUpdate(
+            { email: auth.email },
+            { password_hash: bcrypt.hashSync(password, 10) }
+        ).lean();
+
+        // #[cold_path]
+        if (!users) {
+            return HttpResponse.NotFound().message("Email verification code was correct but could not find user");
+        }
 
         return HttpResponse.Ok();
     },
@@ -115,7 +186,7 @@ export const UsersController = {
     //Missing dashboard implementation
     // Generating auth codes (prob math.random()) - Code is going to have 6 characters
     send_email_verification: async function (req) {
-        const { email, full_name, user_id } = req.payload;
+        const { email, user_id } = req.payload;
 
         const user = await USERS.findOne({ email, user_id }).lean();
 
@@ -140,7 +211,6 @@ export const UsersController = {
                 await AUTH.create({
                     code,
                     email,
-                    full_name,
                     expires_in: new Date(Date.now() + 60 * 10 * 1000).getTime()
                 });
                 break;
@@ -158,11 +228,25 @@ export const UsersController = {
             to: email,
             subject: 'EduCMS Account Email Verification',
             html: `
-                <div style="font-family: Arial, sans-serif; text-align: center;">
-                    <h2>Welcome to EduCMS!</h2>
-                    <p>Click the button below to verify your account:</p>
-                    <span>Code</span>
-                    <p>${code}</p>
+                <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+                    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
+                        <tr>
+                        <td style="padding: 30px; text-align: center;">
+                            <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
+                            <p style="color: #555; font-size: 14px; margin-top: 10px;">
+                            We're glad to have you. Use the verification code below to confirm your account.
+                            </p>
+
+                            <div style="margin: 24px 0; padding: 14px 20px; display: inline-block; background-color: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 24px; font-weight: bold; color: #222; letter-spacing: 2px;">
+                            ${code}
+                            </div>
+
+                            <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                            If you did not request this, you can safely ignore this email.
+                            </p>
+                        </td>
+                        </tr>
+                    </table>
                 </div>
             `
         });

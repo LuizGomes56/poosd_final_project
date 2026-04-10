@@ -17,13 +17,6 @@ const AUTH_SCHEMA = new Schema(
         expires_in: {
             type: Number,
             required: true
-        },
-        full_name: {
-            type: String,
-            required: true,
-            trim: true,
-            minLength: 4,
-            maxLength: 64
         }
     },
     { timestamps: false }

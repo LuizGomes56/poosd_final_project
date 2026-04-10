@@ -93,6 +93,10 @@ export const SCHEMA = {
     "users/forgot_password": z.object({
         email: S.EMAIL
     }),
+    "users/reset_password": z.object({
+        code: z.string().length(6),
+        password: S.PASSWORD
+    }),
     "questions/create": z.discriminatedUnion("type", [
         QuestionBaseSchema.extend({
             type: z.literal("MCQ"),
