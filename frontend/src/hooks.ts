@@ -73,7 +73,7 @@ export const useUpdateUser = () => {
             return;
         }
         if (!user) {
-            addNotification({ type: "error", msg: "User does not exist" });
+            addNotification({ type: "error", msg: "Error finding user" });
             return;
         }
         if (user[id as keyof typeof user] == value || user.data[id] == value) {

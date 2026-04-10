@@ -38,7 +38,7 @@ export async function api<
         const response = await request.json();
         return response as SwaggerDocs[P]["output"];
     } catch (e) {
-        console.error(e);
+        console.error("fn api::catch", e);
         throw e;
     }
 }

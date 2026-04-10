@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const CHOICE_SCHEMA = new Schema(
     {
@@ -186,5 +186,3 @@ QUESTIONS_SCHEMA.index({ user_id: 1, topic_ids: 1 });
 QUESTIONS_SCHEMA.index({ user_id: 1, createdAt: -1 });
 
 export const QUESTIONS = model("questions", QUESTIONS_SCHEMA);
-
-export type Questions = InferSchemaType<typeof QUESTIONS_SCHEMA> & { question_id: string };

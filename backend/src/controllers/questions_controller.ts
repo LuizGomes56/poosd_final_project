@@ -184,7 +184,8 @@ export const QuestionsController = {
 
         return HttpResponse.Ok().body(data.map(v => ({
             question_id: v._id.toString(),
-            ...v
+            ...v,
+            topic_ids: v.topic_ids.map(t => t.toString()),
         })));
     },
     check: async function (req) {

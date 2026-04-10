@@ -2,14 +2,13 @@ import express from "express";
 import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import { Middleware } from "./utils/middleware.js";
 import { getRouteMethods } from "./utils/http.js";
 import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-dotenv.config();
+import { Dotenv } from "./utils/env.js";
 
 const app = express();
 // CORS origin MUST BE THE DOMAIN NAME NOT IP ADDRESS
@@ -61,7 +60,8 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-
+// Validate environment variables, this is happening here because we want to allow
+// function getRouteMethods to run before this, so you can generate `/methods.ts` file
 
 app.listen(Dotenv.port, async (e) => {
     const conn = await mongoose.connect(Dotenv.database_url);
