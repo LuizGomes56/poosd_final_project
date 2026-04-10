@@ -3,29 +3,30 @@ import FormBuilder from "../forms/FormBuilder";
 import FormTextField from "../forms/FormTextField";
 import FormButton from "../forms/FormButton";
 import { api } from "../utils/request";
+import { useNotification } from "../providers/NotificationProvider";
 
 
-function password_forgotten() {
+function PasswordForgotten() {
     const [email, setEmail] = useState("");
-    const submitEmail = async () => {
-        const result = await api("")
+    const { addNotification } = useNotification();
+
+    const submitEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const result = await api("users/forgot_password", { email });
+            addNotification({ type: result.ok ? "success" : "error", msg: result.message })
+        }
+        catch (e) {
+            addNotification({ type: "error", msg: e as any })
+        }
     }
+
     return (
-        <>
-            <div>
-                <h2>
-                    Forgotten Password
-                </h2>
-                <h5>
-                    Input your account email
-                </h5>
-                <FormBuilder show={true} setShow={() => { }} handleSubmit={ } >
-                    <FormTextField id="a" value={email} setValue={setEmail} title="Email" />
-                    <FormButton type="submit" text="Enter" />
-                </FormBuilder>
-            </div>
-        </>
+        <FormBuilder show={true} setShow={() => { }} handleSubmit={submitEmail} >
+            <FormTextField id="a" value={email} setValue={setEmail} title="Enter Email to reset password" />
+            <FormButton type="submit" text="Enter" />
+        </FormBuilder>
     )
 }
 
-export default password_forgotten;
+export default PasswordForgotten;
