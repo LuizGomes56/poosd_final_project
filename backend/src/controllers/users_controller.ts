@@ -7,6 +7,10 @@ import { HttpResponse } from "../utils/http.js";
 import transporter from "../utils/mailer.js";
 import { AUTH } from "../model/auth.js";
 
+function newCode() {
+    return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+}
+
 export const UsersController = {
     login: async function (req, res) {
         const { email, password } = req.body;
@@ -86,7 +90,7 @@ export const UsersController = {
             return HttpResponse.NotFound().message("User does not exist");
         }
 
-        const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+        const code = newCode();
 
         await transporter.sendMail({
             from: Dotenv.email_sender,
@@ -198,10 +202,6 @@ export const UsersController = {
         // If user is have already verified its email, there's no reason to keep going
         if (user.email_verified) {
             return HttpResponse.Unauthorized().message("Your email is already verified");
-        }
-
-        function newCode() {
-            return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
         }
 
         let code = newCode();

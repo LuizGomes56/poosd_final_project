@@ -20,7 +20,7 @@ router.use("/topics", Middleware.authentication, topics);
 
 export function route(f: (req: any, res: any) => Promise<HttpResponseBuilder<any, any>>) {
     const name = f.name;
-    console.log(name);
+
     return async (req: any, res: any, next: NextFunction) => {
         try {
             console.log(`Calling controller ${name}`);

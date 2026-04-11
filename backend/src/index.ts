@@ -11,19 +11,15 @@ import { fileURLToPath } from "url";
 import { Dotenv } from "./utils/env.js";
 
 const app = express();
-// CORS origin MUST BE THE DOMAIN NAME NOT IP ADDRESS
-export const Dotenv = {
-    database_url: process.env.DATABASE_URL!,
-    jwt_secret: process.env.JWT_SECRET!,
-    port: Number(process.env.port!) || 3000,
-    cors_origin: process.env.CORS_ORIGIN || "http://localhost"
-}
 
+// Validate environment variables, this is happening here because we want to allow
+// function getRouteMethods to run before this, so you can generate `/methods.ts` file
 for (const [key, value] of Object.entries(Dotenv)) {
     if (!value) {
         throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
     }
 }
+
 const corsOptions = {
     origin: [
         "http://localhost:5173",
@@ -60,12 +56,10 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-// Validate environment variables, this is happening here because we want to allow
-// function getRouteMethods to run before this, so you can generate `/methods.ts` file
+const conn = await mongoose.connect(Dotenv.database_url);
+console.log(`MongoDB connected: ${conn.connection.host}`);
 
 app.listen(Dotenv.port, async (e) => {
-    const conn = await mongoose.connect(Dotenv.database_url);
-    console.log(`MongoDB connected: ${conn.connection.host}`);
     if (e) {
         console.error(e);
     }
