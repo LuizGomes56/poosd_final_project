@@ -10,7 +10,7 @@ function PasswordReset() {
     const [code, setCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const { addNotification } = useNotification();
-    const submitCode = async () => {
+    const submitCode = async (e: React.FormEvent) => {
         const response = await api("users/reset_password", { code, password: newPassword });
         if (response.ok != true) {
             addNotification({ type: "error", msg: "Incorrect code" })

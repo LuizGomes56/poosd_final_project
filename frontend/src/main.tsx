@@ -7,8 +7,8 @@ import AppProvider from "./providers/AppProvider.tsx";
 import RequireLogin from "./providers/RequireLogin.tsx";
 import App from "./pages/App.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import PasswordForgotten from "./pages/password_forgotten.tsx";
-import PasswordReset from "./pages/password_reset.tsx";
+import PasswordForgotten from "./pages/PasswordForgotten.tsx";
+import PasswordReset from "./pages/PasswordReset.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
