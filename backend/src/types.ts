@@ -12,15 +12,6 @@ type Is<T, U> =
     [T] extends [U]
     ? ([U] extends [T] ? true : false)
     : false;
-type IsAny<T> = 0 extends (1 & T) ? true : false;
-type IsNever<T> = [T] extends [never] ? true : false;
-type IsUnknown<T> = unknown extends T
-    ? IsAny<T> extends true
-    ? false
-    : [T] extends [unknown]
-    ? true
-    : false
-    : false;
 
 export type Route = keyof typeof BACKEND_ROUTES;
 

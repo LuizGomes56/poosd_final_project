@@ -33,6 +33,7 @@ const RequireLogin = () => {
                 }
 
                 setUser(response.body!);
+                localStorage.setItem("user", JSON.stringify(response.body));
                 setIsAuthenticated(true);
             } catch (e) {
                 addNotification({
