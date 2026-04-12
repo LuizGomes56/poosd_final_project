@@ -3,6 +3,7 @@ export const BACKEND_ROUTES = {
     "users/login": "POST",
     "users/register": "POST",
     "users/forgot_password": "POST",
+    "users/reset_password": "POST",
     "users/verify": "GET",
     "users/verify_email": "POST",
     "users/send_email_verification": "GET",

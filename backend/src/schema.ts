@@ -93,6 +93,13 @@ export const SCHEMA = {
     "users/forgot_password": z.object({
         email: S.EMAIL
     }),
+    "users/reset_password": z.object({
+        email: S.EMAIL,
+        code: z.string().regex(/^\d{6}$/, {
+            error: "Reset code must be exactly 6 digits"
+        }),
+        password: S.PASSWORD
+    }),
     "questions/create": z.discriminatedUnion("type", [
         QuestionBaseSchema.extend({
             type: z.literal("MCQ"),

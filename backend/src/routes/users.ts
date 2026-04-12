@@ -9,6 +9,7 @@ router.get("/logout", route(UsersController.logout));
 router.post("/login", route(UsersController.login));
 router.post("/register", route(UsersController.register));
 router.post("/forgot_password", route(UsersController.forgot_password));
+router.post("/reset_password", route(UsersController.reset_password));
 router.get(
     "/verify",
     Middleware.authentication,
