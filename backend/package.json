@@ -18,7 +18,7 @@
     "scripts": {
         "start": "nodemon",
         "build": "npx tsc",
-        "dev": "npx nodemon --config nodemon.dev.json"
+        "seed": "node src/seed.js"
     },
     "keywords": [],
     "author": "",

@@ -86,7 +86,7 @@ export const useUpdateUser = () => {
             return;
         }
         try {
-            const response = await api("users/patch" as any, { [id]: value });
+            const response = await api("users/patch", { [id]: value });
             if (response.body) {
                 setUser((current) =>
                     current

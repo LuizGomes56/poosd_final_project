@@ -3,9 +3,12 @@ import jwt from "jsonwebtoken";
 import { Dotenv } from "../utils/env.js";
 import type { Controller } from "../types.js";
 import { USERS } from "../model/users.js";
+import { TOPICS } from "../model/topics.js";
+import { QUESTIONS } from "../model/questions.js";
 import { HttpResponse } from "../utils/http.js";
 import transporter from "../utils/mailer.js";
 import { AUTH } from "../model/auth.js";
+import { Types } from "mongoose";
 
 function newCode() {
     return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
@@ -80,6 +83,27 @@ export const UsersController = {
             // manage this error
             throw e;
         }
+    },
+    patch: async function (req) {
+        const { full_name, email } = req.body;
+        const { user_id } = req.payload;
+
+        const args = full_name ? { full_name } : email ? { email } : undefined;
+
+        if (!args) {
+            return HttpResponse.BadRequest().message("No fields to update");
+        }
+
+        const user = await USERS.findOneAndUpdate(
+            { user_id },
+            args
+        ).lean();
+
+        if (!user) {
+            return HttpResponse.NotFound().message("User does not exist");
+        }
+
+        return HttpResponse.Ok().body(user);
     },
     forgot_password: async function (req) {
         const { email } = req.body;
@@ -277,5 +301,92 @@ export const UsersController = {
         }
 
         return HttpResponse.Ok();
+    },
+    dashboard: async function (req) {
+        const { user_id } = req.payload;
+
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        const number_of_topics = await TOPICS.countDocuments({ user_id });
+
+        const questions_created_last_week = await QUESTIONS.countDocuments({
+            user_id,
+            createdAt: { $gte: since }
+        });
+
+        const topics = await QUESTIONS.aggregate<{
+            topic_id: string;
+            name: string;
+            questions: {
+                frq: number;
+                mcq: number;
+                tf: number;
+            };
+            total_points: number;
+        }>([
+            {
+                $match: {
+                    user_id: new Types.ObjectId(user_id),
+                }
+            },
+            {
+                $unwind: "$topic_ids"
+            },
+            {
+                $group: {
+                    _id: "$topic_ids",
+                    frq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "FRQ"] }, 1, 0]
+                        }
+                    },
+                    mcq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "MCQ"] }, 1, 0]
+                        }
+                    },
+                    tf: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "TF"] }, 1, 0]
+                        }
+                    },
+                    total_points: {
+                        $sum: "$points"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "topics",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "topic"
+                }
+            },
+            {
+                $unwind: "$topic"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    topic_id: { $toString: "$_id" },
+                    name: "$topic.name",
+                    questions: {
+                        frq: "$frq",
+                        mcq: "$mcq",
+                        tf: "$tf"
+                    },
+                    total_points: 1
+                }
+            }
+        ]);
+
+        const result = {
+            number_of_topics,
+            questions_created_last_week,
+            topics
+        };
+
+        return HttpResponse.Ok().body(result);
     }
 } as const satisfies Controller["users"];

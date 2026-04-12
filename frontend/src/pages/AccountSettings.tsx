@@ -16,7 +16,7 @@ const AccountSettings = () => {
         <div className="flex flex-col gap-4 max-w-3xl mb-48">
             <h1 className="text-2xl sm:text-3xl font-medium dark:text-white">Your account</h1>
             <ConfigEditor
-                id="name"
+                id="full_name"
                 title="Display name"
                 value={name}
                 setValue={setName}

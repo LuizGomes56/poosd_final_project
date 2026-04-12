@@ -5,7 +5,6 @@ import FormButton from "../forms/FormButton";
 import { api } from "../utils/request";
 import { useNotification } from "../providers/NotificationProvider";
 
-
 function PasswordForgotten() {
     const [email, setEmail] = useState("");
     const { addNotification } = useNotification();
@@ -17,7 +16,7 @@ function PasswordForgotten() {
             addNotification({ type: result.ok ? "success" : "error", msg: result.message })
         }
         catch (e) {
-            addNotification({ type: "error", msg: e as any })
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : "Something went wrong" })
         }
     }
 

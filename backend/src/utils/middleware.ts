@@ -19,7 +19,7 @@ export interface ReqHelpers {
 export interface ResHelpers { }
 
 export const Middleware = {
-    helpers: async (req: Request & ReqHelpers, res: Response & ResHelpers, next: NextFunction) => {
+    helpers: async (req: Request & ReqHelpers, _res: Response & ResHelpers, next: NextFunction) => {
         req.jwt = () => {
             const auth = (src: Record<string, any>) => src.authorization?.trim().replace("Bearer ", "");
             return auth(req.headers) || auth(req.cookies);
