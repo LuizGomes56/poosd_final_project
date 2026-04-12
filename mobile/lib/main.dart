@@ -3,6 +3,7 @@ import 'constants/app_theme.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
+import 'pages/reset_password_page.dart';
 import 'pages/account_page.dart';
 
 void main() {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/login': (_) => const LoginPage(),
         '/register': (_) => const RegisterPage(),
         '/forgot-password': (_) => const ForgotPasswordPage(),
+        '/reset-password': (_) => const ResetPasswordPage(),
         '/account': (_) => AccountPage(),
       },
     );
