@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -12,7 +14,8 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   String _fullName = '';
   String _email    = '';
-  String _token    = '';
+  bool _emailVerified = false;
+  String _createdAt   = '';
 
   @override
   void initState() {
@@ -22,11 +25,71 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _fullName = prefs.getString('full_name') ?? '—';
-      _email    = prefs.getString('email')     ?? '—';
-      _token    = prefs.getString('token')     ?? '—';
-    });
+    final token = prefs.getString('token') ?? '';
+
+     if (token.isEmpty) return;
+
+    try {
+      final res = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/users/verify'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final data = jsonDecode(res.body);
+
+      if (data['ok']) {
+        final user = data['body'];
+
+        setState(() {
+          _fullName = user['full_name'];
+          _email    = user['email'];
+          _emailVerified = user['email_verified'] ?? false;
+          _createdAt = user['createdAt']?.split('T')[0] ?? '';
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user');
+    }
+  }
+
+  // Backend for user update not implemented 
+
+  Future<void> _editField(String key, String currentValue) async {
+    final controller = TextEditingController(text: currentValue);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: AppTheme.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ), 
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        if (key == 'full_name') _fullName = result;
+        if (key == 'email') _email = result;
+      });
+
+      // TODO: connect to backend 
+    }
   }
 
   @override
@@ -36,18 +99,40 @@ class _AccountPageState extends State<AccountPage> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         elevation: 0,
-        title: const Text('Account', style: TextStyle(color: AppTheme.textPrimary)),
+        title: const Text(
+          'Your account',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Row(label: 'Full Name', value: _fullName),
-            const SizedBox(height: 12),
-            _Row(label: 'Email',     value: _email),
-            const SizedBox(height: 12),
-            _Row(label: 'Token',     value: _token, mono: true),
+
+            _Row(
+              label: 'Display name',
+              value: _fullName,
+              onEdit: () => _editField('full_name', _fullName),
+            ),
+            const Divider(color: AppTheme.textMuted),
+
+            _Row(
+              label: 'Email',
+              value: _email,
+              onEdit: () => _editField('email', _email),
+            ),
+            const Divider(color: AppTheme.textMuted),
+
+            _StaticRow(
+              label: 'Email verified',
+              value: _emailVerified ? 'Yes' : 'No',
+            ),
+
+            _StaticRow(
+              label: 'Your account creation date',
+              value: _createdAt,
+            ),
           ],
         ),
       ),
@@ -58,24 +143,78 @@ class _AccountPageState extends State<AccountPage> {
 class _Row extends StatelessWidget {
   final String label;
   final String value;
-  final bool mono;
-  const _Row({required this.label, required this.value, this.mono = false});
+  final VoidCallback onEdit;
+
+  const _Row({
+    required this.label,
+    required this.value,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(10),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: 6),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textPrimary)),
+              ],
+            ),
+          ),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppTheme.textMuted),
+              foregroundColor: AppTheme.textPrimary,
+            ),
+            onPressed: onEdit,
+            child: const Text('Edit'),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _StaticRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StaticRow({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 13, color: AppTheme.textPrimary, fontFamily: mono ? 'monospace' : null), maxLines: 3, overflow: TextOverflow.ellipsis),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textPrimary)),
         ],
       ),
     );
