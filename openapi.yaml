@@ -1,0 +1,1659 @@
+openapi: 3.0.3
+info:
+  title: EduCMS API
+  version: 1.0.0
+  description: REST API for EduCMS, covering authentication, question management,
+    and topic management.
+servers:
+  - url: /api
+    description: Default server (base path)
+tags:
+  - name: Users
+    description: Authentication, verification, and password recovery routes
+  - name: Questions
+    description: Question bank management routes
+  - name: Topics
+    description: Topic management routes
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - _id
+        - full_name
+        - email
+        - email_verified
+      additionalProperties:
+        nullable: true
+    LoginResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        token:
+          type: string
+      required:
+        - _id
+        - full_name
+        - email
+        - email_verified
+        - token
+      additionalProperties:
+        nullable: true
+    VerifiedUser:
+      type: object
+      properties:
+        _id:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        user_id:
+          type: string
+      required:
+        - _id
+        - full_name
+        - email
+        - email_verified
+        - user_id
+      additionalProperties:
+        nullable: true
+    Topic:
+      type: object
+      properties:
+        _id:
+          type: string
+        topic_id:
+          type: string
+        user_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - name
+      additionalProperties:
+        nullable: true
+    QuestionChoice:
+      type: object
+      properties:
+        options:
+          type: array
+          items:
+            type: string
+        answers:
+          type: object
+          properties:
+            single:
+              type: string
+            multiple:
+              type: array
+              items:
+                type: string
+    QuestionFrq:
+      anyOf:
+        - type: object
+          properties:
+            kind:
+              type: string
+              enum:
+                - NUMBER
+            accepted_numbers:
+              type: array
+              items:
+                type: number
+            tolerance:
+              type: number
+          required:
+            - kind
+        - type: object
+          properties:
+            kind:
+              type: string
+              enum:
+                - TEXT
+            accepted_texts:
+              type: array
+              items:
+                type: string
+          required:
+            - kind
+    Question:
+      type: object
+      properties:
+        _id:
+          type: string
+        question_id:
+          type: string
+        user_id:
+          type: string
+        topic_ids:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          enum:
+            - MCQ
+            - TF
+            - FRQ
+        prompt:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - EASY
+            - MEDIUM
+            - HARD
+        hint:
+          type: string
+        explanation:
+          type: string
+        points:
+          type: number
+        choice:
+          $ref: "#/components/schemas/QuestionChoice"
+        frq:
+          $ref: "#/components/schemas/QuestionFrq"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - question_id
+        - topic_ids
+        - type
+        - prompt
+        - difficulty
+      additionalProperties:
+        nullable: true
+    QuestionCheckResult:
+      type: object
+      properties:
+        correct:
+          type: boolean
+        question_id:
+          type: string
+      required:
+        - correct
+        - question_id
+    ApiError:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        status:
+          type: number
+        message:
+          type: string
+        body:
+          nullable: true
+      required:
+        - ok
+        - status
+  parameters: {}
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT sent in the Authorization header as `Bearer <token>`.
+paths:
+  /users/logout:
+    get:
+      operationId: usersLogout
+      summary: Log out
+      description: Clears the authorization cookie for the current session.
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/login:
+    post:
+      operationId: usersLogin
+      summary: Log in
+      description: Authenticates a user and returns a JWT plus the user payload.
+      tags:
+        - Users
+      requestBody:
+        description: Log in request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 32
+                  description: Password must be a string and be defined.
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/LoginResponse"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/register:
+    post:
+      operationId: usersRegister
+      summary: Register account
+      description: Creates a new EduCMS account.
+      tags:
+        - Users
+      requestBody:
+        description: Register account request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  minLength: 4
+                  maxLength: 64
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 32
+                  description: Password must be a string and be defined.
+              required:
+                - full_name
+                - email
+                - password
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/forgot_password:
+    post:
+      operationId: usersForgotPassword
+      summary: Request password reset
+      description: Starts the password reset flow for a known email address.
+      tags:
+        - Users
+      requestBody:
+        description: Request password reset request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/reset_password:
+    post:
+      operationId: usersResetPassword
+      summary: Reset password
+      description: Completes the password reset flow using a verification code and a
+        new password.
+      tags:
+        - Users
+      requestBody:
+        description: Reset password request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 32
+                  description: Password must be a string and be defined.
+              required:
+                - code
+                - password
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/verify:
+    get:
+      operationId: usersVerify
+      summary: Verify session
+      description: Returns the authenticated user payload for the current JWT.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/VerifiedUser"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/verify_email:
+    post:
+      operationId: usersVerifyEmail
+      summary: Verify email
+      description: Consumes a six-digit verification code for the authenticated user.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Verify email request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+              required:
+                - code
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /users/send_email_verification:
+    get:
+      operationId: usersSendEmailVerification
+      summary: Send email verification
+      description: Sends a verification code to the authenticated user's email address.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/create:
+    post:
+      operationId: questionsCreate
+      summary: Create question
+      description: Creates a new question in the authenticated user's question bank.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Create question request body
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    topic_ids:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 24
+                        maxLength: 24
+                      minItems: 1
+                    prompt:
+                      type: string
+                      minLength: 1
+                      maxLength: 5000
+                    difficulty:
+                      type: string
+                      enum:
+                        - EASY
+                        - MEDIUM
+                        - HARD
+                    hint:
+                      type: string
+                      maxLength: 2000
+                    explanation:
+                      type: string
+                      maxLength: 10000
+                    points:
+                      type: number
+                      minimum: 0
+                    type:
+                      type: string
+                      enum:
+                        - MCQ
+                    choice:
+                      type: object
+                      properties:
+                        options:
+                          type: array
+                          items:
+                            type: string
+                            minLength: 1
+                          minItems: 1
+                        answers:
+                          type: object
+                          properties:
+                            single:
+                              type: string
+                              minLength: 1
+                            multiple:
+                              type: array
+                              items:
+                                type: string
+                                minLength: 1
+                              minItems: 1
+                      required:
+                        - options
+                        - answers
+                  required:
+                    - topic_ids
+                    - prompt
+                    - difficulty
+                    - type
+                    - choice
+                - type: object
+                  properties:
+                    topic_ids:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 24
+                        maxLength: 24
+                      minItems: 1
+                    prompt:
+                      type: string
+                      minLength: 1
+                      maxLength: 5000
+                    difficulty:
+                      type: string
+                      enum:
+                        - EASY
+                        - MEDIUM
+                        - HARD
+                    hint:
+                      type: string
+                      maxLength: 2000
+                    explanation:
+                      type: string
+                      maxLength: 10000
+                    points:
+                      type: number
+                      minimum: 0
+                    type:
+                      type: string
+                      enum:
+                        - TF
+                    choice:
+                      type: object
+                      properties:
+                        answers:
+                          type: object
+                          properties:
+                            single:
+                              type: string
+                              enum:
+                                - "True"
+                                - "False"
+                          required:
+                            - single
+                      required:
+                        - answers
+                  required:
+                    - topic_ids
+                    - prompt
+                    - difficulty
+                    - type
+                    - choice
+                - type: object
+                  properties:
+                    topic_ids:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 24
+                        maxLength: 24
+                      minItems: 1
+                    prompt:
+                      type: string
+                      minLength: 1
+                      maxLength: 5000
+                    difficulty:
+                      type: string
+                      enum:
+                        - EASY
+                        - MEDIUM
+                        - HARD
+                    hint:
+                      type: string
+                      maxLength: 2000
+                    explanation:
+                      type: string
+                      maxLength: 10000
+                    points:
+                      type: number
+                      minimum: 0
+                    type:
+                      type: string
+                      enum:
+                        - FRQ
+                    frq:
+                      oneOf:
+                        - type: object
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - NUMBER
+                            accepted_numbers:
+                              type: array
+                              items:
+                                type: number
+                              minItems: 1
+                            tolerance:
+                              type: number
+                              minimum: 0
+                              default: 0
+                          required:
+                            - kind
+                            - accepted_numbers
+                        - type: object
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - TEXT
+                            accepted_texts:
+                              type: array
+                              items:
+                                type: string
+                                minLength: 1
+                              minItems: 1
+                          required:
+                            - kind
+                            - accepted_texts
+                  required:
+                    - topic_ids
+                    - prompt
+                    - difficulty
+                    - type
+                    - frq
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Question"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/all:
+    post:
+      operationId: questionsAll
+      summary: List questions
+      description: Returns all questions for the authenticated user, optionally
+        filtered by topic.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: List questions request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic_id:
+                  type: string
+                  maxLength: 24
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Question"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/update:
+    patch:
+      operationId: questionsUpdate
+      summary: Update question
+      description: Updates a question owned by the authenticated user.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update question request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question_id:
+                  type: string
+                  maxLength: 24
+                topic_ids:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 24
+                    maxLength: 24
+                  minItems: 1
+                type:
+                  type: string
+                  enum:
+                    - MCQ
+                    - TF
+                    - FRQ
+                prompt:
+                  type: string
+                  minLength: 1
+                  maxLength: 5000
+                difficulty:
+                  type: string
+                  enum:
+                    - EASY
+                    - MEDIUM
+                    - HARD
+                hint:
+                  type: string
+                  maxLength: 2000
+                explanation:
+                  type: string
+                  maxLength: 10000
+                points:
+                  type: number
+                  minimum: 0
+                choice:
+                  anyOf:
+                    - type: object
+                      properties:
+                        options:
+                          type: array
+                          items:
+                            type: string
+                            minLength: 1
+                          minItems: 1
+                        answers:
+                          type: object
+                          properties:
+                            single:
+                              type: string
+                              minLength: 1
+                            multiple:
+                              type: array
+                              items:
+                                type: string
+                                minLength: 1
+                              minItems: 1
+                      required:
+                        - options
+                        - answers
+                    - type: object
+                      properties:
+                        answers:
+                          type: object
+                          properties:
+                            single:
+                              type: string
+                              enum:
+                                - "True"
+                                - "False"
+                          required:
+                            - single
+                      required:
+                        - answers
+                frq:
+                  oneOf:
+                    - type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                            - NUMBER
+                        accepted_numbers:
+                          type: array
+                          items:
+                            type: number
+                          minItems: 1
+                        tolerance:
+                          type: number
+                          minimum: 0
+                          default: 0
+                      required:
+                        - kind
+                        - accepted_numbers
+                    - type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                            - TEXT
+                        accepted_texts:
+                          type: array
+                          items:
+                            type: string
+                            minLength: 1
+                          minItems: 1
+                      required:
+                        - kind
+                        - accepted_texts
+              required:
+                - question_id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Question"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/delete:
+    delete:
+      operationId: questionsDelete
+      summary: Delete question
+      description: Deletes a question owned by the authenticated user.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Delete question request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question_id:
+                  type: string
+                  maxLength: 24
+              required:
+                - question_id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Question"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/check:
+    post:
+      operationId: questionsCheck
+      summary: Check answer
+      description: Checks whether a submitted answer matches the stored answer for the
+        question.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Check answer request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question_id:
+                  type: string
+                  maxLength: 24
+                answer:
+                  anyOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: array
+                      items:
+                        type: string
+              required:
+                - question_id
+                - answer
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/QuestionCheckResult"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /questions/get:
+    post:
+      operationId: questionsGet
+      summary: Get question
+      description: Returns a single question owned by the authenticated user.
+      tags:
+        - Questions
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Get question request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question_id:
+                  type: string
+                  maxLength: 24
+              required:
+                - question_id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Question"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /topics/create:
+    post:
+      operationId: topicsCreate
+      summary: Create topic
+      description: Creates a new topic for the authenticated user.
+      tags:
+        - Topics
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Create topic request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 64
+                description:
+                  type: string
+                  maxLength: 256
+              required:
+                - name
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Topic"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /topics/delete:
+    delete:
+      operationId: topicsDelete
+      summary: Delete topic
+      description: Deletes a topic by ID.
+      tags:
+        - Topics
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Delete topic request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic_id:
+                  type: string
+                  maxLength: 24
+              required:
+                - topic_id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Topic"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /topics/update:
+    put:
+      operationId: topicsUpdate
+      summary: Update topic
+      description: Updates a topic name and/or description.
+      tags:
+        - Topics
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update topic request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic_id:
+                  type: string
+                  maxLength: 24
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 64
+                description:
+                  type: string
+                  maxLength: 256
+              required:
+                - topic_id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    $ref: "#/components/schemas/Topic"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /topics/all:
+    get:
+      operationId: topicsAll
+      summary: List topics
+      description: Returns all topics for the authenticated user.
+      tags:
+        - Topics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: number
+                  message:
+                    type: string
+                  body:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Topic"
+                required:
+                  - ok
+                  - status
+        "400":
+          description: Bad request or validation failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
