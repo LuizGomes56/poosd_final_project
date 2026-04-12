@@ -142,12 +142,9 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: () => 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Unimplemented Feature'),
-                            duration: Duration(seconds: 5),
-                          ),
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          '/forgot-password',
                         ),
                         child: const Text('Forgot Password?'),
                       ),
