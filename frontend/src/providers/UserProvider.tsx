@@ -1,6 +1,7 @@
 import type { JwtPayload, UserPayload } from "backend";
 import { createContext, useState, useContext, type ReactNode } from "react";
 import type { SetState } from "../consts";
+import { useNavigate } from "react-router-dom";
 
 type UserContextType = {
     user: JwtPayload | null;
@@ -14,10 +15,11 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserContextType["user"] | null>(null);
     const isAuthenticated = Boolean(user);
+    const navigate = useNavigate();
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem("token");
+        navigate("/login");
     };
 
     return (
