@@ -130,4 +130,16 @@ class ApiService {
       'email': email,
     });
   }
+
+  static Future<ApiResponse> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+  }) async {
+    return _post('users/reset_password', {
+      'email': email,
+      'code': code,
+      'password': password,
+    });
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_text_field.dart';
+import 'reset_password_page.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -15,7 +16,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   bool _loading = false;
   String _errorText = '';
-  String _successText = '';
 
   @override
   void dispose() {
@@ -29,7 +29,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     setState(() {
       _loading = true;
       _errorText = '';
-      _successText = '';
     });
 
     final res = await ApiService.forgotPassword(
@@ -39,12 +38,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (!mounted) return;
 
     if (res.ok) {
-      setState(() {
-        _loading = false;
-        _successText = res.message.isNotEmpty
-            ? res.message
-            : "If an account exists for that email, a reset code has been sent.";
-      });
+      setState(() => _loading = false);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ResetPasswordPage(
+            initialEmail: email,
+          ),
+        ),
+      );
       return;
     }
 
@@ -98,16 +101,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       _errorText,
                       style: const TextStyle(
                         color: AppTheme.error,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                  if (_successText.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _successText,
-                      style: const TextStyle(
-                        color: AppTheme.primary,
                         fontSize: 13,
                       ),
                     ),
