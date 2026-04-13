@@ -1,11 +1,17 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { Dotenv } from "../utils/env.js";
 import type { Controller } from "../types.js";
 import { USERS } from "../model/users.js";
 import { HttpResponse } from "../utils/http.js";
 import transporter from "../utils/mailer.js";
 import { AUTH } from "../model/auth.js";
+import { PASSWORD_RESETS } from "../model/password_resets.js";
+import { Dotenv } from "../utils/env.js";
+
+function newCode() {
+    return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
+}
 
 export const UsersController = {
     login: async function (req, res) {
@@ -82,13 +88,88 @@ export const UsersController = {
 
         const user = await USERS.findOne({ email }).lean();
 
+        // Always respond with the same message to avoid account enumeration.
+        const response = HttpResponse.Ok().message(
+            "If an account exists for that email, a password reset code has been sent."
+        );
+
+        if (!user) {
+            return response;
+        }
+
+        const code = newCode();
+
+        await PASSWORD_RESETS.findOneAndUpdate(
+            { email },
+            {
+                code,
+                expires_in: Date.now() + 15 * 60 * 1000
+            },
+            {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true
+            }
+        );
+
+        await transporter.sendMail({
+            from: Dotenv.email_sender,
+            to: email,
+            subject: "EduCMS Password Reset Code",
+            html: `
+                <div style="font-family: Arial, sans-serif; text-align: center;">
+                    <h2>Password reset requested</h2>
+                    <p>Enter this code in the app to choose a new password. It expires in 15 minutes.</p>
+                    <div
+                        style="display: inline-block; padding: 12px 20px; background-color: #111827; color: #ffffff; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px;">
+                        ${code}
+                    </div>
+                    <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                        If you did not request this, you can ignore this email.
+                    </p>
+                </div>
+            `
+        });
+
+        return response;
+    },
+    reset_password: async function (req) {
+        const { email, code, password } = req.body;
+
+        const passwordReset = await PASSWORD_RESETS.findOne({
+            email
+        }).lean();
+
+        if (!passwordReset) {
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
+        }
+
+        const received = Buffer.from(code);
+        const expected = Buffer.from(passwordReset.code);
+
+        if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) {
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
+        }
+
+        if (Date.now() > passwordReset.expires_in) {
+            await PASSWORD_RESETS.deleteOne({ _id: passwordReset._id });
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
+        }
+
+        const password_hash = bcrypt.hashSync(password, 10);
+
+        const user = await USERS.findOneAndUpdate(
+            { email: passwordReset.email },
+            { password_hash }
+        ).lean();
+
+        await PASSWORD_RESETS.deleteMany({ email: passwordReset.email });
+
         if (!user) {
             return HttpResponse.NotFound().message("User does not exist");
         }
 
-        // Todo: Send email
-
-        return HttpResponse.Ok();
+        return HttpResponse.Ok().message("Password reset successfully");
     },
     verify: async function (req) {
         return HttpResponse.Ok().body(req.payload);
@@ -127,10 +208,6 @@ export const UsersController = {
         // If user is have already verified its email, there's no reason to keep going
         if (user.email_verified) {
             return HttpResponse.Unauthorized().message("Your email is already verified");
-        }
-
-        function newCode() {
-            return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
         }
 
         let code = newCode();
