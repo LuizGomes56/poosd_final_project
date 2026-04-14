@@ -19,7 +19,7 @@
         "start": "nodemon",
         "build": "npx tsc",
         "dev": "npx nodemon --config nodemon.dev.json",
-        "swagger:export": "npm run build && node dist/export_openapi.js"
+        "swagger:export": "npm run build && node dist/export_openapi.js",
         "seed": "node src/seed.js"
     },
     "keywords": [],
