@@ -3,9 +3,8 @@ import {
     OpenApiGeneratorV3,
     extendZodWithOpenApi
 } from "@asteasolutions/zod-to-openapi";
-import { z, type ZodTypeAny } from "zod";
-import { BACKEND_PROTECTED_ROUTES, BACKEND_ROUTES } from "./routes/methods.js";
-import { SCHEMA } from "./schema.js";
+import { z } from "zod";
+import { BACKEND_PROTECTED_ROUTES, BACKEND_ROUTES, SCHEMA } from "./lib.js";
 import type { Route } from "./types.js";
 
 extendZodWithOpenApi(z);
@@ -15,33 +14,33 @@ const protectedRoutes = new Set<string>(BACKEND_PROTECTED_ROUTES);
 
 const UserSchema = registry.register(
     "User",
-    z.object({
+    z.looseObject({
         _id: z.string(),
         full_name: z.string(),
         email: z.email(),
         email_verified: z.boolean(),
         createdAt: z.string().optional(),
         updatedAt: z.string().optional()
-    }).passthrough()
+    })
 );
 
 const LoginResponseSchema = registry.register(
     "LoginResponse",
     UserSchema.extend({
         token: z.string()
-    }).passthrough()
+    })
 );
 
 const VerifiedUserSchema = registry.register(
     "VerifiedUser",
     UserSchema.extend({
         user_id: z.string()
-    }).passthrough()
+    })
 );
 
 const TopicSchema = registry.register(
     "Topic",
-    z.object({
+    z.looseObject({
         _id: z.string().optional(),
         topic_id: z.string().optional(),
         user_id: z.string().optional(),
@@ -49,7 +48,7 @@ const TopicSchema = registry.register(
         description: z.string().optional(),
         createdAt: z.string().optional(),
         updatedAt: z.string().optional()
-    }).passthrough()
+    })
 );
 
 const QuestionChoiceSchema = registry.register(
@@ -80,7 +79,7 @@ const QuestionFrqSchema = registry.register(
 
 const QuestionSchema = registry.register(
     "Question",
-    z.object({
+    z.looseObject({
         _id: z.string().optional(),
         question_id: z.string(),
         user_id: z.string().optional(),
@@ -95,7 +94,7 @@ const QuestionSchema = registry.register(
         frq: QuestionFrqSchema.optional(),
         createdAt: z.string().optional(),
         updatedAt: z.string().optional()
-    }).passthrough()
+    })
 );
 
 const QuestionCheckResultSchema = registry.register(
@@ -116,8 +115,8 @@ const ApiErrorSchema = registry.register(
     })
 );
 
-function envelope(bodySchema?: ZodTypeAny) {
-    const shape: Record<string, ZodTypeAny> = {
+function envelope(bodySchema?: z.ZodType) {
+    const shape: Record<string, z.ZodType> = {
         ok: z.boolean(),
         status: z.number(),
         message: z.string().optional()
@@ -130,7 +129,7 @@ function envelope(bodySchema?: ZodTypeAny) {
     return z.object(shape);
 }
 
-function jsonContent(schema: ZodTypeAny) {
+function jsonContent(schema: z.ZodType) {
     return {
         "application/json": {
             schema
@@ -154,15 +153,42 @@ function operationId(route: Route) {
         .join("")}`;
 }
 
+function inferResponseSchema(route: Route): z.ZodType | undefined {
+    const [group, action] = route.split("/");
+
+    if (group === "users") {
+        if (action === "login") return LoginResponseSchema;
+        if (action === "verify") return VerifiedUserSchema;
+        return undefined;
+    }
+
+    if (group === "questions") {
+        if (action === "all") return z.array(QuestionSchema);
+        if (action === "check") return QuestionCheckResultSchema;
+        if (["create", "update", "delete", "get"].includes(action)) {
+            return QuestionSchema;
+        }
+        return undefined;
+    }
+
+    if (group === "topics") {
+        if (action === "all") return z.array(TopicSchema);
+        if (["create", "delete", "update"].includes(action)) {
+            return TopicSchema;
+        }
+        return undefined;
+    }
+
+    return undefined;
+}
+
 const routeMeta: Record<Route, {
     summary: string;
     description: string;
-    responseSchema?: ZodTypeAny;
 }> = {
     "users/login": {
         summary: "Log in",
-        description: "Authenticates a user and returns a JWT plus the user payload.",
-        responseSchema: LoginResponseSchema
+        description: "Authenticates a user and returns a JWT plus the user payload."
     },
     "users/logout": {
         summary: "Log out",
@@ -182,8 +208,7 @@ const routeMeta: Record<Route, {
     },
     "users/verify": {
         summary: "Verify session",
-        description: "Returns the authenticated user payload for the current JWT.",
-        responseSchema: VerifiedUserSchema
+        description: "Returns the authenticated user payload for the current JWT."
     },
     "users/verify_email": {
         summary: "Verify email",
@@ -195,59 +220,50 @@ const routeMeta: Record<Route, {
     },
     "questions/create": {
         summary: "Create question",
-        description: "Creates a new question in the authenticated user's question bank.",
-        responseSchema: QuestionSchema
+        description: "Creates a new question in the authenticated user's question bank."
     },
     "questions/all": {
         summary: "List questions",
-        description: "Returns all questions for the authenticated user, optionally filtered by topic.",
-        responseSchema: z.array(QuestionSchema)
+        description: "Returns all questions for the authenticated user, optionally filtered by topic."
     },
     "questions/update": {
         summary: "Update question",
-        description: "Updates a question owned by the authenticated user.",
-        responseSchema: QuestionSchema
+        description: "Updates a question owned by the authenticated user."
     },
     "questions/delete": {
         summary: "Delete question",
-        description: "Deletes a question owned by the authenticated user.",
-        responseSchema: QuestionSchema
+        description: "Deletes a question owned by the authenticated user."
     },
     "questions/check": {
         summary: "Check answer",
-        description: "Checks whether a submitted answer matches the stored answer for the question.",
-        responseSchema: QuestionCheckResultSchema
+        description: "Checks whether a submitted answer matches the stored answer for the question."
     },
     "questions/get": {
         summary: "Get question",
-        description: "Returns a single question owned by the authenticated user.",
-        responseSchema: QuestionSchema
+        description: "Returns a single question owned by the authenticated user."
     },
     "topics/create": {
         summary: "Create topic",
-        description: "Creates a new topic for the authenticated user.",
-        responseSchema: TopicSchema
+        description: "Creates a new topic for the authenticated user."
     },
     "topics/delete": {
         summary: "Delete topic",
-        description: "Deletes a topic by ID.",
-        responseSchema: TopicSchema
+        description: "Deletes a topic by ID."
     },
     "topics/update": {
         summary: "Update topic",
-        description: "Updates a topic name and/or description.",
-        responseSchema: TopicSchema
+        description: "Updates a topic name and/or description."
     },
     "topics/all": {
         summary: "List topics",
-        description: "Returns all topics for the authenticated user.",
-        responseSchema: z.array(TopicSchema)
+        description: "Returns all topics for the authenticated user."
     }
 };
 
 for (const [route, method] of Object.entries(BACKEND_ROUTES) as [Route, string][]) {
     const schema = SCHEMA[route];
     const meta = routeMeta[route];
+    const responseSchema = inferResponseSchema(route);
     const tag = tagName(route);
     const requestBody = method === "GET"
         ? undefined
@@ -272,7 +288,7 @@ for (const [route, method] of Object.entries(BACKEND_ROUTES) as [Route, string][
         responses: {
             200: {
                 description: "Successful response",
-                content: jsonContent(envelope(meta.responseSchema))
+                content: jsonContent(envelope(responseSchema))
             },
             400: {
                 description: "Bad request or validation failure",
