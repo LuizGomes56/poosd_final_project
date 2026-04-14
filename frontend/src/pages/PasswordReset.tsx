@@ -5,18 +5,21 @@ import FormButton from "../forms/FormButton";
 import { useNotification } from "../providers/NotificationProvider";
 import { api } from "../utils/request";
 
-
 function PasswordReset() {
     const [code, setCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const { addNotification } = useNotification();
+
     const submitCode = async (e: React.FormEvent) => {
-        const response = await api("users/reset_password", { code, password: newPassword });
-        if (response.ok != true) {
-            addNotification({ type: "error", msg: "Incorrect code" })
+        e.preventDefault();
+        try {
+            const response = await api("users/reset_password", { code, password: newPassword });
+            addNotification({ type: response.ok ? "success" : "error", msg: response.message })
+        } catch (e) {
+            addNotification({ type: "error", msg: e instanceof Error ? e.message : "Something went wrong" })
         }
-        addNotification({ type: "success", msg: "Password Successfully reset" })
     }
+
     return (
         <>
             <div>
