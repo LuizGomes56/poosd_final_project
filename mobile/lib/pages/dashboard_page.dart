@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
-
+import '../widgets/app_drawer.dart';
+ 
 class DashboardTopic {
   final String topicId;
   final String name;
@@ -11,7 +12,7 @@ class DashboardTopic {
   final int mcq;
   final int tf;
   final int totalPoints;
-
+ 
   DashboardTopic({
     required this.topicId,
     required this.name,
@@ -20,9 +21,9 @@ class DashboardTopic {
     required this.tf,
     required this.totalPoints,
   });
-
+ 
   int get totalQuestions => frq + mcq + tf;
-
+ 
   factory DashboardTopic.fromJson(Map<String, dynamic> json) {
     final q = json['questions'] as Map<String, dynamic>? ?? {};
     return DashboardTopic(
@@ -35,18 +36,18 @@ class DashboardTopic {
     );
   }
 }
-
+ 
 class DashboardData {
   final int numberOfTopics;
   final int questionsCreatedLastWeek;
   final List<DashboardTopic> topics;
-
+ 
   DashboardData({
     required this.numberOfTopics,
     required this.questionsCreatedLastWeek,
     required this.topics,
   });
-
+ 
   factory DashboardData.fromJson(Map<String, dynamic> json) {
     final rawTopics = json['topics'] as List<dynamic>? ?? [];
     return DashboardData(
@@ -59,60 +60,60 @@ class DashboardData {
     );
   }
 }
-
+ 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
-
+ 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
-
+ 
 class _DashboardPageState extends State<DashboardPage> {
   DashboardData? _data;
   bool _loading = true;
   String _error = '';
-
-  static const String _base = 'http://10.0.2.2:3000/api';
-
+ 
+  static const String _base = 'http://localhost:3000/api';
+ 
   @override
   void initState() {
     super.initState();
     _fetch();
   }
-
+ 
   Future<void> _fetch() async {
     setState(() {
       _loading = true;
       _error = '';
     });
-
+ 
     try {
       final token = await ApiService.getToken();
-
+ 
       final res = await http.get(
         Uri.parse('$_base/users/dashboard'),
         headers: {
-          'Content-Type':  'application/json',
-          'Accept':        'application/json',
+          'Content-Type': 'application/json',
+          'Accept':       'application/json',
           if (token != null && token.isNotEmpty)
             'Authorization': 'Bearer $token',
         },
       );
-
+ 
       if (!mounted) return;
-
+ 
       if (res.body.isEmpty) {
         setState(() => _error = 'Empty response from server');
         return;
       }
-
+ 
       final decoded = jsonDecode(res.body) as Map<String, dynamic>;
       final ok = decoded['ok'] as bool? ?? false;
-
+ 
       if (ok && decoded['body'] is Map<String, dynamic>) {
         setState(() {
           _data = DashboardData.fromJson(
-            decoded['body'] as Map<String, dynamic>
+            decoded['body'] as Map<String, dynamic>,
           );
         });
       } else {
@@ -126,19 +127,21 @@ class _DashboardPageState extends State<DashboardPage> {
       if (mounted) setState(() => _loading = false);
     }
   }
-
-  void _logout() async {
-    await ApiService.clearSession();
-    if (mounted) Navigator.pushReplacementNamed(context, '/login');
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
+      drawer: const AppDrawer(currentRoute: '/dashboard'),
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         elevation: 0,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded, color: AppTheme.textPrimary),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         title: const Text(
           'Dashboard',
           style: TextStyle(
@@ -153,11 +156,6 @@ class _DashboardPageState extends State<DashboardPage> {
             onPressed: _fetch,
             tooltip: 'Refresh',
           ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppTheme.textMuted),
-            onPressed: _logout,
-            tooltip: 'Logout',
-          ),
         ],
       ),
       body: RefreshIndicator(
@@ -168,14 +166,14 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
-
+ 
   Widget _buildBody() {
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(color: AppTheme.primary),
       );
     }
-
+ 
     if (_error.isNotEmpty) {
       return Center(
         child: Padding(
@@ -200,18 +198,19 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       );
     }
-
+ 
     final data = _data;
     if (data == null) return const SizedBox();
-
+ 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // stat cards — mirrors web dashboard
         Row(
           children: [
             Expanded(
               child: _StatCard(
-                label: 'Topics',
+                label: 'Total Topics',
                 value: data.numberOfTopics.toString(),
                 icon: Icons.topic_outlined,
                 color: AppTheme.primary,
@@ -220,32 +219,34 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(width: 12),
             Expanded(
               child: _StatCard(
-                label: 'New this week',
+                label: 'Questions Last Week',
                 value: data.questionsCreatedLastWeek.toString(),
                 icon: Icons.help_outline_rounded,
-                color: const Color(0xFF22C55E),
+                color: const Color(0xFF3B82F6),
               ),
             ),
           ],
         ),
-
+ 
         const SizedBox(height: 20),
-
+ 
+        // topic breakdown table — matches web dashboard
         const Text(
-          'Your tests / quizzes',
+          'Topic Breakdown',
           style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 18,
+            color: AppTheme.textMuted,
+            fontSize: 11,
             fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: 8),
+ 
         data.topics.isEmpty ? _buildEmptyState() : _buildTable(data.topics),
       ],
     );
   }
-
+ 
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
@@ -267,7 +268,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
-
+ 
   Widget _buildTable(List<DashboardTopic> topics) {
     return Container(
       decoration: BoxDecoration(
@@ -292,7 +293,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
-
+ 
   Widget _buildHeader() {
     const style = TextStyle(
       color: AppTheme.textMuted,
@@ -304,15 +305,18 @@ class _DashboardPageState extends State<DashboardPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: const [
-          Expanded(flex: 3, child: Text('Topics',    style: style)),
-          Expanded(flex: 2, child: Text('Questions', style: style)),
-          Expanded(flex: 2, child: Text('Points',    style: style)),
+          Expanded(flex: 3, child: Text('Topic Name',    style: style)),
+          Expanded(flex: 2, child: Text('Total Points',  style: style)),
+          Expanded(flex: 1, child: Text('FRQ',           style: style)),
+          Expanded(flex: 1, child: Text('MCQ',           style: style)),
+          Expanded(flex: 1, child: Text('TF',            style: style)),
         ],
       ),
     );
   }
-
+ 
   Widget _buildRow(DashboardTopic topic) {
+    const valueStyle = TextStyle(color: AppTheme.textMuted, fontSize: 12);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
@@ -329,39 +333,30 @@ class _DashboardPageState extends State<DashboardPage> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              topic.totalQuestions.toString(),
-              style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              topic.totalPoints.toString(),
-              style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-            ),
-          ),
+          Expanded(flex: 2, child: Text(topic.totalPoints.toString(), style: valueStyle)),
+          Expanded(flex: 1, child: Text(topic.frq.toString(),         style: valueStyle)),
+          Expanded(flex: 1, child: Text(topic.mcq.toString(),         style: valueStyle)),
+          Expanded(flex: 1, child: Text(topic.tf.toString(),          style: valueStyle)),
         ],
       ),
     );
   }
 }
-
+ 
+// must be outside _DashboardPageState — top level class
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
   final Color color;
-
+ 
   const _StatCard({
     required this.label,
     required this.value,
     required this.icon,
     required this.color,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -372,26 +367,29 @@ class _StatCard extends StatelessWidget {
         border: Border.all(color: AppTheme.border.withAlpha(100)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 2),
           Text(
             label,
             style: const TextStyle(
               color: AppTheme.textMuted,
               fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 40,
+              fontWeight: FontWeight.w800,
             ),
           ),
+          const SizedBox(height: 4),
+          Icon(icon, color: color, size: 18),
         ],
       ),
     );

@@ -1,29 +1,30 @@
 {
-    "compilerOptions": {
-        "module": "ESNext",
-        "target": "ES2023",
-        "lib": [
-            "ES2023"
-        ],
-        "moduleResolution": "bundler",
-        "strict": true,
-        "noImplicitAny": false,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "emitDeclarationOnly": false,
-        "declaration": true,
-        "declarationMap": true,
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "allowJs": true,
-        "checkJs": true,
-        "baseUrl": "./src",
-    },
-    "include": [
-        "src/**/*.ts"
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": [
+      "ES2023"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "emitDeclarationOnly": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "allowJs": true,
+    "checkJs": true,
+    "baseUrl": "./src",
+    "ignoreDeprecations": "6.0"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

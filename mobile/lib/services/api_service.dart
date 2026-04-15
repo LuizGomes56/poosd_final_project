@@ -28,7 +28,7 @@ class ApiResponse {
 
 class ApiService {
   //Replace with IPV4 address of your local machine for testing and change backend/src/index.ts to match (ipconfig in cmd)
-  static const String base = 'http://PLACEHOLDER:3000/api';
+  static const String base = 'http://localhost:3000/api';
 
   // Tokens
 

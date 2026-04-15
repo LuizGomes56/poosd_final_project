@@ -21,12 +21,7 @@ for (const [key, value] of Object.entries(Dotenv)) {
 }
 
 const corsOptions = {
-    origin: [
-        "http://localhost:5173",
-        "http://YOURIPV4:3000",
-        Dotenv.cors_origin,
-        "http://localhost:3000",
-    ],
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
