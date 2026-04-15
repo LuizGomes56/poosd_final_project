@@ -72,8 +72,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: Center(
                           child: Image.asset(
                             'assets/icons/favicon.png', 
-                            width: 24, 
-                            height: 24,  
+                            width: 72, 
+                            height: 72,  
                           ),
                         ),
                       ),
