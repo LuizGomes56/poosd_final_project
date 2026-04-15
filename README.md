@@ -57,6 +57,16 @@ The diagram represents the main interactions between the user and the system, in
 
 This diagram shows the main system flow, including login, topic management, and question handling.
 
+---
+
+## 🧩 Entity-Relationship Diagram (ERD)
+
+![ERD](docs/poosd_final_project_ERD.png)
+
+The ERD represents the database structure of the system, including the relationships between users, topics, and questions. Cardinalities reflect ownership (1:N) and topic-question associations (N:N).
+
+---
+
 ## 📁 Repository Structure
 
 ```
