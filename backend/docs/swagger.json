@@ -1,0 +1,502 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Documentation",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users/logout": {
+      "get": {
+        "summary": "Logout user",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Logout response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BasicResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/login": {
+      "post": {
+        "summary": "Login user",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Login response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/register": {
+      "post": {
+        "summary": "Register user",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Register response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BasicResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/forgot_password": {
+      "post": {
+        "summary": "Forgot password",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Forgot password response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseNoMessage" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/reset_password": {
+      "post": {
+        "summary": "Reset password",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Reset password response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseNoMessage" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/dashboard": {
+      "get": {
+        "summary": "User dashboard",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Dashboard data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DashboardResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/patch": {
+      "patch": {
+        "summary": "Update user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Patch response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/verify": {
+      "get": {
+        "summary": "Verify user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Verification response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ResponseWithBody" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/verify_email": {
+      "post": {
+        "summary": "Verify email",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Verify email response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseNoMessage" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/send_email_verification": {
+      "get": {
+        "summary": "Send email verification",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Email verification sent",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BasicResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/create": {
+      "post": {
+        "summary": "Create question",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Create question response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/all": {
+      "post": {
+        "summary": "Get all questions",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "All questions",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ResponseWithBody" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/update": {
+      "patch": {
+        "summary": "Update question",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Update question response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/delete": {
+      "delete": {
+        "summary": "Delete question",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Delete question response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/check": {
+      "post": {
+        "summary": "Check question answer",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/CheckResponse" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/questions/get": {
+      "post": {
+        "summary": "Get question",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Get question response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/topics/create": {
+      "post": {
+        "summary": "Create topic",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Create topic response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ResponseWithBody" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/topics/delete": {
+      "delete": {
+        "summary": "Delete topic",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Delete topic response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/topics/update": {
+      "put": {
+        "summary": "Update topic",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Update topic response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BasicResponse" },
+                    { "$ref": "#/components/schemas/ResponseWithBody" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/topics/all": {
+      "get": {
+        "summary": "Get all topics",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "All topics",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ResponseWithBody" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "BasicResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "status": { "type": "number" },
+          "message": { "type": "string" },
+          "body": { 
+            "type": "string",
+            "nullable": true 
+            }
+        }
+      },
+      "ResponseWithBody": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "status": { "type": "number" },
+          "message": { "type": "string", "nullable": true },
+          "body": {
+            "type": "object",
+            "additionalProperties": true
+            }
+        }
+      },
+      "ResponseNoMessage": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "status": { "type": "number" },
+          "message": { 
+            "type": "string",
+            "nullable": true 
+            },
+          "body": { 
+            "type": "string",
+            "nullable": true 
+            }
+        }
+      },
+      "DashboardResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "status": { "type": "number" },
+          "message": {
+            "type": "string",
+            "nullable": true 
+            },
+          "body": {
+            "type": "object",
+            "properties": {
+              "number_of_topics": { "type": "number" },
+                "questions_created_last_week": { "type": "number" },
+                "topics": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+          }
+        }
+      },
+      "CheckResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "status": { "type": "number" },
+          "message": { 
+            "type": "string",
+            "nullable": true 
+            },
+          "body": {
+            "type": "object",
+            "properties": {
+                "correct": { "type": "boolean" },
+                "question_id": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
