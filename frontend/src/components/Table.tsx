@@ -45,7 +45,7 @@ const Actions = ({ id, actions }: { id: string, actions: SetState<ActionFn> }) =
 }
 
 const TableCell = ({ header = true, index, className = "", children }: { header?: boolean, className?: string, index: number, children?: ReactNode }) => (
-    <div className={`dark:text-zinc-300 not-dark:text-zinc-700 flex items-center
+    <div className={`dark:text-zinc-300 not-dark:text-zinc-700 flex items-center border-zinc-500!
         ${header ? "border-t" : index > 0 ? "border-t" : ""}
         ${index % 2 > 0 ? "not-dark:bg-zinc-50 dark:bg-std-gray-850" : "not-dark:bg-white dark:bg-std-gray-875"} 
         ${STYLES.border} 

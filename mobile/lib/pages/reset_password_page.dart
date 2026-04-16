@@ -33,15 +33,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   Future<void> _submit() async {
-    final email = widget.initialEmail.trim();
     final code = _codeCtrl.text.trim();
     final password = _passwordCtrl.text;
     final confirmPassword = _confirmPasswordCtrl.text;
-
-    if (email.isEmpty) {
-      setState(() => _errorText = 'Start from forgot password so we know which email to reset.');
-      return;
-    }
 
     if (code.length != 6) {
       setState(() => _errorText = 'Reset code must be 6 digits.');
@@ -60,7 +54,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     });
 
     final res = await ApiService.resetPassword(
-      email: email,
       code: code,
       password: password,
     );

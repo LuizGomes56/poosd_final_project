@@ -15,9 +15,7 @@ export default function Login() {
     const loginRequest = async () => {
         try {
             const response = await api("users/login", { email, password })
-            if (response.ok && response.body != undefined) {
-                const token = response.body.token;
-                localStorage.setItem("token", token);
+            if (response.ok && response.body) {
                 return navigate("/");
             } else {
                 setErrorText(response.message);

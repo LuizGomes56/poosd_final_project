@@ -73,30 +73,22 @@ export const useUpdateUser = () => {
             return;
         }
         if (!user) {
-            addNotification({ type: "error", msg: "Error finding user" });
-            return;
+            return addNotification({ type: "error", msg: "Error finding user" });
         }
-        if (user[id as keyof typeof user] == value || user.data[id] == value) {
-            addNotification({ type: "info", msg: "No changes were made" });
-            return;
+        if (user[id as keyof typeof user] == value || user[id] == value) {
+            return addNotification({ type: "info", msg: "No changes were made" });
         }
         const user_id = user.user_id;
         if (!user_id) {
-            addNotification({ type: "error", msg: "Unable to identify the user" });
-            return;
+            return addNotification({ type: "error", msg: "Unable to identify the user" });
         }
         try {
-            const response = await api("users/patch" as any, { [id]: value });
+            const response = await api("users/patch", { [id]: value });
             if (response.body) {
-                setUser((current) =>
-                    current
-                        ? {
-                            ...current,
-                            ...response.body,
-                        }
-                        : null
-                );
+                setUser(response.body);
                 addNotification({ type: "success", msg: "Update successful" });
+            } else {
+                addNotification({ type: "error", msg: response.message });
             }
         } catch (e) {
             addNotification({ type: "error", msg: e instanceof Error ? e.message : String(e) });

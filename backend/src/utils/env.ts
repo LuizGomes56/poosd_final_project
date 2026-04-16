@@ -12,4 +12,5 @@ export const Dotenv = {
     ses_smtp_host: process.env.SES_SMTP_HOST!,
     email_sender: process.env.EMAIL_SENDER!,
     domain: process.env.DOMAIN!,
+    cors_origin: process.env.CORS_ORIGIN || "http://localhost"
 };

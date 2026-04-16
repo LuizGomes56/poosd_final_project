@@ -3,11 +3,14 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { Controller } from "../types.js";
 import { USERS } from "../model/users.js";
+import { TOPICS } from "../model/topics.js";
+import { QUESTIONS } from "../model/questions.js";
 import { HttpResponse } from "../utils/http.js";
 import transporter from "../utils/mailer.js";
 import { AUTH } from "../model/auth.js";
 import { PASSWORD_RESETS } from "../model/password_resets.js";
 import { Dotenv } from "../utils/env.js";
+import { Types } from "mongoose";
 
 function newCode() {
     return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
@@ -83,6 +86,35 @@ export const UsersController = {
             throw e;
         }
     },
+    patch: async function (req, res) {
+        const { full_name, email } = req.body;
+        const { user_id } = req.payload;
+
+        const args = full_name ? { full_name } : email ? { email } : undefined;
+
+        if (!args) {
+            return HttpResponse.BadRequest().message("No fields to update");
+        }
+
+        const user = await USERS.findByIdAndUpdate(
+            user_id,
+            args,
+            { returnDocument: "after" }
+        ).lean();
+
+        if (!user) {
+            return HttpResponse.NotFound().message(`Unable to find user with id: ${user_id}`);
+        }
+
+        const token = jwt.sign({
+            user_id,
+            ...user
+        } satisfies jwt.JwtPayload, Dotenv.jwt_secret);
+
+        res.cookie("authorization", `Bearer ${token}`);
+
+        return HttpResponse.Ok().body({ token, user_id, ...user });
+    },
     forgot_password: async function (req) {
         const { email } = req.body;
 
@@ -134,11 +166,9 @@ export const UsersController = {
         return response;
     },
     reset_password: async function (req) {
-        const { email, code, password } = req.body;
+        const { code, password } = req.body;
 
-        const passwordReset = await PASSWORD_RESETS.findOne({
-            email
-        }).lean();
+        const passwordReset = await PASSWORD_RESETS.findOne({ code }).lean();
 
         if (!passwordReset) {
             return HttpResponse.BadRequest().message("Invalid or expired reset code");
@@ -196,7 +226,7 @@ export const UsersController = {
     //Missing dashboard implementation
     // Generating auth codes (prob math.random()) - Code is going to have 6 characters
     send_email_verification: async function (req) {
-        const { email, full_name, user_id } = req.payload;
+        const { email, user_id } = req.payload;
 
         const user = await USERS.findOne({ email, user_id }).lean();
 
@@ -217,7 +247,6 @@ export const UsersController = {
                 await AUTH.create({
                     code,
                     email,
-                    full_name,
                     expires_in: new Date(Date.now() + 60 * 10 * 1000).getTime()
                 });
                 break;
@@ -235,11 +264,25 @@ export const UsersController = {
             to: email,
             subject: 'EduCMS Account Email Verification',
             html: `
-                <div style="font-family: Arial, sans-serif; text-align: center;">
-                    <h2>Welcome to EduCMS!</h2>
-                    <p>Click the button below to verify your account:</p>
-                    <span>Code</span>
-                    <p>${code}</p>
+                <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+                    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
+                        <tr>
+                        <td style="padding: 30px; text-align: center;">
+                            <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
+                            <p style="color: #555; font-size: 14px; margin-top: 10px;">
+                            We're glad to have you. Use the verification code below to confirm your account.
+                            </p>
+
+                            <div style="margin: 24px 0; padding: 14px 20px; display: inline-block; background-color: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 24px; font-weight: bold; color: #222; letter-spacing: 2px;">
+                            ${code}
+                            </div>
+
+                            <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                            If you did not request this, you can safely ignore this email.
+                            </p>
+                        </td>
+                        </tr>
+                    </table>
                 </div>
             `
         });
@@ -270,5 +313,92 @@ export const UsersController = {
         }
 
         return HttpResponse.Ok();
+    },
+    dashboard: async function (req) {
+        const { user_id } = req.payload;
+
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        const number_of_topics = await TOPICS.countDocuments({ user_id });
+
+        const questions_created_last_week = await QUESTIONS.countDocuments({
+            user_id,
+            createdAt: { $gte: since }
+        });
+
+        const topics = await QUESTIONS.aggregate<{
+            topic_id: string;
+            name: string;
+            questions: {
+                frq: number;
+                mcq: number;
+                tf: number;
+            };
+            total_points: number;
+        }>([
+            {
+                $match: {
+                    user_id: new Types.ObjectId(user_id),
+                }
+            },
+            {
+                $unwind: "$topic_ids"
+            },
+            {
+                $group: {
+                    _id: "$topic_ids",
+                    frq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "FRQ"] }, 1, 0]
+                        }
+                    },
+                    mcq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "MCQ"] }, 1, 0]
+                        }
+                    },
+                    tf: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "TF"] }, 1, 0]
+                        }
+                    },
+                    total_points: {
+                        $sum: "$points"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "topics",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "topic"
+                }
+            },
+            {
+                $unwind: "$topic"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    topic_id: { $toString: "$_id" },
+                    name: "$topic.name",
+                    questions: {
+                        frq: "$frq",
+                        mcq: "$mcq",
+                        tf: "$tf"
+                    },
+                    total_points: 1
+                }
+            }
+        ]);
+
+        const result = {
+            number_of_topics,
+            questions_created_last_week,
+            topics
+        };
+
+        return HttpResponse.Ok().body(result);
     }
 } as const satisfies Controller["users"];

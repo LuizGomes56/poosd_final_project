@@ -16,21 +16,30 @@ class ApiResponse {
     this.body,
   });
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    return ApiResponse(
-      ok:      json['ok']      as bool?   ?? false,
-      status:  json['status']  as int?    ?? 0,
-      message: json['message'] as String? ?? '',
-      body:    json['body']    as Map<String, dynamic>?,
-    );
-  }
+  factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
+        ok:      json['ok']      as bool?   ?? false,
+        status:  json['status']  as int?    ?? 0,
+        message: json['message'] as String? ?? '',
+        body:    json['body']    as Map<String, dynamic>?,
+      );
+}
+
+class RawApiResponse {
+  final bool ok;
+  final int status;
+  final String message;
+  final dynamic rawBody;
+
+  const RawApiResponse({
+    required this.ok,
+    required this.status,
+    required this.message,
+    this.rawBody,
+  });
 }
 
 class ApiService {
-  //Replace with IPV4 address of your local machine for testing and change backend/src/index.ts to match (ipconfig in cmd)
-  static const String base = 'http://PLACEHOLDER:3000/api';
-
-  // Tokens
+  static const String _base = 'http://10.0.2.2:3000/api';
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -51,62 +60,142 @@ class ApiService {
     await prefs.remove('email');
   }
 
-  static Future<ApiResponse> _post(
-    String path,
-    Map<String, dynamic> payload,
-  ) async {
+  static Future<Map<String, String>> _headers() async {
+    final token = await getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Accept':       'application/json',
+      if (token != null && token.isNotEmpty)
+        'Authorization': 'Bearer $token',
+    };
+  }
+
+  static ApiResponse _parse(http.Response res) {
+    debugPrint('[API] ${res.statusCode} ${res.request?.url}');
+    debugPrint('[API] body: ${res.body}');
+    if (res.body.isEmpty) {
+      return const ApiResponse(ok: false, status: 0, message: 'Empty response from server');
+    }
     try {
-      final token = await getToken();
-
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Accept':       'application/json',
-        if (token != null && token.isNotEmpty)
-          'Authorization': 'Bearer $token',
-      };
-
-      final uri = Uri.parse('$base/$path');
-      final rawBody = jsonEncode(payload);
-
-      debugPrint('[API] POST $uri');
-      debugPrint('[API] payload: $rawBody');
-
-      final res = await http.post(uri, headers: headers, body: rawBody);
-
-      debugPrint('[API] status: ${res.statusCode}');
-      debugPrint('[API] response: ${res.body}');
-
-      if (res.body.isEmpty) {
-        return const ApiResponse(
-          ok: false,
-          status: 0,
-          message: 'Server returned an empty response',
-        );
-      }
-
       final json = jsonDecode(res.body) as Map<String, dynamic>;
       return ApiResponse.fromJson(json);
-    } catch (e, stack) {
+    } catch (e) {
+      return ApiResponse(ok: false, status: 0, message: 'Failed to parse response: $e');
+    }
+  }
+
+  static RawApiResponse _parseRaw(http.Response res) {
+    debugPrint('[API] ${res.statusCode} ${res.request?.url}');
+    if (res.body.isEmpty) {
+      return const RawApiResponse(ok: false, status: 0, message: 'Empty response from server');
+    }
+    try {
+      final decoded = jsonDecode(res.body);
+      if (decoded is Map<String, dynamic>) {
+        return RawApiResponse(
+          ok:      decoded['ok']      as bool?   ?? false,
+          status:  decoded['status']  as int?    ?? 0,
+          message: decoded['message'] as String? ?? '',
+          rawBody: decoded['body'],
+        );
+      }
+      return RawApiResponse(ok: true, status: 200, message: '', rawBody: decoded);
+    } catch (e) {
+      return RawApiResponse(ok: false, status: 0, message: 'Failed to parse response: $e');
+    }
+  }
+
+  static Future<ApiResponse> post(String path, Map<String, dynamic> payload) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_base/$path'),
+        headers: await _headers(),
+        body: jsonEncode(payload),
+      );
+      return _parse(res);
+    } catch (e) {
       debugPrint('[API] error: $e');
-      debugPrint('[API] stack: $stack');
       return ApiResponse(ok: false, status: 0, message: e.toString());
     }
   }
 
-  // API Endpoints
+  //If the body is a list
+
+  static Future<RawApiResponse> postRaw(String path, Map<String, dynamic> payload) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_base/$path'),
+        headers: await _headers(),
+        body: jsonEncode(payload),
+      );
+      return _parseRaw(res);
+    } catch (e) {
+      debugPrint('[API] error: $e');
+      return RawApiResponse(ok: false, status: 0, message: e.toString());
+    }
+  }
+
+  static Future<RawApiResponse> getRaw(String path) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$_base/$path'),
+        headers: await _headers(),
+      );
+      return _parseRaw(res);
+    } catch (e) {
+      debugPrint('[API] error: $e');
+      return RawApiResponse(ok: false, status: 0, message: e.toString());
+    }
+  }
+
+  static Future<ApiResponse> put(String path, Map<String, dynamic> payload) async {
+    try {
+      final res = await http.put(
+        Uri.parse('$_base/$path'),
+        headers: await _headers(),
+        body: jsonEncode(payload),
+      );
+      return _parse(res);
+    } catch (e) {
+      debugPrint('[API] error: $e');
+      return ApiResponse(ok: false, status: 0, message: e.toString());
+    }
+  }
+
+  static Future<ApiResponse> delete_(String path, Map<String, dynamic> payload) async {
+    try {
+      final req = http.Request('DELETE', Uri.parse('$_base/$path'));
+      (await _headers()).forEach((k, v) => req.headers[k] = v);
+      req.body = jsonEncode(payload);
+      final streamed = await req.send();
+      final res = await http.Response.fromStream(streamed);
+      return _parse(res);
+    } catch (e) {
+      debugPrint('[API] error: $e');
+      return ApiResponse(ok: false, status: 0, message: e.toString());
+    }
+  }
+
+  static Future<ApiResponse> patch(String path, Map<String, dynamic> payload) async {
+    try {
+      final res = await http.patch(
+        Uri.parse('$_base/$path'),
+        headers: await _headers(),
+        body: jsonEncode(payload),
+      );
+      return _parse(res);
+    } catch (e) {
+      debugPrint('[API] error: $e');
+      return ApiResponse(ok: false, status: 0, message: e.toString());
+    }
+  }
 
   static Future<ApiResponse> login({
     required String email,
     required String password,
   }) async {
-    final res = await _post('users/login', {
-      'email':    email,
-      'password': password,
-    });
-    
-    if (res.ok && res.body != null) {
-      await _saveSession(res.body!);
-    }
+    final res = await post('users/login', {'email': email, 'password': password});
+    if (res.ok && res.body != null) await _saveSession(res.body!);
     return res;
   }
 
@@ -115,8 +204,7 @@ class ApiService {
     required String email,
     required String password,
   }) async {
-    
-    return _post('users/register', {
+    return post('users/register', {
       'full_name': fullName,
       'email':     email,
       'password':  password,
@@ -126,18 +214,16 @@ class ApiService {
   static Future<ApiResponse> forgotPassword({
     required String email,
   }) async {
-    return _post('users/forgot_password', {
+    return post('users/forgot_password', {
       'email': email,
     });
   }
 
   static Future<ApiResponse> resetPassword({
-    required String email,
     required String code,
     required String password,
   }) async {
-    return _post('users/reset_password', {
-      'email': email,
+    return post('users/reset_password', {
       'code': code,
       'password': password,
     });

@@ -1,5 +1,5 @@
 import { existsSync, writeFileSync } from "fs";
-import { Response } from "express";
+import type { Response } from "express";
 import { fileURLToPath } from "url";
 
 type HttpBody = Record<string, any>;
@@ -15,11 +15,23 @@ export class HttpResponseBuilder<
     declare private __phantom_body?: (value: Body) => Body;
     declare private __phantom_message?: (value: Msg) => Msg;
 
+    private _status: number = 500;
+    private _message?: string = undefined;
+    private _body?: Body = undefined;
+
+    /*
     private constructor(
         private _status: number,
         private _message?: string,
         private _body?: Body
     ) { }
+    */
+
+    private constructor(status: number, message?: string, body?: Body) {
+        this._status = status;
+        this._message = message;
+        this._body = body;
+    }
 
     static status(status: number): HttpResponseBuilder {
         return new HttpResponseBuilder(status);

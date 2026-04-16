@@ -7,6 +7,8 @@ import AppProvider from "./providers/AppProvider.tsx";
 import RequireLogin from "./providers/RequireLogin.tsx";
 import App from "./pages/App.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PasswordForgotten from "./pages/PasswordForgotten.tsx";
+import PasswordReset from "./pages/PasswordReset.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
@@ -18,6 +20,8 @@ createRoot(document.getElementById("root")!).render(
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgotpassword" element={<PasswordForgotten />} />
+                <Route path="/resetpassword" element={<PasswordReset />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </AppProvider>

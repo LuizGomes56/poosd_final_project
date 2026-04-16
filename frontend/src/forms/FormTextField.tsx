@@ -11,7 +11,8 @@ export default function FormTextField<T extends string | number>({
     maxLength = 40,
     titleStyle,
     placeholderStyle,
-    divStyle
+    divStyle,
+    type
 }: {
     id: string,
     value: T,
@@ -22,6 +23,7 @@ export default function FormTextField<T extends string | number>({
     titleStyle?: string,
     placeholderStyle?: string,
     divStyle?: string,
+    type?: string
 }) {
     // placeholders once set, cannot be changed
     const readonlyPlaceholder = useRef(placeholder);
@@ -32,7 +34,7 @@ export default function FormTextField<T extends string | number>({
             </label>
             <input
                 id={id}
-                type="text"
+                type={type || "text"}
                 maxLength={maxLength}
                 value={value || ""}
                 placeholder={readonlyPlaceholder.current}

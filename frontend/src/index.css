@@ -186,3 +186,99 @@ body.dark .calendar-zinc-200 input[type="date"]::-webkit-calendar-picker-indicat
         transform: translateX(10%);
     }
 }
+
+pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+}
+
+code.hljs {
+    padding: 3px 5px;
+}
+
+.hljs {
+    background: transparent;
+    color: #D4D4D4;
+    line-height: 1.5;
+    font-family: Consolas, Monaco, 'AndaleMono', 'UbuntuMono', monospace;
+}
+
+.hljs-subst,
+.hljs-tag {
+    color: #D4D4D4;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+    color: #D4D4D4;
+}
+
+.hljs-strong {
+    font-weight: 700;
+    color: #D4D4D4;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-name,
+.hljs-literal {
+    color: #569CD6;
+}
+
+.hljs-meta {
+    color: #C586C0;
+}
+
+.hljs-type,
+.hljs-title,
+.hljs-title.function_,
+.hljs-class .hljs-title,
+.hljs-title.class_,
+.hljs-built_in {
+    color: #4EC8B0;
+}
+
+.hljs-number {
+    color: #B3CDA8;
+}
+
+.hljs-symbol {
+    color: #4FC1FF;
+}
+
+.hljs-string {
+    color: #CE9178;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attr,
+.hljs-attribute {
+    color: #9CDCFE;
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #959596;
+}
+
+.hljs-section {
+    color: #DCDCAA;
+}
+
+.hljs-regexp {
+    color: #CE9178;
+}
+
+.hljs-link {
+    color: #4FC1FF;
+}
+
+.hljs-addition {
+    color: #B3CDA8;
+}
+
+.hljs-deletion {
+    color: #959596;
+}

@@ -1,0 +1,584 @@
+<span class="hljs-keyword">type</span> <span class="hljs-title class_">SwaggerDocs</span> = {
+    <span class="hljs-string">"users/logout"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"GET"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: <span class="hljs-literal">undefined</span>;
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">false</span>;
+    };
+    <span class="hljs-string">"users/login"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">full_name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">email_verified</span>: <span class="hljs-built_in">boolean</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">token</span>: <span class="hljs-built_in">string</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">password</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">false</span>;
+    };
+    <span class="hljs-string">"users/register"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">full_name</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">password</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">false</span>;
+    };
+    <span class="hljs-string">"users/forgot_password"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">false</span>;
+    };
+    <span class="hljs-string">"users/reset_password"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">code</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">password</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">false</span>;
+    };
+    <span class="hljs-string">"users/dashboard"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"GET"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">number_of_topics</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">questions_created_last_week</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">topics</span>: {
+                    <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span>;
+                    <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+                    <span class="hljs-attr">questions</span>: {
+                        <span class="hljs-attr">frq</span>: <span class="hljs-built_in">number</span>;
+                        <span class="hljs-attr">mcq</span>: <span class="hljs-built_in">number</span>;
+                        <span class="hljs-attr">tf</span>: <span class="hljs-built_in">number</span>;
+                    };
+                    <span class="hljs-attr">total_points</span>: <span class="hljs-built_in">number</span>;
+                }[];
+            };
+        };
+        <span class="hljs-attr">input</span>: <span class="hljs-literal">undefined</span>;
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"users/patch"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"PATCH"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">full_name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">password_hash</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">email_verified</span>: <span class="hljs-built_in">boolean</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">token</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-built_in">string</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            [<span class="hljs-attr">key</span>: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">any</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"users/verify"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"GET"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                [<span class="hljs-attr">key</span>: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">any</span>;
+                <span class="hljs-attr">iss</span>?: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">sub</span>?: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">aud</span>?: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">string</span>[];
+                <span class="hljs-attr">exp</span>?: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">nbf</span>?: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">iat</span>?: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">jti</span>?: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">full_name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">email_verified</span>: <span class="hljs-built_in">boolean</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-built_in">string</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: <span class="hljs-literal">undefined</span>;
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"users/verify_email"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">code</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"users/send_email_verification"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"GET"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">input</span>: <span class="hljs-literal">undefined</span>;
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/create"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span>;
+                <span class="hljs-attr">topic_ids</span>: <span class="hljs-title class_">ObjectId</span>[];
+                <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+                <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">choice</span>: {
+                    <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                    <span class="hljs-attr">answers</span>: {
+                        <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                        <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">frq</span>: {
+                    <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span> | <span class="hljs-string">"TEXT"</span>;
+                    <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span>;
+                    <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">topic_ids</span>: <span class="hljs-built_in">string</span>[];
+            <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+            <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span>;
+            <span class="hljs-attr">choice</span>: {
+                <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                <span class="hljs-attr">answers</span>: {
+                    <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">undefined</span>;
+                };
+            };
+            <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">topic_ids</span>: <span class="hljs-built_in">string</span>[];
+            <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+            <span class="hljs-attr">type</span>: <span class="hljs-string">"TF"</span>;
+            <span class="hljs-attr">choice</span>: {
+                <span class="hljs-attr">answers</span>: {
+                    <span class="hljs-attr">single</span>: <span class="hljs-string">"True"</span> | <span class="hljs-string">"False"</span>;
+                };
+            };
+            <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">topic_ids</span>: <span class="hljs-built_in">string</span>[];
+            <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+            <span class="hljs-attr">type</span>: <span class="hljs-string">"FRQ"</span>;
+            <span class="hljs-attr">frq</span>: {
+                <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span>;
+                <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[];
+                <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+            } | {
+                <span class="hljs-attr">kind</span>: <span class="hljs-string">"TEXT"</span>;
+                <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[];
+            };
+            <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/all"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: ({
+                <span class="hljs-attr">topic_ids</span>: <span class="hljs-built_in">string</span>[];
+                <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span>;
+                <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+                <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">choice</span>: {
+                    <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                    <span class="hljs-attr">answers</span>: {
+                        <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                        <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">frq</span>: {
+                    <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span> | <span class="hljs-string">"TEXT"</span>;
+                    <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span>;
+                    <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+            })[];
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/update"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"PATCH"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span>;
+                <span class="hljs-attr">topic_ids</span>: <span class="hljs-title class_">ObjectId</span>[];
+                <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+                <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">choice</span>: {
+                    <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                    <span class="hljs-attr">answers</span>: {
+                        <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                        <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">frq</span>: {
+                    <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span> | <span class="hljs-string">"TEXT"</span>;
+                    <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span>;
+                    <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">topic_ids</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">choice</span>: {
+                <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                <span class="hljs-attr">answers</span>: {
+                    <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">undefined</span>;
+                };
+            } | {
+                <span class="hljs-attr">answers</span>: {
+                    <span class="hljs-attr">single</span>: <span class="hljs-string">"True"</span> | <span class="hljs-string">"False"</span>;
+                };
+            } | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">frq</span>: {
+                <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span>;
+                <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[];
+                <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">undefined</span>;
+            } | {
+                <span class="hljs-attr">kind</span>: <span class="hljs-string">"TEXT"</span>;
+                <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[];
+            } | <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/delete"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"DELETE"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span>;
+                <span class="hljs-attr">topic_ids</span>: <span class="hljs-title class_">ObjectId</span>[];
+                <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+                <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">choice</span>: {
+                    <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                    <span class="hljs-attr">answers</span>: {
+                        <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                        <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">frq</span>: {
+                    <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span> | <span class="hljs-string">"TEXT"</span>;
+                    <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span>;
+                    <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/check"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">correct</span>: <span class="hljs-built_in">boolean</span>;
+                <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">answer</span>: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">number</span> | <span class="hljs-built_in">boolean</span> | <span class="hljs-built_in">string</span>[];
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"questions/get"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">type</span>: <span class="hljs-string">"MCQ"</span> | <span class="hljs-string">"TF"</span> | <span class="hljs-string">"FRQ"</span>;
+                <span class="hljs-attr">topic_ids</span>: <span class="hljs-title class_">ObjectId</span>[];
+                <span class="hljs-attr">difficulty</span>: <span class="hljs-string">"EASY"</span> | <span class="hljs-string">"MEDIUM"</span> | <span class="hljs-string">"HARD"</span>;
+                <span class="hljs-attr">prompt</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">hint</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">explanation</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">points</span>: <span class="hljs-built_in">number</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">choice</span>: {
+                    <span class="hljs-attr">options</span>: <span class="hljs-built_in">string</span>[];
+                    <span class="hljs-attr">answers</span>: {
+                        <span class="hljs-attr">single</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                        <span class="hljs-attr">multiple</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">frq</span>: {
+                    <span class="hljs-attr">kind</span>: <span class="hljs-string">"NUMBER"</span> | <span class="hljs-string">"TEXT"</span>;
+                    <span class="hljs-attr">tolerance</span>: <span class="hljs-built_in">number</span>;
+                    <span class="hljs-attr">accepted_numbers</span>: <span class="hljs-built_in">number</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                    <span class="hljs-attr">accepted_texts</span>: <span class="hljs-built_in">string</span>[] | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                } | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">question_id</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"topics/create"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"POST"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"topics/delete"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"DELETE"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"topics/update"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"PUT"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">body</span>: <span class="hljs-literal">undefined</span>;
+        } | {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+            };
+        };
+        <span class="hljs-attr">input</span>: {
+            <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span>;
+            <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>;
+        };
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+    <span class="hljs-string">"topics/all"</span>: {
+        <span class="hljs-attr">method</span>: <span class="hljs-string">"GET"</span>;
+        <span class="hljs-attr">output</span>: {
+            <span class="hljs-attr">ok</span>: <span class="hljs-built_in">boolean</span>;
+            <span class="hljs-attr">status</span>: <span class="hljs-built_in">number</span>;
+            <span class="hljs-attr">message</span>: <span class="hljs-literal">undefined</span>;
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">description</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">user_id</span>: <span class="hljs-title class_">ObjectId</span>;
+                <span class="hljs-attr">createdAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">updatedAt</span>: <span class="hljs-title class_">NativeDate</span>;
+                <span class="hljs-attr">topic_id</span>: <span class="hljs-built_in">string</span>;
+                <span class="hljs-attr">questions</span>: <span class="hljs-built_in">number</span>;
+            }[];
+        };
+        <span class="hljs-attr">input</span>: <span class="hljs-literal">undefined</span>;
+        <span class="hljs-attr">protected</span>: <span class="hljs-literal">true</span>;
+    };
+}
