@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/questions_page.dart';
 import 'constants/app_theme.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
@@ -16,7 +15,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool skipSplash;
+
+  const MyApp({super.key, this.skipSplash = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +25,9 @@ class MyApp extends StatelessWidget {
       title: 'EduCMS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      initialRoute: '/',
+      initialRoute: skipSplash ? '/login' : '/',
       routes: {
-        '/': (_) => const SplashPage(),
+        '/': (_) => skipSplash ? const LoginPage() : const SplashPage(),
         '/login': (_) => const LoginPage(),
         '/register': (_) => const RegisterPage(),
         '/account': (_) => AccountPage(),
