@@ -1,126 +1,188 @@
 @startuml
-skinparam classAttributeIconSize 0
+title EduCMS Mobile App
 
-' =========================
-' CORE
-' =========================
 class MyApp {
-  + build()
+  +bool skipSplash
 }
 
-' =========================
-' AUTH PAGES
-' =========================
 class LoginPage {
-  + submitLogin()
+  -TextEditingController emailCtrl
+  -TextEditingController passwordCtrl
+  -bool loading
+  -String errorText
+  +submit()
 }
 
 class RegisterPage {
-  + submitRegister()
+  -TextEditingController fullNameCtrl
+  -TextEditingController emailCtrl
+  -TextEditingController passwordCtrl
+  -bool loading
+  -String errorText
+  +submit()
 }
 
 class ForgotPasswordPage {
-  + submitEmail()
+  -TextEditingController emailCtrl
+  -bool loading
+  -String errorText
+  +submit()
 }
 
 class ResetPasswordPage {
-  + submitReset()
+  -TextEditingController codeCtrl
+  -TextEditingController passwordCtrl
+  -TextEditingController confirmPasswordCtrl
+  -bool loading
+  -String errorText
+  -String successText
+  +submit()
 }
 
 class SplashPage {
-  + resolveSession()
+  +resolve()
 }
 
-' =========================
-' MAIN PAGES
-' =========================
 class DashboardPage {
-  + fetchDashboard()
+  -DashboardData data
+  -bool loading
+  -String error
+  +fetch()
 }
 
 class TopicsPage {
-  + loadTopics()
-  + createTopic()
-  + updateTopic()
-  + deleteTopic()
+  -List<Topic> all
+  -bool loading
+  -String error
+  -String search
+  +load()
+  +create(name, desc)
+  +update(id, name, desc)
+  +delete(id)
+}
+
+class QuestionsPage {
+  -List<Question> questions
+  -bool loading
+  -String error
+  +load()
+  +create(data)
+  +update(data)
+  +delete(id)
 }
 
 class AccountPage {
-  + loadAccount()
-  + logout()
+  -String fullName
+  -String email
+  -String token
+  -bool loggingOut
+  +load()
+  +logout()
 }
 
-class QuestionsPage
-
-' =========================
-' MODELS
-' =========================
 class Topic {
-  topicId: String
-  name: String
-  description: String
-  questions: int
+  +String topicId
+  +String name
+  +String description
+  +int questions
+  +String createdAt
+  +String updatedAt
 }
 
 class DashboardTopic {
-  topicId: String
-  name: String
-  totalPoints: int
+  +String topicId
+  +String name
+  +int frq
+  +int mcq
+  +int tf
+  +int totalPoints
 }
 
 class DashboardData {
-  numberOfTopics: int
-  questionsCreatedLastWeek: int
+  +int numberOfTopics
+  +int questionsCreatedLastWeek
+  +List<DashboardTopic> topics
 }
 
-' =========================
-' SERVICES
-' =========================
+class Question {
+  +String questionId
+  +String prompt
+  +String type
+  +String difficulty
+  +String hint
+  +String explanation
+  +int points
+  +String createdAt
+  +String updatedAt
+  +Map<String, dynamic>? frq
+  +Map<String, dynamic>? choice
+  +List<String> topicIds
+}
+
+class AppDrawer {
+  +currentRoute
+  +go(route)
+  +logout()
+}
+
+class CustomTextField {
+  +String label
+  +String placeholder
+  +bool obscureText
+  +TextEditingController controller
+  +String errorText
+  +TextInputType keyboardType
+  +IconData prefixIcon
+}
+
 class ApiService {
-  + login()
-  + register()
-  + forgotPassword()
-  + resetPassword()
-  + getTopics()
-  + createTopic()
-  + updateTopic()
-  + deleteTopic()
-  + getDashboard()
-  + clearSession()
+  +login()
+  +register()
+  +getRaw()
+  +post()
+  +put()
+  +delete_()
+  +forgotPassword()
+  +resetPassword()
+  +clearSession()
 }
 
-' =========================
-' SHARED UI
-' =========================
-class AppDrawer
-class CustomTextField
+MyApp --> LoginPage
+MyApp --> RegisterPage
+MyApp --> SplashPage
+MyApp --> DashboardPage
+MyApp --> TopicsPage
+MyApp --> QuestionsPage
+MyApp --> AccountPage
+MyApp --> ForgotPasswordPage
+MyApp --> ResetPasswordPage
 
-' =========================
-' RELATIONSHIPS
-' =========================
+' Drawer usage
+DashboardPage --> AppDrawer
+TopicsPage --> AppDrawer
+QuestionsPage --> AppDrawer
+AccountPage --> AppDrawer
 
-' Service usage
-LoginPage ..> ApiService
-RegisterPage ..> ApiService
-ForgotPasswordPage ..> ApiService
-ResetPasswordPage ..> ApiService
-TopicsPage ..> ApiService
-DashboardPage ..> ApiService
-AccountPage ..> ApiService
-SplashPage ..> ApiService
+' API usage
+LoginPage --> ApiService
+RegisterPage --> ApiService
+ForgotPasswordPage --> ApiService
+ResetPasswordPage --> ApiService
+DashboardPage --> ApiService
+TopicsPage --> ApiService
+QuestionsPage --> ApiService
+AccountPage --> ApiService
 
-' Model relationships
-DashboardData --> DashboardTopic
+' Models
 TopicsPage --> Topic
+DashboardPage --> DashboardData
+DashboardData --> DashboardTopic
+QuestionsPage --> Question
 
-' Shared UI usage
-DashboardPage ..> AppDrawer
-TopicsPage ..> AppDrawer
-AccountPage ..> AppDrawer
-
-LoginPage ..> CustomTextField
-RegisterPage ..> CustomTextField
-ForgotPasswordPage ..> CustomTextField
-ResetPasswordPage ..> CustomTextField
+' Widgets
+LoginPage --> CustomTextField
+RegisterPage --> CustomTextField
+ForgotPasswordPage --> CustomTextField
+ResetPasswordPage --> CustomTextField
 
 @enduml
