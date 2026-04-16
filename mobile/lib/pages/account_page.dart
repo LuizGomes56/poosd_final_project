@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_theme.dart';
+import '../services/api_service.dart';
 import '../widgets/app_drawer.dart';
 
 class AccountPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class _AccountPageState extends State<AccountPage> {
   String _fullName = '';
   String _email    = '';
   String _token    = '';
+  bool _loggingOut = false;
 
   @override
   void initState() {
@@ -28,6 +30,16 @@ class _AccountPageState extends State<AccountPage> {
       _email    = prefs.getString('email')     ?? '—';
       _token    = prefs.getString('token')     ?? '—';
     });
+  }
+
+  Future<void> _logout() async {
+    setState(() => _loggingOut = true);
+
+    await ApiService.clearSession();
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
   }
 
   @override
@@ -55,6 +67,28 @@ class _AccountPageState extends State<AccountPage> {
             _Row(label: 'Email',     value: _email),
             const SizedBox(height: 12),
             _Row(label: 'Token',     value: _token, mono: true),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _loggingOut ? null : _logout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: _loggingOut
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Log Out'),
+              ),
+            ),
           ],
         ),
       ),

@@ -96,7 +96,9 @@ export const SCHEMA = {
         email: S.EMAIL
     }),
     "users/reset_password": z.object({
-        code: z.string().length(6),
+        code: z.string().regex(/^\d{6}$/, {
+            error: "Reset code must be exactly 6 digits"
+        }),
         password: S.PASSWORD
     }),
     "questions/create": z.discriminatedUnion("type", [
