@@ -1,0 +1,126 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' CORE
+' =========================
+class MyApp {
+  + build()
+}
+
+' =========================
+' AUTH PAGES
+' =========================
+class LoginPage {
+  + submitLogin()
+}
+
+class RegisterPage {
+  + submitRegister()
+}
+
+class ForgotPasswordPage {
+  + submitEmail()
+}
+
+class ResetPasswordPage {
+  + submitReset()
+}
+
+class SplashPage {
+  + resolveSession()
+}
+
+' =========================
+' MAIN PAGES
+' =========================
+class DashboardPage {
+  + fetchDashboard()
+}
+
+class TopicsPage {
+  + loadTopics()
+  + createTopic()
+  + updateTopic()
+  + deleteTopic()
+}
+
+class AccountPage {
+  + loadAccount()
+  + logout()
+}
+
+class QuestionsPage
+
+' =========================
+' MODELS
+' =========================
+class Topic {
+  topicId: String
+  name: String
+  description: String
+  questions: int
+}
+
+class DashboardTopic {
+  topicId: String
+  name: String
+  totalPoints: int
+}
+
+class DashboardData {
+  numberOfTopics: int
+  questionsCreatedLastWeek: int
+}
+
+' =========================
+' SERVICES
+' =========================
+class ApiService {
+  + login()
+  + register()
+  + forgotPassword()
+  + resetPassword()
+  + getTopics()
+  + createTopic()
+  + updateTopic()
+  + deleteTopic()
+  + getDashboard()
+  + clearSession()
+}
+
+' =========================
+' SHARED UI
+' =========================
+class AppDrawer
+class CustomTextField
+
+' =========================
+' RELATIONSHIPS
+' =========================
+
+' Service usage
+LoginPage ..> ApiService
+RegisterPage ..> ApiService
+ForgotPasswordPage ..> ApiService
+ResetPasswordPage ..> ApiService
+TopicsPage ..> ApiService
+DashboardPage ..> ApiService
+AccountPage ..> ApiService
+SplashPage ..> ApiService
+
+' Model relationships
+DashboardData --> DashboardTopic
+TopicsPage --> Topic
+
+' Shared UI usage
+DashboardPage ..> AppDrawer
+TopicsPage ..> AppDrawer
+AccountPage ..> AppDrawer
+
+LoginPage ..> CustomTextField
+RegisterPage ..> CustomTextField
+ForgotPasswordPage ..> CustomTextField
+ResetPasswordPage ..> CustomTextField
+
+@enduml
