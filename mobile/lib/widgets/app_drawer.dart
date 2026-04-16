@@ -118,7 +118,7 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fg = textColor ?? (isActive ? Colors.white     : AppTheme.textMuted);
     final ic = iconColor ?? (isActive ? AppTheme.primary : AppTheme.textMuted);
-    final bg = isActive  ? AppTheme.primary.withOpacity(0.15) : Colors.transparent;
+    final bg = isActive ? AppTheme.primary.withValues(alpha: 0.15) : Colors.transparent;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
