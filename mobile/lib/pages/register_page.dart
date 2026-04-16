@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
 import '../widgets/custom_text_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -39,6 +40,8 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _loading = false);
 
     if (res.ok) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasRegistered', true);
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       setState(() => _errorText = res.message);
@@ -75,8 +78,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Center(
                           child: Image.asset(
                             'assets/icons/favicon.png', 
-                            width: 24, 
-                            height: 24,  
+                            width: 72, 
+                            height: 72,  
                           ),
                         ),
                       ),
@@ -176,8 +179,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   const SizedBox(height: 16),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       const Text(
                         'Already have an account?',

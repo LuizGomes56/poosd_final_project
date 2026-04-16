@@ -72,8 +72,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: Center(
                           child: Image.asset(
                             'assets/icons/favicon.png', 
-                            width: 24, 
-                            height: 24,  
+                            width: 72, 
+                            height: 72,  
                           ),
                         ),
                       ),
@@ -183,8 +183,9 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 16),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       const Text(
                         "Don't have an account?",

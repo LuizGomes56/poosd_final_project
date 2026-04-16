@@ -84,7 +84,7 @@ export const UsersController = {
             throw e;
         }
     },
-    patch: async function (req) {
+    patch: async function (req, res) {
         const { full_name, email } = req.body;
         const { user_id } = req.payload;
 
@@ -94,16 +94,24 @@ export const UsersController = {
             return HttpResponse.BadRequest().message("No fields to update");
         }
 
-        const user = await USERS.findOneAndUpdate(
-            { user_id },
-            args
+        const user = await USERS.findByIdAndUpdate(
+            user_id,
+            args,
+            { returnDocument: "after" }
         ).lean();
 
         if (!user) {
-            return HttpResponse.NotFound().message("User does not exist");
+            return HttpResponse.NotFound().message(`Unable to find user with id: ${user_id}`);
         }
 
-        return HttpResponse.Ok().body(user);
+        const token = jwt.sign({
+            user_id,
+            ...user
+        } satisfies jwt.JwtPayload, Dotenv.jwt_secret);
+
+        res.cookie("authorization", `Bearer ${token}`);
+
+        return HttpResponse.Ok().body({ token, user_id, ...user });
     },
     forgot_password: async function (req) {
         const { email } = req.body;
