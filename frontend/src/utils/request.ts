@@ -5,7 +5,7 @@ export async function api<
     I extends SwaggerDocs[P]["input"]
 >(path: P, ...input: I extends undefined ? [] : [I]) {
     const method = BACKEND_ROUTES[path];
-    const URL = "http://localhost:3000/api";
+    const URL = import.meta.env.API_URL || "http://localhost:3000/api";
 
     const route = `${URL}/${path}`;
 
@@ -20,11 +20,11 @@ export async function api<
             credentials: "include"
         };
 
-        const token = localStorage.getItem("token");
+        const token = await cookieStore.get("token");
         if (token) {
             args.headers = {
                 ...args.headers,
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token.value}`,
             };
         }
 
@@ -36,6 +36,12 @@ export async function api<
 
         const request = await fetch(route, args);
         const response = await request.json();
+
+        const token2 = response?.body?.token;
+        if (token2 && typeof token2 === "string") {
+            await cookieStore.set("token", token2);
+        }
+
         return response as SwaggerDocs[P]["output"];
     } catch (e) {
         console.error("fn api::catch", e);

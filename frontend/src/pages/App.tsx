@@ -3,18 +3,19 @@ import Dashboard from "../pages/Dashboard";
 import AccountSettings from "./AccountSettings";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import { MdGridView } from "react-icons/md";
-import { BsPersonCircle } from "react-icons/bs";
+import { MdGridView, MdTopic } from "react-icons/md";
+import { BsPersonCircle, BsQuestionDiamond } from "react-icons/bs";
 import QuestionsPage from "../pages/QuestionsPage";
 import TopicsPage from "./TopicsPage";
-import TestPage from "../components/TestPage";
+import Docs from "./Docs";
+import { BiCodeAlt } from "react-icons/bi";
 
 const componentMap: Record<string, React.ComponentType> = {
     dashboard: Dashboard,
     questions: QuestionsPage,
     topics: TopicsPage,
     account: AccountSettings,
-    testpage: TestPage
+    docs: Docs,
 };
 
 const App = () => {
@@ -29,9 +30,10 @@ const App = () => {
     let webpages = [
         { id: "dashboard", text: "Dashboard", icon: <MdGridView className="h-5 w-5" /> },
         { id: "account", text: "My Account", icon: <BsPersonCircle className="h-5 w-5" /> },
-        { id: "questions", text: "My Questions", icon: <MdGridView className="h-5 w-5" /> },
-        { id: "topics", text: "My Topics", icon: <MdGridView className="h-5 w-5" /> },
-        { id: "testpage", text: "testpage", icon: <></> }];
+        { id: "questions", text: "My Questions", icon: <BsQuestionDiamond className="h-5 w-5" /> },
+        { id: "topics", text: "My Topics", icon: <MdTopic className="h-5 w-5" /> },
+        { id: "docs", text: "Documentation", icon: <BiCodeAlt className="h-5 w-5" /> },
+    ];
 
     return (
         <div className="flex flex-col h-screen">

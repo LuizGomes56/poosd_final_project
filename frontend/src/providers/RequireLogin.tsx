@@ -6,9 +6,9 @@ import { useNotification } from '../providers/NotificationProvider';
 import { api } from '../utils/request';
 
 const fetchData = async () => {
-    const token = localStorage.getItem("token");
+    const token = await cookieStore.get("token");
 
-    if (!token) {
+    if (!token?.value) {
         throw new Error("Authentication Token not found. You must log in again");
     }
 

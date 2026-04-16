@@ -12,11 +12,19 @@ import { Dotenv } from "./utils/env.js";
 
 const app = express();
 
+// Validate environment variables, this is happening here because we want to allow
+// function getRouteMethods to run before this, so you can generate `/methods.ts` file
+for (const [key, value] of Object.entries(Dotenv)) {
+    if (!value) {
+        throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
+    }
+}
+
 const corsOptions = {
     origin: [
         "http://localhost:5173",
-        "http://localhost",
-        "http://localhost/",
+        "http://YOURIPV4:3000",
+        Dotenv.cors_origin,
         "http://localhost:3000",
     ],
     credentials: true,
@@ -48,17 +56,10 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
-// Validate environment variables, this is happening here because we want to allow
-// function getRouteMethods to run before this, so you can generate `/methods.ts` file
-for (const [key, value] of Object.entries(Dotenv)) {
-    if (!value) {
-        throw new Error(`Environment variable ${key.toUpperCase()} is not defined`);
-    }
-}
+const conn = await mongoose.connect(Dotenv.database_url);
+console.log(`MongoDB connected: ${conn.connection.host}`);
 
 app.listen(Dotenv.port, async (e) => {
-    const conn = await mongoose.connect(Dotenv.database_url);
-    console.log(`MongoDB connected: ${conn.connection.host}`);
     if (e) {
         console.error(e);
     }

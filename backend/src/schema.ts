@@ -85,13 +85,19 @@ export const SCHEMA = {
         email: S.EMAIL,
         password: S.PASSWORD,
     }),
+    "users/patch": z.record(z.string(), z.any()),
     "users/verify": S.NOTHING,
+    "users/dashboard": S.NOTHING,
     "users/send_email_verification": S.NOTHING,
     "users/verify_email": z.object({
         code: z.string().length(6)
     }),
     "users/forgot_password": z.object({
         email: S.EMAIL
+    }),
+    "users/reset_password": z.object({
+        code: z.string().length(6),
+        password: S.PASSWORD
     }),
     "questions/create": z.discriminatedUnion("type", [
         QuestionBaseSchema.extend({
