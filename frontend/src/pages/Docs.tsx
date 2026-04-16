@@ -13,13 +13,12 @@ export default function Docs() {
     }, []);
 
     return (
-        <pre>
+        <pre className="p-4 bg-[#1F1F1F] text-lg border border-std-gray-700">
             <code
                 className="whitespace-pre-wrap text-[#d4d4d4]"
                 style={{ whiteSpace: "pre-wrap" }}
                 dangerouslySetInnerHTML={{
-                    __html: docs.replace(/\\n/g, "\n")
-                        .replace(/\n/g, "<br/>")
+                    __html: docs
                 }}
             />
         </pre>

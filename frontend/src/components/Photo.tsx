@@ -17,7 +17,7 @@ const Photo = ({
         <div
             onClick={onClick}
             className={`
-            rounded-full aspect-square content-center text-center
+            rounded-full aspect-square content-center text-center shrink-0
             bg-opacity-20 overflow-hidden ${className}
             ${color ? color : TW_COLORS[getLogicalColor(text || "", factor)]}`}
         >

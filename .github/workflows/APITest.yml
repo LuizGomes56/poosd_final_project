@@ -2,6 +2,8 @@
 name: Tests
 
 on:
+  push:
+    branches: [mobile]
   pull_request:
     branches: [main]
 
@@ -44,5 +46,18 @@ jobs:
         run: npm --prefix ./tests install ./tests
       - name: Run tests
         run: npm --prefix ./tests test 
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Flutter pub get
+        run: flutter pub get
+        working-directory: mobile
+      - name: Run widget tests
+        run: flutter test test/widget_test.dart
+        working-directory: mobile
+      - name: Run API tests
+        run: dart test test/api_test.dart
+        working-directory: mobile
       - name: Stop docker compose
         run: docker compose down

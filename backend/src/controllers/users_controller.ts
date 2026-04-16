@@ -1,14 +1,19 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { Dotenv } from "../utils/env.js";
 import type { Controller } from "../types.js";
 import { USERS } from "../model/users.js";
+import { TOPICS } from "../model/topics.js";
+import { QUESTIONS } from "../model/questions.js";
 import { HttpResponse } from "../utils/http.js";
 import transporter from "../utils/mailer.js";
 import { AUTH } from "../model/auth.js";
+import { PASSWORD_RESETS } from "../model/password_resets.js";
+import { Dotenv } from "../utils/env.js";
+import { Types } from "mongoose";
 
 function newCode() {
-    return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+    return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
 }
 
 export const UsersController = {
@@ -81,89 +86,120 @@ export const UsersController = {
             throw e;
         }
     },
+    patch: async function (req, res) {
+        const { full_name, email } = req.body;
+        const { user_id } = req.payload;
+
+        const args = full_name ? { full_name } : email ? { email } : undefined;
+
+        if (!args) {
+            return HttpResponse.BadRequest().message("No fields to update");
+        }
+
+        const user = await USERS.findByIdAndUpdate(
+            user_id,
+            args,
+            { returnDocument: "after" }
+        ).lean();
+
+        if (!user) {
+            return HttpResponse.NotFound().message(`Unable to find user with id: ${user_id}`);
+        }
+
+        const token = jwt.sign({
+            user_id,
+            ...user
+        } satisfies jwt.JwtPayload, Dotenv.jwt_secret);
+
+        res.cookie("authorization", `Bearer ${token}`);
+
+        return HttpResponse.Ok().body({ token, user_id, ...user });
+    },
     forgot_password: async function (req) {
         const { email } = req.body;
 
         const user = await USERS.findOne({ email }).lean();
 
+        // Always respond with the same message to avoid account enumeration.
+        const response = HttpResponse.Ok().message(
+            "If an account exists for that email, a password reset code has been sent."
+        );
+
         if (!user) {
-            return HttpResponse.NotFound().message("User does not exist");
+            return response;
         }
 
         const code = newCode();
 
+        await PASSWORD_RESETS.findOneAndUpdate(
+            { email },
+            {
+                code,
+                expires_in: Date.now() + 15 * 60 * 1000
+            },
+            {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true
+            }
+        );
+
         await transporter.sendMail({
             from: Dotenv.email_sender,
             to: email,
-            subject: 'EduCMS Account Email Verification',
+            subject: "EduCMS Password Reset Code",
             html: `
-            <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
-                <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
-                    <tr>
-                    <td style="padding: 30px; text-align: center;">
-                        <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
-                        <p style="color: #555; font-size: 14px; margin-top: 10px;">
-                        We're glad to have you! Please verify your account using the code below or by clicking the button.
-                        </p>
-
-                        <div style="margin: 20px 0; font-size: 22px; font-weight: bold; color: #222;">
+                <div style="font-family: Arial, sans-serif; text-align: center;">
+                    <h2>Password reset requested</h2>
+                    <p>Enter this code in the app to choose a new password. It expires in 15 minutes.</p>
+                    <div
+                        style="display: inline-block; padding: 12px 20px; background-color: #111827; color: #ffffff; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px;">
                         ${code}
-                        </div>
-
-                        <a href="${Dotenv.domain}/reset_password/${code}"
-                        style="display: inline-block; padding: 12px 20px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold;">
-                        Verify Your Account
-                        </a>
-
-                        <p style="margin-top: 20px; font-size: 12px; color: #888;">
-                        If you didn't request this, you can safely ignore this email.
-                        </p>
-                    </td>
-                    </tr>
-                </table>
-            </div>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                        If you did not request this, you can ignore this email.
+                    </p>
+                </div>
             `
         });
 
-        // project.cop4331.cc:3000/api/users/forgot_password *Backend*
-        // project.cop4331.cc/reset_password *Frontend*
-
-        const auth = await AUTH.create({
-            email,
-            code,
-            expires_in: Date.now() + 15 * 60 * 1000
-        });
-
-        if (!auth) {
-            return HttpResponse.InternalServerError().message("Could not create verification code");
-        }
-
-        return HttpResponse.Ok();
+        return response;
     },
     reset_password: async function (req) {
         const { code, password } = req.body;
 
-        const auth = await AUTH.findOne({ code }).lean();
+        const passwordReset = await PASSWORD_RESETS.findOne({ code }).lean();
 
-        if (!auth) {
-            return HttpResponse.BadRequest().message("Invalid verification code");
+        if (!passwordReset) {
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
         }
 
-        if (Date.now() > auth.expires_in) {
-            return HttpResponse.NotFound().message("Verification code has expired");
+        const received = Buffer.from(code);
+        const expected = Buffer.from(passwordReset.code);
+
+        if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) {
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
         }
 
-        const users = await USERS.findOneAndUpdate(
-            { email: auth.email },
-            { password_hash: bcrypt.hashSync(password, 10) }
+        if (Date.now() > passwordReset.expires_in) {
+            await PASSWORD_RESETS.deleteOne({ _id: passwordReset._id });
+            return HttpResponse.BadRequest().message("Invalid or expired reset code");
+        }
+
+        const password_hash = bcrypt.hashSync(password, 10);
+
+        const user = await USERS.findOneAndUpdate(
+            { email: passwordReset.email },
+            { password_hash }
         ).lean();
 
-        // #[cold_path]
-        if (!users) {
-            return HttpResponse.NotFound().message("Email verification code was correct but could not find user");
+        await PASSWORD_RESETS.deleteMany({ email: passwordReset.email });
+
+        if (!user) {
+            return HttpResponse.NotFound().message("User does not exist");
         }
 
-        return HttpResponse.Ok();
+        return HttpResponse.Ok().message("Password reset successfully");
     },
     verify: async function (req) {
         return HttpResponse.Ok().body(req.payload);
@@ -277,5 +313,92 @@ export const UsersController = {
         }
 
         return HttpResponse.Ok();
+    },
+    dashboard: async function (req) {
+        const { user_id } = req.payload;
+
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        const number_of_topics = await TOPICS.countDocuments({ user_id });
+
+        const questions_created_last_week = await QUESTIONS.countDocuments({
+            user_id,
+            createdAt: { $gte: since }
+        });
+
+        const topics = await QUESTIONS.aggregate<{
+            topic_id: string;
+            name: string;
+            questions: {
+                frq: number;
+                mcq: number;
+                tf: number;
+            };
+            total_points: number;
+        }>([
+            {
+                $match: {
+                    user_id: new Types.ObjectId(user_id),
+                }
+            },
+            {
+                $unwind: "$topic_ids"
+            },
+            {
+                $group: {
+                    _id: "$topic_ids",
+                    frq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "FRQ"] }, 1, 0]
+                        }
+                    },
+                    mcq: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "MCQ"] }, 1, 0]
+                        }
+                    },
+                    tf: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "TF"] }, 1, 0]
+                        }
+                    },
+                    total_points: {
+                        $sum: "$points"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "topics",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "topic"
+                }
+            },
+            {
+                $unwind: "$topic"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    topic_id: { $toString: "$_id" },
+                    name: "$topic.name",
+                    questions: {
+                        frq: "$frq",
+                        mcq: "$mcq",
+                        tf: "$tf"
+                    },
+                    total_points: 1
+                }
+            }
+        ]);
+
+        const result = {
+            number_of_topics,
+            questions_created_last_week,
+            topics
+        };
+
+        return HttpResponse.Ok().body(result);
     }
 } as const satisfies Controller["users"];

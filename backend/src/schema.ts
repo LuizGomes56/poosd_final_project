@@ -85,7 +85,9 @@ export const SCHEMA = {
         email: S.EMAIL,
         password: S.PASSWORD,
     }),
+    "users/patch": z.record(z.string(), z.any()),
     "users/verify": S.NOTHING,
+    "users/dashboard": S.NOTHING,
     "users/send_email_verification": S.NOTHING,
     "users/verify_email": z.object({
         code: z.string().length(6)
@@ -94,7 +96,9 @@ export const SCHEMA = {
         email: S.EMAIL
     }),
     "users/reset_password": z.object({
-        code: z.string().length(6),
+        code: z.string().regex(/^\d{6}$/, {
+            error: "Reset code must be exactly 6 digits"
+        }),
         password: S.PASSWORD
     }),
     "questions/create": z.discriminatedUnion("type", [

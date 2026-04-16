@@ -117,46 +117,61 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+  Future<void> _logout() async {
+    setState(() => _loggingOut = true);
+
+    await ApiService.clearSession();
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
+      drawer: const AppDrawer(currentRoute: '/account'),
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         elevation: 0,
-        title: const Text(
-          'Your account',
-          style: TextStyle(color: AppTheme.textPrimary),
-        ),
+        leading: Builder(builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu_rounded, color: AppTheme.textPrimary),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        )),
+        title: const Text('Account',
+            style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 18)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            _Row(
-              label: 'Display name',
-              value: _fullName,
-              onEdit: () => _editField('full_name', _fullName),
-            ),
-            const Divider(color: AppTheme.textMuted),
-
-            _Row(
-              label: 'Email',
-              value: _email,
-              onEdit: () => _editField('email', _email),
-            ),
-            const Divider(color: AppTheme.textMuted),
-
-            _StaticRow(
-              label: 'Email verified',
-              value: _emailVerified ? 'Yes' : 'No',
-            ),
-
-            _StaticRow(
-              label: 'Your account creation date',
-              value: _createdAt,
+            _Row(label: 'Full Name', value: _fullName),
+            const SizedBox(height: 12),
+            _Row(label: 'Email',     value: _email),
+            const SizedBox(height: 12),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _loggingOut ? null : _logout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: _loggingOut
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Log Out'),
+              ),
             ),
           ],
         ),

@@ -157,6 +157,7 @@ const CreateQuestion = ({
                 setValue={setPrompt}
                 title="Question's prompt"
                 placeholder="What is the result of 1 + 1?"
+                maxLength={6000}
             />
             <FormRadiobox
                 id="difficulty"
