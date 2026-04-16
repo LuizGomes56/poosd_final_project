@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../services/api_service.dart';
+import '../widgets/app_drawer.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -16,6 +18,7 @@ class _AccountPageState extends State<AccountPage> {
   String _email    = '';
   bool _emailVerified = false;
   String _createdAt   = '';
+  bool _loggingOut = false;
 
   @override
   void initState() {
@@ -147,9 +150,17 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Row(label: 'Full Name', value: _fullName),
+            _Row(
+              label: 'Full Name',
+              value: _fullName,
+              onEdit: () => _editField('full_name', _fullName),
+            ),
             const SizedBox(height: 12),
-            _Row(label: 'Email',     value: _email),
+            _Row(
+              label: 'Email',
+              value: _email,
+              onEdit: () => _editField('email', _email),
+            ),
             const SizedBox(height: 12),
             const SizedBox(height: 24),
             SizedBox(
