@@ -48,16 +48,21 @@ class ApiService {
 
   static Future<void> _saveSession(Map<String, dynamic> body) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token',     body['token']     as String? ?? '');
-    await prefs.setString('full_name', body['full_name'] as String? ?? '');
-    await prefs.setString('email',     body['email']     as String? ?? '');
+    await prefs.setString('token',          body['token']          as String? ?? '');
+    await prefs.setString('full_name',      body['full_name']      as String? ?? '');
+    await prefs.setString('email',          body['email']          as String? ?? '');
+    await prefs.setBool(  'email_verified', body['email_verified'] as bool?   ?? false);
+    await prefs.setString('created_at',     body['createdAt']      as String? ?? '');
+    await prefs.setBool('has_registered', true);
   }
-
+ 
   static Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     await prefs.remove('full_name');
     await prefs.remove('email');
+    await prefs.remove('email_verified');
+    await prefs.remove('created_at');
   }
 
   static Future<Map<String, String>> _headers() async {

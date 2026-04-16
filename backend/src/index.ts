@@ -24,6 +24,8 @@ const corsOptions = {
     origin: [
         "http://localhost:5173",
         "http://YOURIPV4:3000",
+        "http://localhost",
+        "http://localhost/",
         Dotenv.cors_origin,
         "http://localhost:3000",
     ],
