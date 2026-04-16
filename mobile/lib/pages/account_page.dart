@@ -51,23 +51,21 @@ class _AccountPageState extends State<AccountPage> {
         });
       }
     } catch (e) {
-      debugPrint('Error loading user');
+      debugPrint('Error loading user: $e');
     }
   }
-
-  // Backend for user update not implemented 
 
   Future<void> _editField(String key, String currentValue) async {
     final controller = TextEditingController(text: currentValue);
 
     final result = await showDialog<String>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surface,
         title: const Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: AppTheme.textPrimary),
+          style: TextStyle(color: AppTheme.textPrimary),
         ),
         actions: [
           TextButton(
@@ -83,12 +81,39 @@ class _AccountPageState extends State<AccountPage> {
     );
 
     if (result != null && result.isNotEmpty) {
-      setState(() {
-        if (key == 'full_name') _fullName = result;
-        if (key == 'email') _email = result;
-      });
 
-      // TODO: connect to backend 
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      try {
+        final response = await http.patch(
+          Uri.parse('http://10.0.2.2:3000/api/users/patch'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(
+            key == 'full_name'
+              ? {'full_name': result}
+              : {'email': result},
+          ),
+        );
+
+        debugPrint(response.body);
+        final data = jsonDecode(response.body);
+
+        if (data['ok']) {
+          setState(() {
+            if (key == 'full_name') _fullName = result;
+            if (key == 'email') _email = result;
+          });
+        } else {
+          debugPrint(data['message']);
+        }
+
+      } catch (e) {
+        debugPrint('Error updating user');
+      }
     }
   }
 
