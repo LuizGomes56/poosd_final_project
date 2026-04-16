@@ -19,7 +19,6 @@
         "start": "nodemon",
         "build": "npx tsc",
         "dev": "npx nodemon --config nodemon.dev.json",
-        "swagger:export": "npm run build && node dist/export_openapi.js",
         "seed": "node src/seed.js"
     },
     "keywords": [],
@@ -27,7 +26,6 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "@asteasolutions/zod-to-openapi": "^8.5.0",
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
@@ -36,7 +34,6 @@
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^9.3.3",
         "nodemailer": "^8.0.4",
-        "yaml": "^2.8.1",
         "zod": "^4.3.6"
     },
     "devDependencies": {
