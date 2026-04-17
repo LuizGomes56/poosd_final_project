@@ -1,0 +1,188 @@
+@startuml
+title EduCMS Mobile App
+
+class MyApp {
+  +bool skipSplash
+}
+
+class LoginPage {
+  -TextEditingController emailCtrl
+  -TextEditingController passwordCtrl
+  -bool loading
+  -String errorText
+  +submit()
+}
+
+class RegisterPage {
+  -TextEditingController fullNameCtrl
+  -TextEditingController emailCtrl
+  -TextEditingController passwordCtrl
+  -bool loading
+  -String errorText
+  +submit()
+}
+
+class ForgotPasswordPage {
+  -TextEditingController emailCtrl
+  -bool loading
+  -String errorText
+  +submit()
+}
+
+class ResetPasswordPage {
+  -TextEditingController codeCtrl
+  -TextEditingController passwordCtrl
+  -TextEditingController confirmPasswordCtrl
+  -bool loading
+  -String errorText
+  -String successText
+  +submit()
+}
+
+class SplashPage {
+  +resolve()
+}
+
+class DashboardPage {
+  -DashboardData data
+  -bool loading
+  -String error
+  +fetch()
+}
+
+class TopicsPage {
+  -List<Topic> all
+  -bool loading
+  -String error
+  -String search
+  +load()
+  +create(name, desc)
+  +update(id, name, desc)
+  +delete(id)
+}
+
+class QuestionsPage {
+  -List<Question> questions
+  -bool loading
+  -String error
+  +load()
+  +create(data)
+  +update(data)
+  +delete(id)
+}
+
+class AccountPage {
+  -String fullName
+  -String email
+  -String token
+  -bool loggingOut
+  +load()
+  +logout()
+}
+
+class Topic {
+  +String topicId
+  +String name
+  +String description
+  +int questions
+  +String createdAt
+  +String updatedAt
+}
+
+class DashboardTopic {
+  +String topicId
+  +String name
+  +int frq
+  +int mcq
+  +int tf
+  +int totalPoints
+}
+
+class DashboardData {
+  +int numberOfTopics
+  +int questionsCreatedLastWeek
+  +List<DashboardTopic> topics
+}
+
+class Question {
+  +String questionId
+  +String prompt
+  +String type
+  +String difficulty
+  +String hint
+  +String explanation
+  +int points
+  +String createdAt
+  +String updatedAt
+  +Map<String, dynamic>? frq
+  +Map<String, dynamic>? choice
+  +List<String> topicIds
+}
+
+class AppDrawer {
+  +currentRoute
+  +go(route)
+  +logout()
+}
+
+class CustomTextField {
+  +String label
+  +String placeholder
+  +bool obscureText
+  +TextEditingController controller
+  +String errorText
+  +TextInputType keyboardType
+  +IconData prefixIcon
+}
+
+class ApiService {
+  +login()
+  +register()
+  +getRaw()
+  +post()
+  +put()
+  +delete_()
+  +forgotPassword()
+  +resetPassword()
+  +clearSession()
+}
+
+MyApp --> LoginPage
+MyApp --> RegisterPage
+MyApp --> SplashPage
+MyApp --> DashboardPage
+MyApp --> TopicsPage
+MyApp --> QuestionsPage
+MyApp --> AccountPage
+MyApp --> ForgotPasswordPage
+MyApp --> ResetPasswordPage
+
+' Drawer usage
+DashboardPage --> AppDrawer
+TopicsPage --> AppDrawer
+QuestionsPage --> AppDrawer
+AccountPage --> AppDrawer
+
+' API usage
+LoginPage --> ApiService
+RegisterPage --> ApiService
+ForgotPasswordPage --> ApiService
+ResetPasswordPage --> ApiService
+DashboardPage --> ApiService
+TopicsPage --> ApiService
+QuestionsPage --> ApiService
+AccountPage --> ApiService
+
+' Models
+TopicsPage --> Topic
+DashboardPage --> DashboardData
+DashboardData --> DashboardTopic
+QuestionsPage --> Question
+
+' Widgets
+LoginPage --> CustomTextField
+RegisterPage --> CustomTextField
+ForgotPasswordPage --> CustomTextField
+ResetPasswordPage --> CustomTextField
+
+@enduml
