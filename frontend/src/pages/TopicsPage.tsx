@@ -3,6 +3,7 @@ import Table from "../components/Table"
 import { useEffect, useState } from "react"
 import { useNotification } from "../providers/NotificationProvider"
 import { api } from "../utils/request"
+import { useDebounce } from "../hooks"
 import FormTextField from "../forms/FormTextField"
 import FormButton from "../forms/FormButton"
 import FormBuilder from "../forms/FormBuilder"
@@ -269,11 +270,15 @@ const TopicsPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [topicForm, setTopicForm] = useState<boolean>(false);
     const [topics, setTopics] = useState<Topics | null>(null);
+    const [search, setSearch] = useState<string>("");
+    const debouncedSearch = useDebounce(search, 300);
     const { addNotification } = useNotification();
     const getTopics = async () => {
         setLoading(true);
         try {
-            const response = await api("topics/all");
+            const response = debouncedSearch.trim()
+                ? await api("topics/search", { query: debouncedSearch.trim() })
+                : await api("topics/all");
 
             if (!response.body) {
                 throw new Error(response.message);
@@ -292,7 +297,7 @@ const TopicsPage = () => {
 
     useEffect(() => {
         getTopics();
-    }, []);
+    }, [debouncedSearch]);
 
     const targetTopic = topics?.find(t => t.topic_id === action?.id);
 
@@ -344,6 +349,11 @@ const TopicsPage = () => {
                                 { value: translate(t.updatedAt, "en-US") },
                             ]]
                         })
+                    }}
+                    searchConfig={{
+                        deepSearch: false,
+                        search,
+                        setSearch
                     }}
                     title="Topics"
                 />

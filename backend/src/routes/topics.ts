@@ -5,6 +5,7 @@ import { route } from "./index.js";
 const router = Router();
 
 router.post("/create", route(TopicsController.create));
+router.post("/search", route(TopicsController.search));
 router.delete("/delete", route(TopicsController.delete));
 router.put("/update", route(TopicsController.update));
 router.get("/all", route(TopicsController.all));

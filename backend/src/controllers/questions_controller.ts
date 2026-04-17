@@ -3,6 +3,10 @@ import { TOPICS } from "../model/topics.js";
 import type { Controller } from "../types.js";
 import { HttpResponse } from "../utils/http.js";
 
+function escapeRegex(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
  * Removes duplicate values from an array of strings
  * This is being used here to remove duplicated (if they exist eventually)
@@ -173,6 +177,36 @@ export const QuestionsController = {
         const { topic_id } = req.body;
 
         const filter: Record<string, any> = { user_id };
+
+        if (topic_id) {
+            filter.topic_ids = topic_id;
+        }
+
+        const data = await QUESTIONS.find(filter)
+            .sort({ createdAt: -1 })
+            .lean();
+
+        return HttpResponse.Ok().body(data.map(v => ({
+            question_id: v._id.toString(),
+            ...v,
+            topic_ids: v.topic_ids.map(t => t.toString()),
+        })));
+    },
+    search: async function (req) {
+        const { user_id } = req.payload;
+        const { query, topic_id } = req.body;
+
+        const regex = new RegExp(escapeRegex(query), "i");
+        const filter: Record<string, any> = {
+            user_id,
+            $or: [
+                { prompt: regex },
+                { hint: regex },
+                { explanation: regex },
+                { type: regex },
+                { difficulty: regex }
+            ]
+        };
 
         if (topic_id) {
             filter.topic_ids = topic_id;

@@ -3,6 +3,7 @@ import Table from "../components/Table"
 import { useEffect, useState } from "react"
 import { useNotification } from "../providers/NotificationProvider"
 import { api } from "../utils/request"
+import { useDebounce } from "../hooks"
 import FormTextField from "../forms/FormTextField"
 import FormButton from "../forms/FormButton"
 import FormBuilder from "../forms/FormBuilder"
@@ -730,6 +731,8 @@ const QuestionsPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [topicForm, setTopicForm] = useState<boolean>(false);
     const [questions, setQuestions] = useState<Questions | null>(null);
+    const [search, setSearch] = useState<string>("");
+    const debouncedSearch = useDebounce(search, 300);
     const { addNotification } = useNotification();
     const [topics, setTopics] = useState<Topics>([]);
 
@@ -753,7 +756,9 @@ const QuestionsPage = () => {
         setLoading(true);
 
         try {
-            const response = await api("questions/all", {});
+            const response = debouncedSearch.trim()
+                ? await api("questions/search", { query: debouncedSearch.trim() })
+                : await api("questions/all", {});
 
             if (!response.body) {
                 throw new Error(response.message);
@@ -772,7 +777,7 @@ const QuestionsPage = () => {
 
     useEffect(() => {
         getQuestions();
-    }, []);
+    }, [debouncedSearch]);
 
     const targetQuestion = questions?.find(t => t.question_id === action?.id);
 
@@ -833,6 +838,11 @@ const QuestionsPage = () => {
                                 { value: translate(t.updatedAt, "en-US") },
                             ]]
                         })
+                    }}
+                    searchConfig={{
+                        deepSearch: false,
+                        search,
+                        setSearch
                     }}
                     title="Questions"
                 />

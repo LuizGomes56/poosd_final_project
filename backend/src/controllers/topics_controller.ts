@@ -3,6 +3,10 @@ import { TOPICS } from "../model/topics.js";
 import type { Controller } from "../types.js";
 import { HttpResponse } from "../utils/http.js";
 
+function escapeRegex(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export const TopicsController = {
     create: async function (req) {
         const { name, description } = req.body;
@@ -60,6 +64,34 @@ export const TopicsController = {
         const { user_id } = req.payload;
         const data = await TOPICS.find({
             user_id,
+        }).lean();
+
+        const result = await Promise.all(data.map(async v => {
+            const topic_id = v._id.toString();
+            const questions = await QUESTIONS.countDocuments({
+                topic_ids: topic_id
+            }).lean();
+
+            return {
+                topic_id,
+                questions,
+                ...v
+            }
+        }));
+
+        return HttpResponse.Ok().body(result);
+    },
+    search: async function (req) {
+        const { user_id } = req.payload;
+        const { query } = req.body;
+        const regex = new RegExp(escapeRegex(query), "i");
+
+        const data = await TOPICS.find({
+            user_id,
+            $or: [
+                { name: regex },
+                { description: regex }
+            ]
         }).lean();
 
         const result = await Promise.all(data.map(async v => {

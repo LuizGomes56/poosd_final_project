@@ -118,6 +118,10 @@ export const SCHEMA = {
     "questions/all": z.object({
         topic_id: S.OBJECT_ID.optional()
     }),
+    "questions/search": z.object({
+        query: S.NON_EMPTY_STRING.max(120),
+        topic_id: S.OBJECT_ID.optional()
+    }),
     "questions/get": z.object({
         question_id: S.OBJECT_ID
     }),
@@ -200,6 +204,9 @@ export const SCHEMA = {
         description: S.DESCRIPTION.optional(),
     }),
     "topics/all": S.NOTHING,
+    "topics/search": z.object({
+        query: S.NON_EMPTY_STRING.max(120)
+    }),
     "topics/delete": z.object({
         topic_id: S.OBJECT_ID
     }),
