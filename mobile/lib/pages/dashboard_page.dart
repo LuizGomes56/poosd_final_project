@@ -73,7 +73,7 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _loading = true;
   String _error = '';
  
-  static const String _base = 'http://localhost:3000/api';
+  static const String _base = 'http://10.0.2.2:3000/api';
  
   @override
   void initState() {
