@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Field } from "../components/Form";
 import Button from "../components/Button";
 import { api } from "../utils/request";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
     const [email, setEmail] = useState("");
@@ -49,6 +49,11 @@ export default function Register() {
                 text={"Register"}
                 onClick={register}
             />
+            <p>
+                <Link to="/login">
+                    Have an account? Login Here.
+                </Link>
+            </p>
             <p>{ErrorString}</p>
         </div>
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Button from "../components/Button";
 import { Field } from "../components/Form";
 import { api } from "../utils/request";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../providers/NotificationProvider";
 
 export default function Login() {
@@ -54,6 +54,16 @@ export default function Login() {
                 text={"Submit"}
                 onClick={loginRequest}
             />
+            <p>
+                <Link to="/register">
+                    No account? Register here.
+                </Link>
+            </p>
+            <p>
+                <Link to="/forgotpassword">
+                    Forgot Password?
+                </Link>
+            </p>
             <p>{ErrorText}</p>
         </div>
     )

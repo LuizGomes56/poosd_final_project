@@ -23,7 +23,9 @@ for (const [key, value] of Object.entries(Dotenv)) {
 const corsOptions = {
     origin: [
         "http://localhost:5173",
-        "http://YOURIPV4:3000",
+        "http://192.168.0.29:3000",
+        "http://192.168.0.28:36897",
+        "http://localhost:36897",
         "http://localhost",
         "http://localhost/",
         Dotenv.cors_origin,
@@ -58,6 +60,7 @@ app.get("*", (_, res) => {
     res.sendFile(path.join(frontend, "index.html"));
 });
 
+console.log("Trying to connect to the database");
 const conn = await mongoose.connect(Dotenv.database_url);
 console.log(`MongoDB connected: ${conn.connection.host}`);
 
