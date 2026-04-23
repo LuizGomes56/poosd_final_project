@@ -20,7 +20,7 @@ export async function api<
             credentials: "include"
         };
 
-        const token = await cookieStore.get("token");
+        const token = await localStorage.get("token");
         if (token) {
             args.headers = {
                 ...args.headers,
@@ -39,7 +39,7 @@ export async function api<
 
         const token2 = response?.body?.token;
         if (token2 && typeof token2 === "string") {
-            await cookieStore.set("token", token2);
+            await localStorage.set("token", token2);
         }
 
         return response as SwaggerDocs[P]["output"];
