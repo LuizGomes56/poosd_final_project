@@ -233,4 +233,48 @@ class ApiService {
       'password': password,
     });
   }
+  
+  static Future<ApiResponse> verifyUser() async {
+    return getRaw('users/verify').then((res) {
+      return ApiResponse(
+        ok: res.ok,
+        status: res.status,
+        message: res.message,
+        body: res.rawBody is Map<String, dynamic>
+            ? res.rawBody as Map<String, dynamic>
+            : null,
+      );
+    });
+  }
+
+  static Future<ApiResponse> updateUser({
+    String? fullName,
+    String? email,
+  }) async {
+    final payload = <String, dynamic>{};
+
+    if (fullName != null) payload['full_name'] = fullName;
+    if (email != null) payload['email'] = email;
+
+    return patch('users/patch', payload);
+  }
+
+  static Future<ApiResponse> sendEmailVerification() async {
+    return getRaw('users/send_email_verification').then((res) {
+      return ApiResponse(
+        ok: res.ok,
+        status: res.status,
+        message: res.message,
+        body: res.rawBody is Map<String, dynamic>
+            ? res.rawBody as Map<String, dynamic>
+            : null,
+      );
+    });
+  }
+
+  static Future<ApiResponse> verifyEmail(String code) async {
+    return post('users/verify_email', {
+      'code': code,
+    });
+  }
 }
