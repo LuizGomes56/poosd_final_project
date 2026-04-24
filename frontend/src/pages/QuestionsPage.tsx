@@ -14,6 +14,8 @@ import FormTextInserter from "../forms/FormTextInserter"
 import type { SwaggerDocs } from "backend";
 import FormMultiselector from "../forms/FormMultiselector"
 import FormView from "../forms/FormView"
+import QuestionRenderer from "./QuestionRenderer"
+import Button from "../components/Button"
 
 const CreateQuestion = ({
     setShow,
@@ -30,7 +32,7 @@ const CreateQuestion = ({
     const [prompt, setPrompt] = useState<string>("");
     const [choiceOptions, setChoiceOptions] = useState<string[]>(["Example 1", "Example 2", "Example 3", "Example 4"]);
     const [choiceSingleAnswer, setChoiceSingleAnswer] = useState<"True" | "False">("True");
-    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>(["Example 3"]);
+    const [choiceMultipleAnswers, setChoiceMultipleAnswers] = useState<string[]>([]);
     const [frqKind, setFrqKind] = useState<"NUMBER" | "TEXT">("NUMBER");
     const [frqTolerance, setFrqTolerance] = useState<number>(0);
     const [frqAcceptedNumbers, setFrqAcceptedNumbers] = useState<string[]>([]);
@@ -732,6 +734,8 @@ const QuestionsPage = () => {
     const [questions, setQuestions] = useState<Questions | null>(null);
     const { addNotification } = useNotification();
     const [topics, setTopics] = useState<Topics>([]);
+    const [showQuestion, setShowQuestion] = useState(false);
+    const [renderId, setRenderId] = useState<string | null>(null);
 
     useEffect(() => {
         async function getTopics() {
@@ -778,6 +782,14 @@ const QuestionsPage = () => {
 
     return (
         <div className="flex flex-col gap-6">
+            {renderId && <QuestionRenderer
+                show={showQuestion}
+                setShow={() => {
+                    setRenderId(null);
+                    return setShowQuestion;
+                }}
+                questionId={renderId}
+            />}
             {loading && <Loading />}
             {questions && targetQuestion && action && action.mode === "UPDATE" && <EditQuestion
                 topics={topics}
@@ -819,7 +831,7 @@ const QuestionsPage = () => {
                             { name: "Explanation" },
                             { name: "Points" },
                             { name: "Creation date" },
-                            { name: "Last Updated" }
+                            { name: "Render" }
                         ],
                         body: questions.map(t => {
                             return [t.question_id, [
@@ -830,7 +842,17 @@ const QuestionsPage = () => {
                                 { value: t.explanation },
                                 { value: t.points },
                                 { value: translate(t.createdAt, "en-US") },
-                                { value: translate(t.updatedAt, "en-US") },
+                                {
+                                    value: <>
+                                        <Button
+                                            onClick={() => {
+                                                setShowQuestion(true);
+                                                setRenderId(t.question_id);
+                                            }}
+                                            text="Render"
+                                        />
+                                    </>
+                                }
                             ]]
                         })
                     }}

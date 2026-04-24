@@ -5,6 +5,7 @@ export async function api<
     I extends SwaggerDocs[P]["input"]
 >(path: P, ...input: I extends undefined ? [] : [I]) {
     const method = BACKEND_ROUTES[path];
+    // const URL = "http://localhost:3000/api";
     const URL = import.meta.env.API_URL || "http://api.project.cop4331.cc/api";
 
     const route = `${URL}/${path}`;
