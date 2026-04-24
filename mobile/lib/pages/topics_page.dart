@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
@@ -51,32 +52,49 @@ class _TopicsPageState extends State<TopicsPage> {
   String?     _error;
   String      _search  = '';
   final TextEditingController _searchCtrl = TextEditingController();
-
-  List<Topic> get _filtered {
-    if (_search.isEmpty) return _all;
-    final q = _search.toLowerCase();
-    return _all.where((t) =>
-        t.name.toLowerCase().contains(q) ||
-        t.description.toLowerCase().contains(q)).toList();
-  }
+  Timer?      _searchDebounce;
+  int         _topicsRequestId = 0;
 
   @override
   void initState() {
     super.initState();
     _load();
-    _searchCtrl.addListener(() => setState(() => _search = _searchCtrl.text));
+    _searchCtrl.addListener(_handleSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
-    final res = await ApiService.getRaw('topics/all');
-    if (!mounted) return;
+  void _handleSearchChanged() {
+    final nextSearch = _searchCtrl.text;
+    if (_search == nextSearch) return;
+
+    setState(() => _search = nextSearch);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _load(showLoading: true),
+    );
+  }
+
+  Future<void> _load({bool showLoading = true}) async {
+    final requestId = ++_topicsRequestId;
+    final query = _search.trim();
+
+    if (showLoading) {
+      setState(() { _loading = true; _error = null; });
+    }
+
+    final res = query.isEmpty
+        ? await ApiService.getRaw('topics/all')
+        : await ApiService.postRaw('topics/search', {'query': query});
+
+    if (!mounted || requestId != _topicsRequestId) return;
+
     if (res.ok) {
       final raw  = res.rawBody;
       final list = raw is List ? raw
@@ -110,7 +128,7 @@ class _TopicsPageState extends State<TopicsPage> {
     final res = await ApiService.delete_('topics/delete', {'topic_id': id});
     if (!mounted) return;
     if (res.ok) {
-      setState(() => _all.removeWhere((t) => t.topicId == id));
+      await _load(showLoading: true);
       _snack('Topic deleted', false);
     } else {
       _snack(res.message, true);
@@ -279,7 +297,6 @@ class _TopicsPageState extends State<TopicsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filtered;
     return Scaffold(
       backgroundColor: AppTheme.background,
       drawer: const AppDrawer(currentRoute: '/topics'),
@@ -350,13 +367,13 @@ class _TopicsPageState extends State<TopicsPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       child: Text(
-                        '${filtered.length} result${filtered.length == 1 ? '' : 's'} for "$_search"',
+                        '${_all.length} result${_all.length == 1 ? '' : 's'} for "$_search"',
                         style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
                       ),
                     ),
                   const SizedBox(height: 4),
                   Expanded(
-                    child: filtered.isEmpty
+                    child: _all.isEmpty
                         ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
                             const Icon(Icons.topic_outlined, size: 48,
                                 color: AppTheme.textMuted),
@@ -374,13 +391,13 @@ class _TopicsPageState extends State<TopicsPage> {
                           ]))
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
-                            itemCount: filtered.length,
+                            itemCount: _all.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 8),
                             itemBuilder: (_, i) => _TopicCard(
-                              topic:    filtered[i],
-                              onTap:    () => _openView(filtered[i]),
-                              onEdit:   () => _openEdit(filtered[i]),
-                              onDelete: () => _confirmDelete(filtered[i]),
+                              topic:    _all[i],
+                              onTap:    () => _openView(_all[i]),
+                              onEdit:   () => _openEdit(_all[i]),
+                              onDelete: () => _confirmDelete(_all[i]),
                             ),
                           ),
                   ),
