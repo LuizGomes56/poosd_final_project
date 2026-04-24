@@ -56,6 +56,5 @@ export default function Register() {
             </p>
             <p>{ErrorString}</p>
         </div>
-
     )
 }

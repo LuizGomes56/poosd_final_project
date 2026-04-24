@@ -5,7 +5,7 @@ export async function api<
     I extends SwaggerDocs[P]["input"]
 >(path: P, ...input: I extends undefined ? [] : [I]) {
     const method = BACKEND_ROUTES[path];
-    const URL = import.meta.env.API_URL || "http://localhost:3000/api";
+    const URL = import.meta.env.API_URL || "http://api.project.cop4331.cc/api";
 
     const route = `${URL}/${path}`;
 
@@ -20,11 +20,11 @@ export async function api<
             credentials: "include"
         };
 
-        const token = await localStorage.get("token");
+        const token = localStorage.getItem("token");
         if (token) {
             args.headers = {
                 ...args.headers,
-                Authorization: `Bearer ${token.value}`,
+                Authorization: `Bearer ${token}`,
             };
         }
 
@@ -39,7 +39,7 @@ export async function api<
 
         const token2 = response?.body?.token;
         if (token2 && typeof token2 === "string") {
-            await localStorage.set("token", token2);
+            localStorage.setItem("token", token2);
         }
 
         return response as SwaggerDocs[P]["output"];

@@ -87,18 +87,11 @@ export const UsersController = {
         }
     },
     patch: async function (req, res) {
-        const { full_name, email } = req.body;
         const { user_id } = req.payload;
-
-        const args = full_name ? { full_name } : email ? { email } : undefined;
-
-        if (!args) {
-            return HttpResponse.BadRequest().message("No fields to update");
-        }
 
         const user = await USERS.findByIdAndUpdate(
             user_id,
-            args,
+            req.body,
             { returnDocument: "after" }
         ).lean();
 
