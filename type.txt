@@ -1,0 +1,585 @@
+type SwaggerDocs = {
+    "users/logout": {
+        method: "GET";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        };
+        input: undefined;
+        protected: false;
+    };
+    "users/login": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: {
+                email: string;
+                full_name: string;
+                email_verified: boolean;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                token: string;
+            };
+        };
+        input: {
+            email: string;
+            password: string;
+        };
+        protected: false;
+    };
+    "users/register": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        };
+        input: {
+            full_name: string;
+            email: string;
+            password: string;
+        };
+        protected: false;
+    };
+    "users/forgot_password": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        };
+        input: {
+            email: string;
+        };
+        protected: false;
+    };
+    "users/reset_password": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        };
+        input: {
+            code: string;
+            password: string;
+        };
+        protected: false;
+    };
+    "users/dashboard": {
+        method: "GET";
+        output: {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                number_of_topics: number;
+                questions_created_last_week: number;
+                topics: {
+                    topic_id: string;
+                    name: string;
+                    questions: {
+                        frq: number;
+                        mcq: number;
+                        tf: number;
+                    };
+                    total_points: number;
+                }[];
+            };
+        };
+        input: undefined;
+        protected: true;
+    };
+    "users/patch": {
+        method: "PATCH";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                email: string;
+                full_name: string;
+                password_hash: string;
+                email_verified: boolean;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                token: string;
+                user_id: string;
+            };
+        };
+        input: {
+            full_name: string;
+        } | {
+            email: string;
+        };
+        protected: true;
+    };
+    "users/verify": {
+        method: "GET";
+        output: {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                [key: string]: any;
+                iss?: string;
+                sub?: string;
+                aud?: string | string[];
+                exp?: number;
+                nbf?: number;
+                iat?: number;
+                jti?: string;
+                email: string;
+                full_name: string;
+                email_verified: boolean;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                user_id: string;
+            };
+        };
+        input: undefined;
+        protected: true;
+    };
+    "users/verify_email": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: {
+                email: string;
+                full_name: string;
+                password_hash: string;
+                email_verified: boolean;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                token: string;
+                user_id: string;
+            };
+        };
+        input: {
+            code: string;
+        };
+        protected: true;
+    };
+    "users/send_email_verification": {
+        method: "GET";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        };
+        input: undefined;
+        protected: true;
+    };
+    "questions/create": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                type: "MCQ" | "TF" | "FRQ";
+                topic_ids: ObjectId[];
+                difficulty: "EASY" | "MEDIUM" | "HARD";
+                prompt: string;
+                hint: string;
+                explanation: string;
+                points: number;
+                user_id: ObjectId;
+                choice: {
+                    options: string[];
+                    answers: {
+                        single: string | null | undefined;
+                        multiple: string[] | null | undefined;
+                    } | null | undefined;
+                } | null | undefined;
+                frq: {
+                    kind: "NUMBER" | "TEXT";
+                    tolerance: number;
+                    accepted_numbers: number[] | null | undefined;
+                    accepted_texts: string[] | null | undefined;
+                } | null | undefined;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                question_id: string;
+            };
+        };
+        input: {
+            topic_ids: string[];
+            prompt: string;
+            difficulty: "EASY" | "MEDIUM" | "HARD";
+            type: "MCQ";
+            choice: {
+                options: string[];
+                answers: {
+                    single: string | undefined;
+                    multiple: string[] | undefined;
+                };
+            };
+            hint: string | undefined;
+            explanation: string | undefined;
+            points: number | undefined;
+        } | {
+            topic_ids: string[];
+            prompt: string;
+            difficulty: "EASY" | "MEDIUM" | "HARD";
+            type: "TF";
+            choice: {
+                answers: {
+                    single: "True" | "False";
+                };
+            };
+            hint: string | undefined;
+            explanation: string | undefined;
+            points: number | undefined;
+        } | {
+            topic_ids: string[];
+            prompt: string;
+            difficulty: "EASY" | "MEDIUM" | "HARD";
+            type: "FRQ";
+            frq: {
+                kind: "NUMBER";
+                accepted_numbers: number[];
+                tolerance: number | undefined;
+            } | {
+                kind: "TEXT";
+                accepted_texts: string[];
+            };
+            hint: string | undefined;
+            explanation: string | undefined;
+            points: number | undefined;
+        };
+        protected: true;
+    };
+    "questions/all": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: ({
+                topic_ids: string[];
+                type: "MCQ" | "TF" | "FRQ";
+                difficulty: "EASY" | "MEDIUM" | "HARD";
+                prompt: string;
+                hint: string;
+                explanation: string;
+                points: number;
+                user_id: ObjectId;
+                choice: {
+                    options: string[];
+                    answers: {
+                        single: string | null | undefined;
+                        multiple: string[] | null | undefined;
+                    } | null | undefined;
+                } | null | undefined;
+                frq: {
+                    kind: "NUMBER" | "TEXT";
+                    tolerance: number;
+                    accepted_numbers: number[] | null | undefined;
+                    accepted_texts: string[] | null | undefined;
+                } | null | undefined;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                question_id: string;
+            })[];
+        };
+        input: {
+            topic_id: string | undefined;
+        };
+        protected: true;
+    };
+    "questions/update": {
+        method: "PATCH";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                type: "MCQ" | "TF" | "FRQ";
+                topic_ids: ObjectId[];
+                difficulty: "EASY" | "MEDIUM" | "HARD";
+                prompt: string;
+                hint: string;
+                explanation: string;
+                points: number;
+                user_id: ObjectId;
+                choice: {
+                    options: string[];
+                    answers: {
+                        single: string | null | undefined;
+                        multiple: string[] | null | undefined;
+                    } | null | undefined;
+                } | null | undefined;
+                frq: {
+                    kind: "NUMBER" | "TEXT";
+                    tolerance: number;
+                    accepted_numbers: number[] | null | undefined;
+                    accepted_texts: string[] | null | undefined;
+                } | null | undefined;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            question_id: string;
+            topic_ids: string[] | undefined;
+            type: "MCQ" | "TF" | "FRQ" | undefined;
+            prompt: string | undefined;
+            difficulty: "EASY" | "MEDIUM" | "HARD" | undefined;
+            hint: string | undefined;
+            explanation: string | undefined;
+            points: number | undefined;
+            choice: {
+                options: string[];
+                answers: {
+                    single: string | undefined;
+                    multiple: string[] | undefined;
+                };
+            } | {
+                answers: {
+                    single: "True" | "False";
+                };
+            } | undefined;
+            frq: {
+                kind: "NUMBER";
+                accepted_numbers: number[];
+                tolerance: number | undefined;
+            } | {
+                kind: "TEXT";
+                accepted_texts: string[];
+            } | undefined;
+        };
+        protected: true;
+    };
+    "questions/delete": {
+        method: "DELETE";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                type: "MCQ" | "TF" | "FRQ";
+                topic_ids: ObjectId[];
+                difficulty: "EASY" | "MEDIUM" | "HARD";
+                prompt: string;
+                hint: string;
+                explanation: string;
+                points: number;
+                user_id: ObjectId;
+                choice: {
+                    options: string[];
+                    answers: {
+                        single: string | null | undefined;
+                        multiple: string[] | null | undefined;
+                    } | null | undefined;
+                } | null | undefined;
+                frq: {
+                    kind: "NUMBER" | "TEXT";
+                    tolerance: number;
+                    accepted_numbers: number[] | null | undefined;
+                    accepted_texts: string[] | null | undefined;
+                } | null | undefined;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            question_id: string;
+        };
+        protected: true;
+    };
+    "questions/check": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                correct: boolean;
+                question_id: string;
+            };
+        };
+        input: {
+            question_id: string;
+            answer: string | number | boolean | string[];
+        };
+        protected: true;
+    };
+    "questions/get": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                type: "MCQ" | "TF" | "FRQ";
+                topic_ids: ObjectId[];
+                difficulty: "EASY" | "MEDIUM" | "HARD";
+                prompt: string;
+                hint: string;
+                explanation: string;
+                points: number;
+                user_id: ObjectId;
+                choice: {
+                    options: string[];
+                    answers: {
+                        single: string | null | undefined;
+                        multiple: string[] | null | undefined;
+                    } | null | undefined;
+                } | null | undefined;
+                frq: {
+                    kind: "NUMBER" | "TEXT";
+                    tolerance: number;
+                    accepted_numbers: number[] | null | undefined;
+                    accepted_texts: string[] | null | undefined;
+                } | null | undefined;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            question_id: string;
+        };
+        protected: true;
+    };
+    "topics/create": {
+        method: "POST";
+        output: {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                topic_id: string;
+                name: string;
+                description: string;
+                user_id: ObjectId;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            name: string;
+            description: string | undefined;
+        };
+        protected: true;
+    };
+    "topics/delete": {
+        method: "DELETE";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                name: string;
+                description: string;
+                user_id: ObjectId;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            topic_id: string;
+        };
+        protected: true;
+    };
+    "topics/update": {
+        method: "PUT";
+        output: {
+            ok: boolean;
+            status: number;
+            message: string;
+            body: undefined;
+        } | {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                name: string;
+                description: string;
+                user_id: ObjectId;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+            };
+        };
+        input: {
+            topic_id: string;
+            name: string | undefined;
+            description: string | undefined;
+        };
+        protected: true;
+    };
+    "topics/all": {
+        method: "GET";
+        output: {
+            ok: boolean;
+            status: number;
+            message: undefined;
+            body: {
+                name: string;
+                description: string;
+                user_id: ObjectId;
+                createdAt: NativeDate;
+                updatedAt: NativeDate;
+                topic_id: string;
+                questions: number;
+            }[];
+        };
+        input: undefined;
+        protected: true;
+    };
+}
