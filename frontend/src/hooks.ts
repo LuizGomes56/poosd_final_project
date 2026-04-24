@@ -83,7 +83,7 @@ export const useUpdateUser = () => {
             return addNotification({ type: "error", msg: "Unable to identify the user" });
         }
         try {
-            const response = await api("users/patch", { [id]: value });
+            const response = await api("users/patch", { [id]: value } as any);
             if (response.body) {
                 setUser(response.body);
                 addNotification({ type: "success", msg: "Update successful" });

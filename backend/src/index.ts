@@ -6,8 +6,6 @@ import { Middleware } from "./utils/middleware.js";
 import { getRouteMethods } from "./utils/http.js";
 import * as _ from "./utils/global.js";
 import mongoose from "mongoose";
-import path from "path";
-import { fileURLToPath } from "url";
 import { Dotenv } from "./utils/env.js";
 
 const app = express();
@@ -20,15 +18,20 @@ for (const [key, value] of Object.entries(Dotenv)) {
     }
 }
 
-const corsOptions = {
-    origin: [
-        "http://localhost:5173",
-        "http://YOURIPV4:3000",
-        "http://localhost",
-        "http://localhost/",
-        Dotenv.cors_origin,
-        "http://localhost:3000",
-    ],
+const allowedOrigins = [
+    "http://project.cop4331.cc",
+    "https://project.cop4331.cc",
+    "http://api.project.cop4331.cc",
+    "https://api.project.cop4331.cc",
+    "http://localhost:5173",
+];
+
+const corsOptions: cors.CorsOptions = {
+    origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -36,7 +39,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -49,15 +51,7 @@ app.use("/api", Middleware.schema);
 app.use("/api", Middleware.helpers as any, routes);
 getRouteMethods(app);
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const frontend = path.join(__dirname, "../../frontend/dist");
-
-app.use(express.static(frontend));
-app.get("*", (_, res) => {
-    res.sendFile(path.join(frontend, "index.html"));
-});
-
+console.log("Trying to connect to the database");
 const conn = await mongoose.connect(Dotenv.database_url);
 console.log(`MongoDB connected: ${conn.connection.host}`);
 

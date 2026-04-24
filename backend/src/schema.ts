@@ -85,7 +85,11 @@ export const SCHEMA = {
         email: S.EMAIL,
         password: S.PASSWORD,
     }),
-    "users/patch": z.record(z.string(), z.any()),
+    "users/patch": z.object({
+        full_name: S.NAME,
+    }).or(z.object({
+        email: S.EMAIL,
+    })),
     "users/verify": S.NOTHING,
     "users/dashboard": S.NOTHING,
     "users/send_email_verification": S.NOTHING,

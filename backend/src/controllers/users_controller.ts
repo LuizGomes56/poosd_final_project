@@ -87,18 +87,11 @@ export const UsersController = {
         }
     },
     patch: async function (req, res) {
-        const { full_name, email } = req.body;
         const { user_id } = req.payload;
-
-        const args = full_name ? { full_name } : email ? { email } : undefined;
-
-        if (!args) {
-            return HttpResponse.BadRequest().message("No fields to update");
-        }
 
         const user = await USERS.findByIdAndUpdate(
             user_id,
-            args,
+            req.body,
             { returnDocument: "after" }
         ).lean();
 
@@ -156,6 +149,9 @@ export const UsersController = {
                         style="display: inline-block; padding: 12px 20px; background-color: #111827; color: #ffffff; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px;">
                         ${code}
                     </div>
+                    <a href="${Dotenv.domain}/resetpassword">
+                        Click Here
+                    </a>
                     <p style="margin-top: 20px; font-size: 12px; color: #888;">
                         If you did not request this, you can ignore this email.
                     </p>
@@ -227,8 +223,7 @@ export const UsersController = {
     // Generating auth codes (prob math.random()) - Code is going to have 6 characters
     send_email_verification: async function (req) {
         const { email, user_id } = req.payload;
-
-        const user = await USERS.findOne({ email, user_id }).lean();
+        const user = await USERS.findOne({ email, _id: new Types.ObjectId(user_id) }).lean();
 
         // User is authenticated, this should always fail (cold path)
         if (!user) {
@@ -265,31 +260,34 @@ export const UsersController = {
             subject: 'EduCMS Account Email Verification',
             html: `
                 <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
-                    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
-                        <tr>
-                        <td style="padding: 30px; text-align: center;">
-                            <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
-                            <p style="color: #555; font-size: 14px; margin-top: 10px;">
-                            We're glad to have you. Use the verification code below to confirm your account.
-                            </p>
-
-                            <div style="margin: 24px 0; padding: 14px 20px; display: inline-block; background-color: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 24px; font-weight: bold; color: #222; letter-spacing: 2px;">
-                            ${code}
-                            </div>
-
-                            <p style="margin-top: 20px; font-size: 12px; color: #888;">
-                            If you did not request this, you can safely ignore this email.
-                            </p>
-                        </td>
-                        </tr>
-                    </table>
-                </div>
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 8px; overflow: hidden;">
+        <tr>
+        <td style="padding: 30px; text-align: center;">
+            <h2 style="margin: 0; color: #333;">Welcome to EduCMS</h2>
+            <p style="color: #555; font-size: 14px; margin-top: 10px;">
+            We're glad to have you. Use the verification code below to confirm your account.
+            </p>
+            <div style="margin: 24px 0; padding: 14px 20px; display: inline-block; background-color: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 24px; font-weight: bold; color: #222; letter-spacing: 2px;">
+${code}
+            </div>
+            <div style="margin: 8px 0 20px;">
+                <a href="http://${Dotenv.domain}/verify_email" style="display: inline-block; padding: 12px 32px; background-color: #333; color: #ffffff; font-size: 14px; font-weight: bold; text-decoration: none; border-radius: 6px;">
+                    Verify Email
+                </a>
+            </div>
+            <p style="margin-top: 20px; font-size: 12px; color: #888;">
+            If you did not request this, you can safely ignore this email.
+            </p>
+        </td>
+        </tr>
+    </table>
+</div>
             `
         });
 
         return HttpResponse.Ok().message("Verification email sent successfully");
     },
-    verify_email: async function (req) {
+    verify_email: async function (req, res) {
         const { code } = req.body;
         const { email, user_id } = req.payload;
 
@@ -303,16 +301,24 @@ export const UsersController = {
             return HttpResponse.NotFound().message("Verification code has expired");
         }
 
-        const users = await USERS.findOneAndUpdate(
-            { email, user_id },
-            { email_verified: true }
+        const user = await USERS.findOneAndUpdate(
+            { email, _id: new Types.ObjectId(user_id) },
+            { email_verified: true },
+            { returnDocument: "after" }
         ).lean();
 
-        if (!users) {
+        if (!user) {
             return HttpResponse.NotFound().message("Email verification code was correct but could not find user");
         }
 
-        return HttpResponse.Ok();
+        const token = jwt.sign({
+            user_id,
+            ...user
+        } satisfies jwt.JwtPayload, Dotenv.jwt_secret);
+
+        res.cookie("authorization", `Bearer ${token}`);
+
+        return HttpResponse.Ok().message("Email verified successfully").body({ token, user_id, ...user });
     },
     dashboard: async function (req) {
         const { user_id } = req.payload;
