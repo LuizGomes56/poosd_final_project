@@ -231,21 +231,22 @@ class _Row extends StatelessWidget {
             ),
           ),
 
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: BorderSide(color: Colors.white.withOpacity(0.2)),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          if (onEdit != null)
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-            onPressed: onEdit,
-            child: Text(
-              buttonText ?? 'Edit',
-              style: const TextStyle(color: Colors.white),
-            ),
-          )
+              onPressed: onEdit,
+              child: Text(
+                buttonText ?? 'Edit',
+                style: const TextStyle(color: Colors.white),
+              ),
+            )
         ],
       ),
     );
