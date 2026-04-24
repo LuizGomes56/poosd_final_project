@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
@@ -86,27 +87,33 @@ class _QuestionsPageState extends State<QuestionsPage> {
   String?        _error;
   String         _search  = '';
   final TextEditingController _searchCtrl = TextEditingController();
-
-  List<Question> get _filtered {
-    if (_search.isEmpty) return _all;
-    final q = _search.toLowerCase();
-    return _all.where((x) =>
-        x.prompt.toLowerCase().contains(q) ||
-        x.type.toLowerCase().contains(q) ||
-        x.difficulty.toLowerCase().contains(q)).toList();
-  }
+  Timer?         _searchDebounce;
+  int            _questionsRequestId = 0;
 
   @override
   void initState() {
     super.initState();
     _loadAll();
-    _searchCtrl.addListener(() => setState(() => _search = _searchCtrl.text));
+    _searchCtrl.addListener(_handleSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  void _handleSearchChanged() {
+    final nextSearch = _searchCtrl.text;
+    if (_search == nextSearch) return;
+
+    setState(() => _search = nextSearch);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _loadQuestions(showLoading: true),
+    );
   }
 
   Future<void> _loadAll() async {
@@ -115,16 +122,31 @@ class _QuestionsPageState extends State<QuestionsPage> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _loadQuestions() async {
-    final res = await ApiService.postRaw('questions/all', {});
-    if (!mounted) return;
+  Future<void> _loadQuestions({bool showLoading = false}) async {
+    final requestId = ++_questionsRequestId;
+    final query = _search.trim();
+
+    if (showLoading && mounted) {
+      setState(() { _loading = true; _error = null; });
+    }
+
+    final res = query.isEmpty
+        ? await ApiService.postRaw('questions/all', {})
+        : await ApiService.postRaw('questions/search', {'query': query});
+
+    if (!mounted || requestId != _questionsRequestId) return;
+
     if (res.ok) {
       final raw  = res.rawBody;
       final list = raw is List ? raw
           : (raw is Map && raw['body'] is List ? raw['body'] as List : []);
-      _all = list.map((e) => Question.fromJson(e as Map<String, dynamic>)).toList();
+      setState(() {
+        _all = list.map((e) => Question.fromJson(e as Map<String, dynamic>)).toList();
+        _loading = false;
+        _error = null;
+      });
     } else {
-      _error = res.message;
+      setState(() { _error = res.message; _loading = false; });
     }
   }
 
@@ -135,7 +157,9 @@ class _QuestionsPageState extends State<QuestionsPage> {
       final raw  = res.rawBody;
       final list = raw is List ? raw
           : (raw is Map && raw['body'] is List ? raw['body'] as List : []);
-      _topics = list.map((e) => Topic.fromJson(e as Map<String, dynamic>)).toList();
+      setState(() {
+        _topics = list.map((e) => Topic.fromJson(e as Map<String, dynamic>)).toList();
+      });
     }
   }
 
@@ -143,7 +167,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
     final res = await ApiService.delete_('questions/delete', {'question_id': id});
     if (!mounted) return;
     if (res.ok) {
-      setState(() => _all.removeWhere((q) => q.questionId == id));
+      await _loadQuestions(showLoading: true);
       _snack('Question deleted', false);
     } else {
       _snack(res.message, true);
@@ -171,13 +195,23 @@ class _QuestionsPageState extends State<QuestionsPage> {
         if (initial == null) {
           final res = await ApiService.post('questions/create', body);
           if (!mounted) return;
-          if (res.ok) { Navigator.pop(context); _loadAll(); _snack('Question created', false); }
+          if (res.ok) {
+            Navigator.pop(context);
+            await _loadQuestions(showLoading: true);
+            await _loadTopics();
+            _snack('Question created', false);
+          }
           else _snack(res.message, true);
         } else {
           final res = await ApiService.patch('questions/update',
               {'question_id': initial.questionId, ...body});
           if (!mounted) return;
-          if (res.ok) { Navigator.pop(context); _loadAll(); _snack('Question updated', false); }
+          if (res.ok) {
+            Navigator.pop(context);
+            await _loadQuestions(showLoading: true);
+            await _loadTopics();
+            _snack('Question updated', false);
+          }
           else _snack(res.message, true);
         }
       },
@@ -222,7 +256,6 @@ class _QuestionsPageState extends State<QuestionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filtered;
     return Scaffold(
       backgroundColor: AppTheme.background,
       drawer: const AppDrawer(currentRoute: '/questions'),
@@ -294,14 +327,14 @@ class _QuestionsPageState extends State<QuestionsPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
                       child: Text(
-                        '${filtered.length} result${filtered.length == 1 ? '' : 's'} for "$_search"',
+                        '${_all.length} result${_all.length == 1 ? '' : 's'} for "$_search"',
                         style: const TextStyle(
                             fontSize: 12, color: AppTheme.textMuted),
                       ),
                     ),
                   const SizedBox(height: 4),
                   Expanded(
-                    child: filtered.isEmpty
+                    child: _all.isEmpty
                         ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
                             const Icon(Icons.help_outline_rounded, size: 48,
                                 color: AppTheme.textMuted),
@@ -319,13 +352,13 @@ class _QuestionsPageState extends State<QuestionsPage> {
                           ]))
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
-                            itemCount: filtered.length,
+                            itemCount: _all.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 8),
                             itemBuilder: (_, i) => _QuestionCard(
-                              question: filtered[i],
-                              onTap:    () => _openView(filtered[i]),
-                              onEdit:   () => _openEdit(filtered[i]),
-                              onDelete: () => _confirmDelete(filtered[i]),
+                              question: _all[i],
+                              onTap:    () => _openView(_all[i]),
+                              onEdit:   () => _openEdit(_all[i]),
+                              onDelete: () => _confirmDelete(_all[i]),
                             ),
                           ),
                   ),
