@@ -233,4 +233,16 @@ class ApiService {
       'password': password,
     });
   }
+
+  static Future<RawApiResponse> getDashboard() async {
+    return getRaw('users/dashboard');
+  }
+
+  static Future<RawApiResponse> getAccountInfo() async {
+    return getRaw('users/verify');
+  }
+
+  static Future<ApiResponse> updateAccount(Map<String, dynamic> payload) async {
+    return patch('users/patch', payload);
+  }
 }

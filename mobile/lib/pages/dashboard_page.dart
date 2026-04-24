@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../constants/app_theme.dart';
 import '../services/api_service.dart';
 import '../widgets/app_drawer.dart';
@@ -73,8 +71,6 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _loading = true;
   String _error = '';
  
-  static const String _base = 'http://10.0.2.2:3000/api';
- 
   @override
   void initState() {
     super.initState();
@@ -88,37 +84,17 @@ class _DashboardPageState extends State<DashboardPage> {
     });
  
     try {
-      final token = await ApiService.getToken();
- 
-      final res = await http.get(
-        Uri.parse('$_base/users/dashboard'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept':       'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
-      );
- 
+      final res = await ApiService.getDashboard();
+
       if (!mounted) return;
- 
-      if (res.body.isEmpty) {
-        setState(() => _error = 'Empty response from server');
-        return;
-      }
- 
-      final decoded = jsonDecode(res.body) as Map<String, dynamic>;
-      final ok = decoded['ok'] as bool? ?? false;
- 
-      if (ok && decoded['body'] is Map<String, dynamic>) {
+
+      if (res.ok && res.rawBody is Map<String, dynamic>) {
         setState(() {
-          _data = DashboardData.fromJson(
-            decoded['body'] as Map<String, dynamic>,
-          );
+          _data = DashboardData.fromJson(res.rawBody as Map<String, dynamic>);
         });
       } else {
         setState(() {
-          _error = decoded['message'] as String? ?? 'Failed to load dashboard';
+          _error = res.message.isNotEmpty ? res.message : 'Failed to load dashboard';
         });
       }
     } catch (e) {
@@ -343,7 +319,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
  
-// must be outside _DashboardPageState — top level class
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;

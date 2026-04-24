@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_theme.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../services/api_service.dart';
 import '../widgets/app_drawer.dart';
 
@@ -27,30 +24,18 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-
-     if (token.isEmpty) return;
-
     try {
-      final res = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/users/verify'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final res = await ApiService.getAccountInfo();
 
-      final data = jsonDecode(res.body);
+      if (!mounted) return;
 
-      if (data['ok']) {
-        final user = data['body'];
-
+      if (res.ok && res.rawBody is Map<String, dynamic>) {
+        final user = res.rawBody as Map<String, dynamic>;
         setState(() {
-          _fullName = user['full_name'];
-          _email    = user['email'];
-          _emailVerified = user['email_verified'] ?? false;
-          _createdAt = user['createdAt']?.split('T')[0] ?? '';
+          _fullName      = user['full_name']      as String? ?? '';
+          _email         = user['email']          as String? ?? '';
+          _emailVerified = user['email_verified'] as bool?   ?? false;
+          _createdAt     = (user['createdAt']     as String? ?? '').split('T')[0];
         });
       }
     } catch (e) {
@@ -84,38 +69,23 @@ class _AccountPageState extends State<AccountPage> {
     );
 
     if (result != null && result.isNotEmpty) {
-
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
-
       try {
-        final response = await http.patch(
-          Uri.parse('http://10.0.2.2:3000/api/users/patch'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(
-            key == 'full_name'
-              ? {'full_name': result}
-              : {'email': result},
-          ),
-        );
+        final payload = key == 'full_name'
+            ? {'full_name': result}
+            : {'email': result};
 
-        debugPrint(response.body);
-        final data = jsonDecode(response.body);
+        final response = await ApiService.updateAccount(payload);
 
-        if (data['ok']) {
+        if (response.ok) {
           setState(() {
             if (key == 'full_name') _fullName = result;
             if (key == 'email') _email = result;
           });
         } else {
-          debugPrint(data['message']);
+          debugPrint(response.message);
         }
-
       } catch (e) {
-        debugPrint('Error updating user');
+        debugPrint('Error updating user: $e');
       }
     }
   }
